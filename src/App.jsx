@@ -2,19 +2,26 @@ import React, { useEffect, useMemo, useState } from "react";
 import "./App.css";
 
 /**
+ * Decision Router (ACTIONS版 / 体力なし)
+ *
  * ✅ 条件:
  *  - 所要時間 time
  *  - 場所 place
- *  - 体力 energy
  *  - 目的 goal
  *  - お金 money
  *
  * ✅ 仕様:
- *  - 条件を設定 → 「条件に合うルート」からランダムで1本生成
- *  - もし厳密一致が0件なら、近い（スコア上位）候補帯からランダム抽選
+ *  - 条件を設定 → 条件に合う「行動」をランダムで3つ生成
+ *  - 厳密一致が足りない場合は、近い（スコア上位帯）から補完
  *  - URLクエリに条件を反映（共有可能）
+ *
+ * URL例:
+ *  /?time=30&goal=recover&place=home&money=0
  */
 
+/** =========================
+ *  OPTIONS / DEFAULTS
+ *  ========================= */
 const OPTIONS = {
   time: [
     { value: "10", label: "10分" },
@@ -34,11 +41,6 @@ const OPTIONS = {
     { value: "outside", label: "外" },
     { value: "online", label: "オンライン" },
   ],
-  energy: [
-    { value: "low", label: "低" },
-    { value: "mid", label: "普通" },
-    { value: "high", label: "高" },
-  ],
   money: [
     { value: "0", label: "0円" },
     { value: "low", label: "少し（〜500円）" },
@@ -51,7 +53,6 @@ const DEFAULTS = {
   time: "30",
   goal: "recover",
   place: "home",
-  energy: "low",
   money: "0",
 };
 
@@ -63,12 +64,14 @@ function labelFor(key, value) {
   return OPTIONS[key].find((o) => o.value === value)?.label ?? value;
 }
 
+/** =========================
+ *  URL sync
+ *  ========================= */
 function readQuery() {
   const sp = new URLSearchParams(window.location.search);
   const time = sp.get("time") ?? DEFAULTS.time;
   const goal = sp.get("goal") ?? DEFAULTS.goal;
   const place = sp.get("place") ?? DEFAULTS.place;
-  const energy = sp.get("energy") ?? DEFAULTS.energy;
   const money = sp.get("money") ?? DEFAULTS.money;
 
   const valid = (key, value) => OPTIONS[key].some((o) => o.value === value);
@@ -77,7 +80,6 @@ function readQuery() {
     time: valid("time", time) ? time : DEFAULTS.time,
     goal: valid("goal", goal) ? goal : DEFAULTS.goal,
     place: valid("place", place) ? place : DEFAULTS.place,
-    energy: valid("energy", energy) ? energy : DEFAULTS.energy,
     money: valid("money", money) ? money : DEFAULTS.money,
   };
 }
@@ -87,200 +89,184 @@ function writeQuery(state) {
   sp.set("time", state.time);
   sp.set("goal", state.goal);
   sp.set("place", state.place);
-  sp.set("energy", state.energy);
   sp.set("money", state.money);
   const next = `${window.location.pathname}?${sp.toString()}`;
   window.history.replaceState({}, "", next);
 }
 
-// ルート定義（必要なら増やしてOK）
-const ROUTES = [
+/** =========================
+ *  ACTIONS (行動プール)
+ *  - 将来は actions.json に移すの推奨
+ *  ========================= */
+const ACTIONS = [
   {
-    id: "reset-desk",
-    title: "机の上だけ整えるルート",
-    steps: [
-      "机の上を“1区画だけ”片付ける（5分）",
-      "水を飲む・窓を開ける（2分）",
-      "小タスクを1つだけ終わらせる（10〜20分）",
-    ],
+    id: "desk-1zone",
+    title: "机の上を1区画だけ片付ける",
+    steps: ["机の一角だけ決める", "捨てる/戻すを即決", "終わったら写真を1枚撮る"],
     tags: {
       time: ["10", "30"],
       goal: ["life", "recover"],
       place: ["home", "campus"],
-      energy: ["low", "mid"],
       money: ["0", "low", "mid", "high"],
     },
-    reason: "開始の摩擦を削って、体力が低い日でも勝てる。",
+    note: "摩擦を削ると、次が勝手に動く。",
   },
   {
     id: "micro-walk",
-    title: "外気リセットルート",
-    steps: [
-      "外の空気を吸う（3分）",
-      "ゆっくり歩く（7〜15分）",
-      "戻ったら“次の一手”だけ決める（2分）",
-    ],
+    title: "外の空気を吸って5〜15分だけ歩く",
+    steps: ["外に出る", "ゆっくり歩く", "戻ったら次の一手を1行メモ"],
     tags: {
       time: ["10", "30", "60"],
-      goal: ["recover", "life"],
+      goal: ["recover", "life", "fun"],
       place: ["outside"],
-      energy: ["low", "mid"],
       money: ["0", "low", "mid", "high"],
     },
-    reason: "頭を殴るより環境を変える方が早い日がある。",
+    note: "脳を説得するより、環境を変えた方が速い日がある。",
   },
   {
-    id: "deep-focus",
-    title: "一点突破ルート",
-    steps: [
-      "今日やることを“3つ”に削る（3分）",
-      "一番重いのを10分だけ着手（10分）",
-      "やめどきにメモ（2分）",
-    ],
-    tags: {
-      time: ["30", "60"],
-      goal: ["growth"],
-      place: ["home", "campus", "online"],
-      energy: ["mid", "high"],
-      money: ["0", "low", "mid", "high"],
-    },
-    reason: "完遂じゃなく着火。火種ができれば勝ち。",
-  },
-  {
-    id: "admin-life",
-    title: "生活メンテルート",
-    steps: [
-      "洗濯/ゴミ/支払い等を1つだけ片付ける（10分）",
-      "明日の障害を1つ消す（5分）",
-      "軽いご褒美（5分）",
-    ],
-    tags: {
-      time: ["10", "30", "60"],
-      goal: ["life"],
-      place: ["home"],
-      energy: ["low", "mid"],
-      money: ["0", "low", "mid", "high"],
-    },
-    reason: "未来の自分の足元を固めると気持ちが静かになる。",
-  },
-  {
-    id: "campus-boost",
-    title: "大学ブーストルート",
-    steps: [
-      "席を確保して机上環境を作る（3分）",
-      "教材を開いて“例題1つ”だけ（15〜25分）",
-      "次回の開始点を付箋/メモ（2分）",
-    ],
-    tags: {
-      time: ["30", "60"],
-      goal: ["growth", "life"],
-      place: ["campus"],
-      energy: ["mid", "high"],
-      money: ["0", "low", "mid", "high"],
-    },
-    reason: "場所の力で集中コストを下げる。",
-  },
-  {
-    id: "online-clean",
-    title: "デジタル掃除ルート",
-    steps: [
-      "タブを10個閉じる（3分）",
-      "フォルダ/メモを1つだけ整理（7分）",
-      "次に見るものを1つだけ残す（1分）",
-    ],
+    id: "digital-10tabs",
+    title: "タブを10個閉じる",
+    steps: ["重いタブから閉じる", "必要ならブックマーク1つだけ", "最後にブラウザ再起動"],
     tags: {
       time: ["10", "30"],
       goal: ["life", "recover"],
-      place: ["online", "home"],
-      energy: ["low", "mid"],
+      place: ["online", "home", "campus"],
       money: ["0", "low", "mid", "high"],
     },
-    reason: "視界が散ってる日は、画面を掃くと脳も静かになる。",
+    note: "画面が散らかると脳も散る。掃けば戻る。",
   },
   {
-    id: "fun-snack",
-    title: "軽い遊びルート",
-    steps: [
-      "短い動画/音楽を1本だけ（5分）",
-      "小さな創作を1つ（10〜20分）",
-      "共有/保存して終わる（2分）",
-    ],
+    id: "study-warmup",
+    title: "勉強ウォームアップ（例題1つだけ）",
+    steps: ["教材を開く", "例題を読む", "要点を1行だけ書く"],
     tags: {
       time: ["10", "30", "60"],
-      goal: ["fun", "recover"],
-      place: ["home", "online"],
-      energy: ["low", "mid"],
+      goal: ["growth"],
+      place: ["home", "campus", "online"],
       money: ["0", "low", "mid", "high"],
     },
-    reason: "ダラダラじゃなく“区切りのある遊び”にする。",
+    note: "完遂じゃなく着火。火種ができれば勝ち。",
   },
   {
-    id: "halfday-quest",
-    title: "半日クエストルート",
-    steps: [
-      "外に出る準備（10分）",
-      "用事＋寄り道を1セット（90〜150分）",
-      "帰って“成果”を1行記録（3分）",
-    ],
+    id: "tea-ritual",
+    title: "紅茶（飲み物）儀式でモード切替",
+    steps: ["飲み物を用意", "席を整える", "次の一手を1つだけ決める"],
     tags: {
-      time: ["180"],
-      goal: ["fun", "life", "recover"],
-      place: ["outside"],
-      energy: ["mid", "high"],
-      money: ["low", "mid", "high"], // 0円は除外（必要なら入れてOK）
+      time: ["10", "30"],
+      goal: ["recover", "life"],
+      place: ["home"],
+      money: ["0", "low", "mid", "high"],
     },
-    reason: "半日ある日は、世界を少しだけ動かす。",
+    note: "儀式は脳のスイッチ。",
+  },
+  {
+    id: "vending-walk",
+    title: "最寄りの自販機まで歩く",
+    steps: ["外に出る", "自販機まで歩く", "飲み物を選んで戻る"],
+    tags: {
+      time: ["10", "30", "60", "180"],
+      goal: ["fun", "life", "recover"],
+      place: ["outside", "campus"],
+      money: ["low", "mid", "high"],
+    },
+    note: "小さな目的＋外気で回復する。",
+  },
+  {
+    id: "library-seat",
+    title: "席確保→タイマー10分で即開始",
+    steps: ["席を確保", "教材を開く", "タイマー10分で着手"],
+    tags: {
+      time: ["10", "30", "60"],
+      goal: ["growth", "life"],
+      place: ["campus"],
+      money: ["0", "low", "mid", "high"],
+    },
+    note: "座った瞬間に始めると勝つ。",
+  },
+  {
+    id: "small-reward",
+    title: "小さなご褒美を“区切って”入れる",
+    steps: ["ご褒美を1つ選ぶ", "タイマーで区切る", "終わったら次の一手を決める"],
+    tags: {
+      time: ["10", "30", "60"],
+      goal: ["recover", "fun"],
+      place: ["home", "online"],
+      money: ["0", "low", "mid", "high"],
+    },
+    note: "ダラダラじゃなく、区切りが回復になる。",
   },
 ];
 
-// ✅ 厳密一致（条件が全部一致する候補だけ）
-function matchesAll(route, sel) {
-  const keys = ["time", "goal", "place", "energy", "money"];
-  return keys.every((k) => route.tags[k]?.includes(sel[k]));
+/** =========================
+ *  Matching / Scoring
+ *  ========================= */
+const KEYS = ["time", "goal", "place", "money"];
+
+function matchesAllAction(action, sel) {
+  return KEYS.every((k) => action.tags[k]?.includes(sel[k]));
 }
 
-// ✅ 近さスコア（厳密一致が0のとき救済で使う）
-function scoreRoute(route, sel) {
+function scoreAction(action, sel) {
   let s = 0;
-  const hit = (key) => route.tags[key]?.includes(sel[key]);
-
-  if (hit("time")) s += 3;
-  if (hit("goal")) s += 4;
-  if (hit("place")) s += 3;
-  if (hit("energy")) s += 4;
-  if (hit("money")) s += 3;
-
+  if (action.tags.time?.includes(sel.time)) s += 3;
+  if (action.tags.goal?.includes(sel.goal)) s += 4;
+  if (action.tags.place?.includes(sel.place)) s += 3;
+  if (action.tags.money?.includes(sel.money)) s += 3;
   return s;
 }
 
-function maxScoreForRoute(route) {
+function maxScoreForAction(action) {
   let m = 0;
-  if (route.tags.time?.length) m += 3;
-  if (route.tags.goal?.length) m += 4;
-  if (route.tags.place?.length) m += 3;
-  if (route.tags.energy?.length) m += 4;
-  if (route.tags.money?.length) m += 3;
-  return m;
+  if (action.tags.time?.length) m += 3;
+  if (action.tags.goal?.length) m += 4;
+  if (action.tags.place?.length) m += 3;
+  if (action.tags.money?.length) m += 3;
+  return m || 1;
 }
 
-function pickRandom(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
+function pickNRandomUnique(arr, n) {
+  const copy = [...arr];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy.slice(0, Math.min(n, copy.length));
 }
 
-// ✅ 1本生成: 厳密一致→ランダム / 0件なら近い候補帯→ランダム
-function pickOneRoute(sel) {
-  const strict = ROUTES.filter((r) => matchesAll(r, sel));
-  if (strict.length > 0) return { ...pickRandom(strict), _mode: "strict" };
+/**
+ * ✅ 3つ生成:
+ *  1) 厳密一致から最大3つ
+ *  2) 足りない分は「上位帯（トップ-2点）」からランダム補完
+ */
+function pick3Actions(sel) {
+  const strict = ACTIONS.filter((a) => matchesAllAction(a, sel));
+  const pickedStrict = pickNRandomUnique(strict, 3).map((a) => ({
+    ...a,
+    _mode: "strict",
+    _score: scoreAction(a, sel),
+  }));
 
-  const scored = ROUTES
-    .map((r) => ({ ...r, _score: scoreRoute(r, sel) }))
+  if (pickedStrict.length === 3) return pickedStrict;
+
+  const rest = ACTIONS.filter((a) => !pickedStrict.some((p) => p.id === a.id))
+    .map((a) => ({ ...a, _score: scoreAction(a, sel) }))
     .sort((a, b) => b._score - a._score);
 
-  const topScore = scored[0]?._score ?? 0;
-  const band = scored.filter((r) => r._score >= topScore - 2); // 上位帯（±2点）から抽選
-  return { ...pickRandom(band.length ? band : scored), _mode: "fallback" };
+  const top = rest[0]?._score ?? 0;
+  const band = rest.filter((a) => a._score >= top - 2);
+  const pool = band.length ? band : rest;
+
+  const fill = pickNRandomUnique(pool, 3 - pickedStrict.length).map((a) => ({
+    ...a,
+    _mode: "fallback",
+  }));
+
+  return [...pickedStrict, ...fill];
 }
 
+/** =========================
+ *  UI bits
+ *  ========================= */
 function Chip({ label, selected, onClick }) {
   return (
     <button
@@ -299,9 +285,9 @@ export default function App() {
   const [generatedSel, setGeneratedSel] = useState(() => readQuery());
   const [step, setStep] = useState(1);
 
-  // ✅ 生成結果（ルート本体をstateに保持して固定表示）
-  const [generatedRoute, setGeneratedRoute] = useState(() =>
-    pickOneRoute(readQuery())
+  // ✅ 結果を固定表示するため、生成結果をstateに持つ
+  const [generatedActions, setGeneratedActions] = useState(() =>
+    pick3Actions(readQuery())
   );
 
   useEffect(() => {
@@ -319,36 +305,40 @@ export default function App() {
       time: labelFor("time", sel.time),
       goal: labelFor("goal", sel.goal),
       place: labelFor("place", sel.place),
-      energy: labelFor("energy", sel.energy),
       money: labelFor("money", sel.money),
     };
   }, [sel]);
 
   const setKey = (key, value) => {
     setSel((prev) => ({ ...prev, [key]: value }));
-    // ステッパーは軽く雰囲気だけ
     setStep((s) => (key === "goal" ? Math.max(s, 2) : 1));
   };
 
   const onGenerate = () => {
     setGeneratedSel(sel);
-    setGeneratedRoute(pickOneRoute(sel));
+    setGeneratedActions(pick3Actions(sel));
     setStep(3);
   };
 
   const onReset = () => {
     setSel(DEFAULTS);
     setGeneratedSel(DEFAULTS);
-    setGeneratedRoute(pickOneRoute(DEFAULTS));
+    setGeneratedActions(pick3Actions(DEFAULTS));
     setStep(1);
   };
 
   const fitScore = useMemo(() => {
-    const r = generatedRoute;
-    const raw = scoreRoute(r, generatedSel);
-    const max = maxScoreForRoute(r);
-    return clamp(Math.round((raw / max) * 100), 0, 100);
-  }, [generatedRoute, generatedSel]);
+    // 3つのうち一番合うやつの適合を表示
+    const scored = generatedActions
+      .map((a) => {
+        const raw = scoreAction(a, generatedSel);
+        const max = maxScoreForAction(a);
+        return Math.round((raw / max) * 100);
+      })
+      .sort((a, b) => b - a);
+
+    return clamp(scored[0] ?? 0, 0, 100);
+  }, [generatedActions, generatedSel]);
 
   return (
     <div className="wrap">
@@ -357,17 +347,26 @@ export default function App() {
           <div className="hgroup">
             <h1 className="title">Decision Router</h1>
             <p className="subtitle">
-              所要時間・目的・場所・体力・お金を選ぶだけ。条件に合う行動パターンをランダム生成。
+              所要時間・目的・場所・お金を選ぶだけ。条件に合う「行動」をランダムで3つ出す。
             </p>
           </div>
 
           <div className="pills">
-            <div className="pill">⏱️ <b>{pills.time}</b></div>
-            <div className="pill">🎯 <b>{pills.goal}</b></div>
-            <div className="pill">📍 <b>{pills.place}</b></div>
-            <div className="pill">🔋 <b>{pills.energy}</b></div>
-            <div className="pill">💸 <b>{pills.money}</b></div>
-            <div className="pill">適合 <b>{fitScore}</b></div>
+            <div className="pill">
+              ⏱️ <b>{pills.time}</b>
+            </div>
+            <div className="pill">
+              🎯 <b>{pills.goal}</b>
+            </div>
+            <div className="pill">
+              📍 <b>{pills.place}</b>
+            </div>
+            <div className="pill">
+              💸 <b>{pills.money}</b>
+            </div>
+            <div className="pill">
+              適合 <b>{fitScore}</b>
+            </div>
           </div>
         </div>
 
@@ -407,20 +406,6 @@ export default function App() {
                   label={o.label}
                   selected={sel.place === o.value}
                   onClick={() => setKey("place", o.value)}
-                />
-              ))}
-            </div>
-
-            <div className="divider" />
-
-            <p className="kicker">🔋 体力</p>
-            <div className="chipRow">
-              {OPTIONS.energy.map((o) => (
-                <Chip
-                  key={o.value}
-                  label={o.label}
-                  selected={sel.energy === o.value}
-                  onClick={() => setKey("energy", o.value)}
                 />
               ))}
             </div>
@@ -467,47 +452,45 @@ export default function App() {
             <div className="spacer" />
             <p
               className="muted"
-              style={{
-                margin: 0,
-                fontSize: 12,
-                lineHeight: 1.4,
-                textAlign: "center",
-              }}
+              style={{ margin: 0, fontSize: 12, lineHeight: 1.4, textAlign: "center" }}
             >
               ※ URLに条件が反映されます（共有可能）。
               <br />
               <span style={{ opacity: 0.9 }}>
-                ?time=30&amp;goal=recover&amp;place=home&amp;energy=low&amp;money=0
+                ?time=30&amp;goal=recover&amp;place=home&amp;money=0
               </span>
             </p>
           </div>
 
           <div className="panel resultsPanel">
-            <h2 className="panelTitle">生成された行動パターン（ランダム1本）</h2>
+            <h2 className="panelTitle">今日の行動（ランダム3つ）</h2>
 
-            <div className="resultCard">
-              <p className="routeTitle">
-                ルート
-                {" "}
-                <span style={{ opacity: 0.8, fontWeight: 400 }}>
-                  · {generatedRoute.title}
-                </span>
-              </p>
+            {generatedActions.map((a, idx) => (
+              <React.Fragment key={a.id}>
+                <div className="resultCard">
+                  <p className="routeTitle">
+                    {idx === 0 ? "行動A（おすすめ）" : idx === 1 ? "行動B" : "行動C"}
+                    {" "}
+                    <span style={{ opacity: 0.8, fontWeight: 400 }}>· {a.title}</span>
+                  </p>
 
-              <ol className="routeSteps">
-                {generatedRoute.steps.map((s, i) => (
-                  <li key={i}>{s}</li>
-                ))}
-              </ol>
+                  <ol className="routeSteps">
+                    {a.steps.map((s, i) => (
+                      <li key={i}>{s}</li>
+                    ))}
+                  </ol>
 
-              <div className="smallNote">
-                理由: {generatedRoute.reason}
-                {" "}
-                <span style={{ opacity: 0.75 }}>
-                  （一致: {generatedRoute._mode === "strict" ? "厳密" : "近い候補から救済"} / スコア {scoreRoute(generatedRoute, generatedSel)}）
-                </span>
-              </div>
-            </div>
+                  <div className="smallNote">
+                    {a.note ? <>メモ: {a.note}<br /></> : null}
+                    <span style={{ opacity: 0.75 }}>
+                      一致: {a._mode === "strict" ? "厳密" : "近い候補から救済"} / スコア {scoreAction(a, generatedSel)}
+                    </span>
+                  </div>
+                </div>
+
+                {idx < generatedActions.length - 1 ? <div className="divider" /> : null}
+              </React.Fragment>
+            ))}
 
             <div className="divider" />
 
