@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import "./App.css";
+import ACTIONS from "./actions.json";
 
 /**
  * Decision Router (ACTIONS版 / 体力なし)
@@ -98,104 +99,7 @@ function writeQuery(state) {
  *  ACTIONS (行動プール)
  *  - 将来は actions.json に移すの推奨
  *  ========================= */
-const ACTIONS = [
-  {
-    id: "desk-1zone",
-    title: "机の上を1区画だけ片付ける",
-    steps: ["机の一角だけ決める", "捨てる/戻すを即決", "終わったら写真を1枚撮る"],
-    tags: {
-      time: ["10", "30"],
-      goal: ["life", "recover"],
-      place: ["home", "campus"],
-      money: ["0", "low", "mid", "high"],
-    },
-    note: "摩擦を削ると、次が勝手に動く。",
-  },
-  {
-    id: "micro-walk",
-    title: "外の空気を吸って5〜15分だけ歩く",
-    steps: ["外に出る", "ゆっくり歩く", "戻ったら次の一手を1行メモ"],
-    tags: {
-      time: ["10", "30", "60"],
-      goal: ["recover", "life", "fun"],
-      place: ["outside"],
-      money: ["0", "low", "mid", "high"],
-    },
-    note: "脳を説得するより、環境を変えた方が速い日がある。",
-  },
-  {
-    id: "digital-10tabs",
-    title: "タブを10個閉じる",
-    steps: ["重いタブから閉じる", "必要ならブックマーク1つだけ", "最後にブラウザ再起動"],
-    tags: {
-      time: ["10", "30"],
-      goal: ["life", "recover"],
-      place: ["online", "home", "campus"],
-      money: ["0", "low", "mid", "high"],
-    },
-    note: "画面が散らかると脳も散る。掃けば戻る。",
-  },
-  {
-    id: "study-warmup",
-    title: "勉強ウォームアップ（例題1つだけ）",
-    steps: ["教材を開く", "例題を読む", "要点を1行だけ書く"],
-    tags: {
-      time: ["10", "30", "60"],
-      goal: ["growth"],
-      place: ["home", "campus", "online"],
-      money: ["0", "low", "mid", "high"],
-    },
-    note: "完遂じゃなく着火。火種ができれば勝ち。",
-  },
-  {
-    id: "tea-ritual",
-    title: "紅茶（飲み物）儀式でモード切替",
-    steps: ["飲み物を用意", "席を整える", "次の一手を1つだけ決める"],
-    tags: {
-      time: ["10", "30"],
-      goal: ["recover", "life"],
-      place: ["home"],
-      money: ["0", "low", "mid", "high"],
-    },
-    note: "儀式は脳のスイッチ。",
-  },
-  {
-    id: "vending-walk",
-    title: "最寄りの自販機まで歩く",
-    steps: ["外に出る", "自販機まで歩く", "飲み物を選んで戻る"],
-    tags: {
-      time: ["10", "30", "60", "180"],
-      goal: ["fun", "life", "recover"],
-      place: ["outside", "campus"],
-      money: ["low", "mid", "high"],
-    },
-    note: "小さな目的＋外気で回復する。",
-  },
-  {
-    id: "library-seat",
-    title: "席確保→タイマー10分で即開始",
-    steps: ["席を確保", "教材を開く", "タイマー10分で着手"],
-    tags: {
-      time: ["10", "30", "60"],
-      goal: ["growth", "life"],
-      place: ["campus"],
-      money: ["0", "low", "mid", "high"],
-    },
-    note: "座った瞬間に始めると勝つ。",
-  },
-  {
-    id: "small-reward",
-    title: "小さなご褒美を“区切って”入れる",
-    steps: ["ご褒美を1つ選ぶ", "タイマーで区切る", "終わったら次の一手を決める"],
-    tags: {
-      time: ["10", "30", "60"],
-      goal: ["recover", "fun"],
-      place: ["home", "online"],
-      money: ["0", "low", "mid", "high"],
-    },
-    note: "ダラダラじゃなく、区切りが回復になる。",
-  },
-];
+
 
 /** =========================
  *  Matching / Scoring
