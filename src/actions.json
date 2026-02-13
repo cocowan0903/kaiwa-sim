@@ -49,4 +49,486 @@
 {"id":"a48","title":"机で瞑想5分","steps":["座る","呼吸","終了"],"note":"リセット。","tags":{"time":["10"],"goal":["recover"],"place":["home","campus"],"money":["0"]}},
 {"id":"a49","title":"友達に一言メッセージ","steps":["送信","待たない","終了"],"note":"社会接続。","tags":{"time":["10"],"goal":["life","fun"],"place":["online"],"money":["0"]}},
 {"id":"a50","title":"半日研究テーマ整理","steps":["紙出す","書き出す","分類"],"note":"長期思考。","tags":{"time":["180"],"goal":["growth"],"place":["home","campus"],"money":["0"]}}
-]
+[
+  {
+    "id": "a001-water-setup",
+    "title": "水を用意して作業開始の合図を出す",
+    "steps": ["コップに水を入れる", "机の中央に置く", "次の一手を1行書く"],
+    "tags": { "time": ["10"], "goal": ["recover", "life"], "place": ["home", "online"], "money": ["0"] },
+    "note": "脳は合図に弱い。合図を作れば動く。"
+  },
+  {
+    "id": "a002-air-2min",
+    "title": "換気だけして空気を入れ替える",
+    "steps": ["窓 or ドアを開ける", "深呼吸を2回", "閉めて戻る"],
+    "tags": { "time": ["10"], "goal": ["recover", "life"], "place": ["home"], "money": ["0"] },
+    "note": "空気が重い日は、思考も重い。"
+  },
+  {
+    "id": "a003-trash-5",
+    "title": "ゴミを5個だけ捨てる",
+    "steps": ["目に入るゴミを5個探す", "捨てる", "ゴミ袋を縛らず戻す"],
+    "tags": { "time": ["10"], "goal": ["life"], "place": ["home"], "money": ["0"] },
+    "note": "少量でも視界が勝つ。"
+  },
+  {
+    "id": "a004-desk-one-zone",
+    "title": "机の上を1区画だけ片付ける",
+    "steps": ["区画を決める", "戻す/捨てるを即決", "終わりに写真を1枚"],
+    "tags": { "time": ["10", "30"], "goal": ["life", "recover"], "place": ["home"], "money": ["0"] },
+    "note": "全面じゃなく1区画。勝ち筋が見える。"
+  },
+  {
+    "id": "a005-laundry-mini",
+    "title": "洗濯を“回すだけ”ルート",
+    "steps": ["洗濯物を入れる", "洗剤を入れる", "スタートだけ押す"],
+    "tags": { "time": ["10"], "goal": ["life"], "place": ["home"], "money": ["0"] },
+    "note": "始めたら半分終わったようなもの。"
+  },
+  {
+    "id": "a006-dishes-3",
+    "title": "食器を3つだけ洗う",
+    "steps": ["3つ選ぶ", "洗う", "残りは見ない"],
+    "tags": { "time": ["10"], "goal": ["life"], "place": ["home"], "money": ["0"] },
+    "note": "全部やろうとすると0になる。"
+  },
+  {
+    "id": "a007-socks-sort",
+    "title": "靴下だけ揃える",
+    "steps": ["靴下を集める", "ペアにする", "戻す"],
+    "tags": { "time": ["10"], "goal": ["life", "recover"], "place": ["home"], "money": ["0"] },
+    "note": "小さな秩序が脳を落ち着かせる。"
+  },
+  {
+    "id": "a008-bathroom-quick",
+    "title": "洗面台を30秒だけ拭く",
+    "steps": ["ティッシュ/布を用意", "洗面台をひと拭き", "捨てる/洗う"],
+    "tags": { "time": ["10"], "goal": ["life"], "place": ["home"], "money": ["0"] },
+    "note": "30秒でも“清潔”は効く。"
+  },
+  {
+    "id": "a009-bed-reset",
+    "title": "ベッド（布団）だけ整える",
+    "steps": ["掛け布団を整える", "枕を置く", "立ち上がって終了"],
+    "tags": { "time": ["10"], "goal": ["recover", "life"], "place": ["home"], "money": ["0"] },
+    "note": "居場所が整うと回復が早い。"
+  },
+  {
+    "id": "a010-warm-drink",
+    "title": "温かい飲み物でモード切替",
+    "steps": ["飲み物を用意", "一口飲む", "次の一手を決める"],
+    "tags": { "time": ["10", "30"], "goal": ["recover"], "place": ["home"], "money": ["0", "low"] },
+    "note": "儀式で切り替える。"
+  },
+
+  {
+    "id": "a011-10min-study-warmup",
+    "title": "例題を1つ読むだけ（解かなくてOK）",
+    "steps": ["教材を開く", "例題を読む", "要点を1行メモ"],
+    "tags": { "time": ["10"], "goal": ["growth"], "place": ["home", "online"], "money": ["0"] },
+    "note": "読むだけでも着火。"
+  },
+  {
+    "id": "a012-30min-problem-1",
+    "title": "問題を1問だけ解く（途中で止めてOK）",
+    "steps": ["1問選ぶ", "10分だけ解く", "続きの入口をメモ"],
+    "tags": { "time": ["30"], "goal": ["growth"], "place": ["home", "online"], "money": ["0"] },
+    "note": "完遂より“続き”を作る。"
+  },
+  {
+    "id": "a013-notes-5lines",
+    "title": "ノートを5行だけ書く",
+    "steps": ["テーマを1つ決める", "5行書く", "止める"],
+    "tags": { "time": ["10", "30"], "goal": ["growth"], "place": ["home", "online"], "money": ["0"] },
+    "note": "短さは正義。"
+  },
+  {
+    "id": "a014-flashcards-10",
+    "title": "暗記カードを10枚だけ見る",
+    "steps": ["10枚だけ選ぶ", "答える", "最後に1枚だけ復習"],
+    "tags": { "time": ["10"], "goal": ["growth"], "place": ["home", "online"], "money": ["0"] },
+    "note": "10枚は“逃げない量”。"
+  },
+  {
+    "id": "a015-english-5min",
+    "title": "英語を5分だけ触る",
+    "steps": ["短文を1つ読む", "知らない語を1個だけメモ", "閉じる"],
+    "tags": { "time": ["10"], "goal": ["growth"], "place": ["home", "online"], "money": ["0"] },
+    "note": "学習の継続は“接触回数”。"
+  },
+  {
+    "id": "a016-clean-tabs-10",
+    "title": "ブラウザのタブを10個閉じる",
+    "steps": ["重いタブから閉じる", "必要ならブクマ1つ", "ブラウザ再起動"],
+    "tags": { "time": ["10", "30"], "goal": ["life", "recover"], "place": ["online", "home"], "money": ["0"] },
+    "note": "画面＝頭の中。"
+  },
+  {
+    "id": "a017-desktop-5files",
+    "title": "デスクトップのファイルを5個だけ整理",
+    "steps": ["5個選ぶ", "フォルダへ移動", "残りは見ない"],
+    "tags": { "time": ["10", "30"], "goal": ["life"], "place": ["online", "home"], "money": ["0"] },
+    "note": "少量の整理で十分効く。"
+  },
+  {
+    "id": "a018-photos-delete-20",
+    "title": "写真を20枚だけ消す",
+    "steps": ["最近の写真を開く", "20枚だけ削除", "終了"],
+    "tags": { "time": ["10", "30"], "goal": ["life"], "place": ["online", "home"], "money": ["0"] },
+    "note": "容量より“決断筋”。"
+  },
+  {
+    "id": "a019-backup-note",
+    "title": "大事なメモを1つだけバックアップ",
+    "steps": ["メモを1つ選ぶ", "コピーして保存", "場所を1行書く"],
+    "tags": { "time": ["10"], "goal": ["life"], "place": ["online", "home"], "money": ["0"] },
+    "note": "安心が増えると集中が戻る。"
+  },
+  {
+    "id": "a020-music-one",
+    "title": "曲を1曲だけ聴いて区切る",
+    "steps": ["1曲決める", "聴く", "終わったら次の一手"],
+    "tags": { "time": ["10"], "goal": ["recover", "fun"], "place": ["home", "online"], "money": ["0"] },
+    "note": "ダラダラしない“遊びの枠”。"
+  },
+
+  {
+    "id": "a021-outside-air-3",
+    "title": "外で3分だけ空を見る",
+    "steps": ["外に出る", "空を見る", "肩を回して戻る"],
+    "tags": { "time": ["10"], "goal": ["recover"], "place": ["outside"], "money": ["0"] },
+    "note": "外気は無料の回復薬。"
+  },
+  {
+    "id": "a022-walk-15",
+    "title": "散歩15分（速くなくてOK）",
+    "steps": ["靴を履く", "15分歩く", "帰ったら水"],
+    "tags": { "time": ["30"], "goal": ["recover", "life"], "place": ["outside"], "money": ["0"] },
+    "note": "運動じゃなく移動。"
+  },
+  {
+    "id": "a023-conbini-just-look",
+    "title": "コンビニに行って何も買わず戻る",
+    "steps": ["行く", "棚を眺める", "戻る"],
+    "tags": { "time": ["30"], "goal": ["recover", "fun"], "place": ["outside"], "money": ["0"] },
+    "note": "外出の成功体験だけ取る。"
+  },
+  {
+    "id": "a024-conbini-small",
+    "title": "コンビニで小さいものを1つだけ買う",
+    "steps": ["買う物を1つ決める", "寄り道せず買う", "帰る"],
+    "tags": { "time": ["30"], "goal": ["life", "fun"], "place": ["outside"], "money": ["low"] },
+    "note": "選択肢を減らすと疲れない。"
+  },
+  {
+    "id": "a025-vending-walk",
+    "title": "自販機まで歩いて飲み物を買う",
+    "steps": ["外に出る", "自販機へ", "買って戻る"],
+    "tags": { "time": ["10", "30", "60"], "goal": ["recover", "fun", "life"], "place": ["outside"], "money": ["low", "mid", "high"] },
+    "note": "小さな目的で外気と達成感。"
+  },
+  {
+    "id": "a026-park-sit",
+    "title": "公園で5分だけ座る",
+    "steps": ["公園へ行く", "5分座る", "帰る"],
+    "tags": { "time": ["30"], "goal": ["recover"], "place": ["outside"], "money": ["0"] },
+    "note": "何もしない時間を意図的に作る。"
+  },
+  {
+    "id": "a027-post-letter",
+    "title": "ポストまで歩く（投函がなくてもOK）",
+    "steps": ["外に出る", "ポストまで歩く", "戻る"],
+    "tags": { "time": ["30"], "goal": ["life", "recover"], "place": ["outside"], "money": ["0"] },
+    "note": "外出の閾値を下げる訓練。"
+  },
+  {
+    "id": "a028-buy-fruit",
+    "title": "果物かヨーグルトを買う",
+    "steps": ["店に行く", "1つだけ買う", "帰って食べる"],
+    "tags": { "time": ["30", "60"], "goal": ["life", "recover"], "place": ["outside"], "money": ["low", "mid"] },
+    "note": "回復は“食”からも来る。"
+  },
+  {
+    "id": "a029-walk-with-photo",
+    "title": "散歩しながら写真を3枚撮る",
+    "steps": ["歩く", "写真を3枚", "1枚だけ残す"],
+    "tags": { "time": ["30", "60"], "goal": ["fun", "recover"], "place": ["outside"], "money": ["0"] },
+    "note": "観察は気分を外に向ける。"
+  },
+  {
+    "id": "a030-halfday-errand",
+    "title": "用事＋寄り道を1セット（半日）",
+    "steps": ["用事を1つ決める", "寄り道を1つだけ足す", "帰って成果を1行記録"],
+    "tags": { "time": ["180"], "goal": ["life", "fun"], "place": ["outside"], "money": ["low", "mid", "high"] },
+    "note": "半日ある日は世界を動かす。"
+  },
+
+  {
+    "id": "a031-creative-10min-doodle",
+    "title": "10分だけ落書きする",
+    "steps": ["紙かアプリを開く", "10分描く", "保存して終わる"],
+    "tags": { "time": ["10"], "goal": ["fun", "recover"], "place": ["home", "online"], "money": ["0"] },
+    "note": "創作は回復にもなる。"
+  },
+  {
+    "id": "a032-creative-30min-sketch",
+    "title": "30分だけ一枚を仕上げる",
+    "steps": ["テーマを1つ", "30分だけ描く", "未完成でも保存"],
+    "tags": { "time": ["30"], "goal": ["fun", "growth"], "place": ["home", "online"], "money": ["0"] },
+    "note": "未完成を許すと量が出る。"
+  },
+  {
+    "id": "a033-write-200chars",
+    "title": "200文字だけ書く（日記でも妄想でも）",
+    "steps": ["題名を1語", "200文字", "公開/保存だけして閉じる"],
+    "tags": { "time": ["10", "30"], "goal": ["fun", "recover", "growth"], "place": ["home", "online"], "money": ["0"] },
+    "note": "短文は継続に強い。"
+  },
+  {
+    "id": "a034-voice-memo",
+    "title": "音声メモを1分だけ録る",
+    "steps": ["テーマを1つ", "1分喋る", "タイトルを付けて保存"],
+    "tags": { "time": ["10"], "goal": ["recover", "growth"], "place": ["home", "online"], "money": ["0"] },
+    "note": "言語化は思考の整理。"
+  },
+  {
+    "id": "a035-playlist-3songs",
+    "title": "プレイリストに3曲だけ追加",
+    "steps": ["気分を決める", "3曲追加", "名前を付ける"],
+    "tags": { "time": ["10", "30"], "goal": ["fun"], "place": ["home", "online"], "money": ["0"] },
+    "note": "小さな編集は満足感が高い。"
+  },
+  {
+    "id": "a036-cook-simple",
+    "title": "超簡単なものを作る（卵/味噌汁/トースト等）",
+    "steps": ["材料を決める", "作る", "片付けは最低限"],
+    "tags": { "time": ["30"], "goal": ["life", "recover"], "place": ["home"], "money": ["0", "low"] },
+    "note": "自炊は生活の安定剤。"
+  },
+  {
+    "id": "a037-bath-shower",
+    "title": "シャワーだけ浴びてリセット",
+    "steps": ["浴びる", "タオルで拭く", "服を着る"],
+    "tags": { "time": ["30"], "goal": ["recover"], "place": ["home"], "money": ["0"] },
+    "note": "身体を変えると気分が変わる。"
+  },
+  {
+    "id": "a038-stretch-5",
+    "title": "ストレッチを5分だけ",
+    "steps": ["首か肩から1つ", "脚を1つ", "水を飲む"],
+    "tags": { "time": ["10"], "goal": ["recover"], "place": ["home"], "money": ["0"] },
+    "note": "5分が現実的。"
+  },
+  {
+    "id": "a039-clean-floor-1m",
+    "title": "床を1m四方だけ掃除する",
+    "steps": ["範囲を決める", "拾う/拭く", "そこで終了"],
+    "tags": { "time": ["10", "30"], "goal": ["life"], "place": ["home"], "money": ["0"] },
+    "note": "範囲を切るのがコツ。"
+  },
+  {
+    "id": "a040-mail-5",
+    "title": "メール/連絡を5分だけ処理",
+    "steps": ["未読を開く", "返すの1件だけ", "残りは閉じる"],
+    "tags": { "time": ["10"], "goal": ["life"], "place": ["home", "online"], "money": ["0"] },
+    "note": "ゼロにしない。1件でいい。"
+  },
+
+  {
+    "id": "a041-budget-5min",
+    "title": "支出を1つだけ記録する",
+    "steps": ["今日の支出を1つ", "記録する", "終わる"],
+    "tags": { "time": ["10"], "goal": ["life"], "place": ["home", "online"], "money": ["0"] },
+    "note": "家計は“粒”で整う。"
+  },
+  {
+    "id": "a042-room-lighting",
+    "title": "部屋の照明を調整して気分を変える",
+    "steps": ["明るさを変える", "机のライト位置を変える", "一息つく"],
+    "tags": { "time": ["10"], "goal": ["recover"], "place": ["home"], "money": ["0"] },
+    "note": "環境設定は最強の裏技。"
+  },
+  {
+    "id": "a043-choose-one-task",
+    "title": "“今日やること”を1つだけ決める",
+    "steps": ["候補を3つ書く", "1つだけ丸", "他は消す"],
+    "tags": { "time": ["10"], "goal": ["growth", "life"], "place": ["home", "online"], "money": ["0"] },
+    "note": "選択は減らすほど強い。"
+  },
+  {
+    "id": "a044-30min-focus-block",
+    "title": "30分だけ集中ブロック（タイマー）",
+    "steps": ["やることを1つ", "30分タイマー", "終わりに続きメモ"],
+    "tags": { "time": ["30"], "goal": ["growth"], "place": ["home", "online"], "money": ["0"] },
+    "note": "続きメモが次回を救う。"
+  },
+  {
+    "id": "a045-60min-deep",
+    "title": "1時間だけ“重い作業”に触る",
+    "steps": ["重い作業を1つ", "1時間だけ", "区切って終える"],
+    "tags": { "time": ["60"], "goal": ["growth"], "place": ["home", "online"], "money": ["0"] },
+    "note": "長さより“区切り”。"
+  },
+  {
+    "id": "a046-clean-bag",
+    "title": "カバンの中を5分だけ整える",
+    "steps": ["中身を出す", "不要を1つ捨てる", "戻す"],
+    "tags": { "time": ["10"], "goal": ["life"], "place": ["home"], "money": ["0"] },
+    "note": "持ち物は思考の延長。"
+  },
+  {
+    "id": "a047-prepare-tomorrow",
+    "title": "明日の準備を1つだけする",
+    "steps": ["明日の障害を1つ", "準備する", "見える所に置く"],
+    "tags": { "time": ["10", "30"], "goal": ["life"], "place": ["home"], "money": ["0"] },
+    "note": "未来の自分を助けるゲーム。"
+  },
+  {
+    "id": "a048-pick-outfit",
+    "title": "明日の服を決めて置く",
+    "steps": ["服を選ぶ", "一式まとめる", "上にメモを置く"],
+    "tags": { "time": ["10"], "goal": ["life"], "place": ["home"], "money": ["0"] },
+    "note": "朝の判断を削る。"
+  },
+  {
+    "id": "a049-grocery-list",
+    "title": "買い物メモを3つだけ書く",
+    "steps": ["必要な物を3つ", "メモする", "それ以上書かない"],
+    "tags": { "time": ["10"], "goal": ["life"], "place": ["home", "online"], "money": ["0"] },
+    "note": "増やすと買いすぎる。"
+  },
+  {
+    "id": "a050-one-reply",
+    "title": "返信を1件だけ返す",
+    "steps": ["返す相手を1人", "短く返す", "終わり"],
+    "tags": { "time": ["10"], "goal": ["life"], "place": ["home", "online"], "money": ["0"] },
+    "note": "1件で流れができる。"
+  },
+
+  {
+    "id": "a051-watch-1short",
+    "title": "短い動画を1本だけ見て終える",
+    "steps": ["1本だけ選ぶ", "見終えたら閉じる", "次の一手へ"],
+    "tags": { "time": ["10"], "goal": ["fun", "recover"], "place": ["home", "online"], "money": ["0"] },
+    "note": "遊びに“終点”を付ける。"
+  },
+  {
+    "id": "a052-read-3pages",
+    "title": "本を3ページだけ読む",
+    "steps": ["本を開く", "3ページだけ読む", "栞を挟む"],
+    "tags": { "time": ["10"], "goal": ["recover", "growth"], "place": ["home", "online"], "money": ["0"] },
+    "note": "3ページは続けやすい。"
+  },
+  {
+    "id": "a053-clean-phone-home",
+    "title": "スマホのホーム画面を1列だけ整理",
+    "steps": ["1列だけ選ぶ", "不要アプリを移動", "そこで終了"],
+    "tags": { "time": ["10"], "goal": ["life"], "place": ["home", "online"], "money": ["0"] },
+    "note": "全部やるな。1列でいい。"
+  },
+  {
+    "id": "a054-contacts-1fix",
+    "title": "連絡先を1件だけ整える",
+    "steps": ["1件選ぶ", "名前/メモを直す", "保存"],
+    "tags": { "time": ["10"], "goal": ["life"], "place": ["online", "home"], "money": ["0"] },
+    "note": "地味な整備は後で効く。"
+  },
+  {
+    "id": "a055-calendar-1plan",
+    "title": "予定を1つだけ入れる or 確認する",
+    "steps": ["カレンダーを開く", "1つだけ確認/追加", "閉じる"],
+    "tags": { "time": ["10"], "goal": ["life"], "place": ["online", "home"], "money": ["0"] },
+    "note": "予定は少ないほど守れる。"
+  },
+  {
+    "id": "a056-clean-fridge-1shelf",
+    "title": "冷蔵庫の1段だけチェック",
+    "steps": ["1段だけ見る", "期限切れを1つ捨てる", "閉じる"],
+    "tags": { "time": ["10"], "goal": ["life"], "place": ["home"], "money": ["0"] },
+    "note": "一段だけが現実。"
+  },
+  {
+    "id": "a057-cook-rice",
+    "title": "ご飯を炊いて未来を助ける",
+    "steps": ["米を研ぐ/洗う", "炊く", "冷凍用に分ける"],
+    "tags": { "time": ["60"], "goal": ["life"], "place": ["home"], "money": ["0", "low"] },
+    "note": "未来の自分に食を送る。"
+  },
+  {
+    "id": "a058-clean-shoes",
+    "title": "靴を1足だけ拭く",
+    "steps": ["1足選ぶ", "軽く拭く", "玄関に戻す"],
+    "tags": { "time": ["10", "30"], "goal": ["life"], "place": ["home"], "money": ["0"] },
+    "note": "外出のハードルが下がる。"
+  },
+  {
+    "id": "a059-breath-4-4",
+    "title": "呼吸を4秒吸って4秒吐く×5回",
+    "steps": ["姿勢を整える", "4秒吸う/吐く", "5回で終える"],
+    "tags": { "time": ["10"], "goal": ["recover"], "place": ["home", "online"], "money": ["0"] },
+    "note": "呼吸は手動で変えられる。"
+  },
+  {
+    "id": "a060-eye-rest",
+    "title": "目を休ませる（遠くを見る）",
+    "steps": ["遠くを見る", "瞬きを意識", "肩を回す"],
+    "tags": { "time": ["10"], "goal": ["recover"], "place": ["home"], "money": ["0"] },
+    "note": "眼精疲労は気分に直結。"
+  },
+
+  {
+    "id": "a061-online-learn-1video",
+    "title": "学習動画を1本だけ見る（メモは1行）",
+    "steps": ["1本選ぶ", "見る", "1行メモして閉じる"],
+    "tags": { "time": ["30", "60"], "goal": ["growth"], "place": ["online", "home"], "money": ["0"] },
+    "note": "メモ1行で回収率が上がる。"
+  },
+  {
+    "id": "a062-research-10min",
+    "title": "調べ物を10分だけする（深追い禁止）",
+    "steps": ["調べるテーマ1つ", "10分だけ検索", "結論を1行"],
+    "tags": { "time": ["10"], "goal": ["growth"], "place": ["online", "home"], "money": ["0"] },
+    "note": "深追いは次回に回す。"
+  },
+  {
+    "id": "a063-favorite-folder",
+    "title": "“お気に入り”フォルダを1個だけ整理",
+    "steps": ["1フォルダ開く", "不要を3つ削除", "閉じる"],
+    "tags": { "time": ["10", "30"], "goal": ["life"], "place": ["online", "home"], "money": ["0"] },
+    "note": "3つ削除がちょうどいい。"
+  },
+  {
+    "id": "a064-compose-message-draft",
+    "title": "送らないメッセージ下書きを1つ書く",
+    "steps": ["相手/内容を決める", "下書きを書く", "保存して送らない"],
+    "tags": { "time": ["10", "30"], "goal": ["recover", "life"], "place": ["online", "home"], "money": ["0"] },
+    "note": "送る前に思考が整う。"
+  },
+  {
+    "id": "a065-clean-wallet",
+    "title": "財布のレシートを捨てる",
+    "steps": ["財布を開く", "レシートを捨てる", "カードを戻す"],
+    "tags": { "time": ["10"], "goal": ["life"], "place": ["home"], "money": ["0"] },
+    "note": "小さな整頓は気持ちに効く。"
+  },
+  {
+    "id": "a066-walk-stairs-5min",
+    "title": "階段を少し歩く（5分）",
+    "steps": ["階段のある所へ", "上り下りをゆっくり", "水を飲む"],
+    "tags": { "time": ["10"], "goal": ["recover"], "place": ["outside"], "money": ["0"] },
+    "note": "運動というより循環の改善。"
+  },
+  {
+    "id": "a067-outside-coffee",
+    "title": "カフェで一杯だけ飲んで帰る",
+    "steps": ["店を決める", "一杯だけ", "長居せず帰る"],
+    "tags": { "time": ["60"], "goal": ["fun", "recover"], "place": ["outside"], "money": ["mid", "high"] },
+    "note": "外出の成功体験を稼ぐ。"
+  },
+  {
+    "id": "a068-buy-stationery",
+    "title": "文具を1つだけ買う",
+    "steps": ["1つだけ決める", "買う", "帰ってすぐ使う"],
+    "tags": { "time": ["60"], "goal": ["fun", "growth"], "place": ["outside"], "money": ["low", "mid"] },
+    "note": "道具の力で始めやすくする。"
+  }]
