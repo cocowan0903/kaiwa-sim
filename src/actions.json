@@ -1,840 +1,6252 @@
 [
   {
-    "id": "a1",
-    "title": "机の上1区画だけ整理",
-    "steps": ["範囲を決める", "不要物をどける", "終了"],
-    "note": "小さく始める。",
-    "tags": { "time": ["10", "30"], "goal": ["life"], "place": ["home"], "money": ["0"] }
-  },
-  {
-    "id": "a2",
-    "title": "5分ストレッチ",
-    "steps": ["肩回し", "背伸び", "深呼吸"],
-    "note": "姿勢リセット。",
-    "tags": { "time": ["10"], "goal": ["recover"], "place": ["home", "campus"], "money": ["0"] }
-  },
-  {
-    "id": "a3",
-    "title": "外を軽く散歩",
-    "steps": ["外に出る", "歩く", "戻る"],
-    "note": "環境切替。",
-    "tags": { "time": ["10", "30"], "goal": ["recover", "fun"], "place": ["outside"], "money": ["0"] }
-  },
-  {
-    "id": "a4",
-    "title": "タブ10個閉じる",
-    "steps": ["不要タブ確認", "閉じる", "再読込"],
-    "note": "視界整理。",
-    "tags": { "time": ["10"], "goal": ["life"], "place": ["online"], "money": ["0"] }
-  },
-  {
-    "id": "a5",
-    "title": "例題1問だけ解く",
-    "steps": ["教材開く", "1問だけ", "終了"],
-    "note": "着火目的。",
-    "tags": { "time": ["10", "30"], "goal": ["growth"], "place": ["campus", "home"], "money": ["0"] }
-  },
-  {
-    "id": "a6",
-    "title": "紅茶タイム",
-    "steps": ["飲み物準備", "座る", "一口飲む"],
-    "note": "モード切替。",
-    "tags": { "time": ["10"], "goal": ["recover"], "place": ["home"], "money": ["low"] }
-  },
-  {
-    "id": "a7",
-    "title": "図書館に移動",
-    "steps": ["席探す", "座る", "教材開く"],
-    "note": "環境が9割。",
-    "tags": { "time": ["30", "60"], "goal": ["growth"], "place": ["campus"], "money": ["0"] }
-  },
-  {
-    "id": "a8",
-    "title": "短文日記を書く",
-    "steps": ["今日を書く", "感情を書く", "保存"],
-    "note": "思考整理。",
-    "tags": { "time": ["10", "30"], "goal": ["life"], "place": ["home", "online"], "money": ["0"] }
-  },
-  {
-    "id": "a9",
-    "title": "音楽を1曲聴く",
-    "steps": ["再生", "目閉じる", "終了"],
-    "note": "気分転換。",
-    "tags": { "time": ["10"], "goal": ["recover", "fun"], "place": ["home", "outside"], "money": ["0"] }
-  },
-  {
-    "id": "a10",
-    "title": "自販機まで歩く",
-    "steps": ["外へ", "飲み物選ぶ", "戻る"],
-    "note": "小さな外出。",
-    "tags": { "time": ["30", "60"], "goal": ["fun", "life"], "place": ["outside", "campus"], "money": ["low", "mid"] }
-  },
-  {
-    "id": "a11",
-    "title": "ノート1ページまとめ",
-    "steps": ["テーマ決め", "書く", "見直し"],
-    "note": "理解固定。",
-    "tags": { "time": ["30", "60"], "goal": ["growth"], "place": ["campus", "home"], "money": ["0"] }
-  },
-  {
-    "id": "a12",
-    "title": "部屋の空気入替",
-    "steps": ["窓開ける", "深呼吸", "閉める"],
-    "note": "脳も換気。",
-    "tags": { "time": ["10"], "goal": ["recover"], "place": ["home"], "money": ["0"] }
-  },
-  {
-    "id": "a13",
-    "title": "写真1枚撮る",
-    "steps": ["被写体探す", "撮影", "保存"],
-    "note": "視点変更。",
-    "tags": { "time": ["10"], "goal": ["fun"], "place": ["outside", "campus"], "money": ["0"] }
-  },
-  {
-    "id": "a14",
-    "title": "メール整理",
-    "steps": ["未読確認", "不要削除", "返信1件"],
-    "note": "摩擦減少。",
-    "tags": { "time": ["30"], "goal": ["life"], "place": ["online"], "money": ["0"] }
-  },
-  {
-    "id": "a15",
-    "title": "カフェで30分座る",
-    "steps": ["注文", "席確保", "休憩"],
-    "note": "場所が変わると集中変わる。",
-    "tags": { "time": ["30", "60"], "goal": ["recover", "growth"], "place": ["outside"], "money": ["mid"] }
-  },
-  {
-    "id": "a16",
-    "title": "講義資料を眺める",
-    "steps": ["開く", "目次見る", "閉じる"],
-    "note": "負荷ゼロ開始。",
-    "tags": { "time": ["10"], "goal": ["growth"], "place": ["online", "campus"], "money": ["0"] }
-  },
-  {
-    "id": "a17",
-    "title": "ToDo3つ書く",
-    "steps": ["紙出す", "3個書く", "優先順位"],
-    "note": "思考外部化。",
-    "tags": { "time": ["10"], "goal": ["life"], "place": ["home", "campus"], "money": ["0"] }
-  },
-  {
-    "id": "a18",
-    "title": "軽い買い物",
-    "steps": ["外へ", "必要品購入", "戻る"],
-    "note": "現実タスク。",
-    "tags": { "time": ["60"], "goal": ["life"], "place": ["outside"], "money": ["low", "mid"] }
-  },
-  {
-    "id": "a19",
-    "title": "動画1本学習視聴",
-    "steps": ["動画選ぶ", "視聴", "メモ1行"],
-    "note": "受動学習。",
-    "tags": { "time": ["30", "60"], "goal": ["growth"], "place": ["online"], "money": ["0"] }
-  },
-  {
-    "id": "a20",
-    "title": "目を閉じて休憩",
-    "steps": ["椅子座る", "目閉じる", "深呼吸"],
-    "note": "脳クールダウン。",
-    "tags": { "time": ["10"], "goal": ["recover"], "place": ["home", "campus"], "money": ["0"] }
-  },
-  {
-    "id": "a21",
-    "title": "キャンパス散歩",
-    "steps": ["外出", "一周歩く", "戻る"],
-    "note": "軽運動。",
-    "tags": { "time": ["30", "60"], "goal": ["recover", "fun"], "place": ["campus", "outside"], "money": ["0"] }
-  },
-  {
-    "id": "a22",
-    "title": "資料1枚読む",
-    "steps": ["PDF開く", "1枚読む", "終了"],
-    "note": "入口だけ。",
-    "tags": { "time": ["10"], "goal": ["growth"], "place": ["online"], "money": ["0"] }
-  },
-  {
-    "id": "a23",
-    "title": "水を飲む習慣化",
-    "steps": ["水用意", "飲む", "深呼吸"],
-    "note": "基本ケア。",
-    "tags": { "time": ["10"], "goal": ["recover"], "place": ["home", "campus"], "money": ["0"] }
-  },
-  {
-    "id": "a24",
-    "title": "半日創作タイム",
-    "steps": ["テーマ決め", "作業", "保存"],
-    "note": "深い集中。",
-    "tags": { "time": ["180"], "goal": ["growth", "fun"], "place": ["home", "online"], "money": ["0"] }
-  },
-  {
-    "id": "a25",
-    "title": "写真フォルダ整理",
-    "steps": ["選別", "削除", "保存"],
-    "note": "視覚整理。",
-    "tags": { "time": ["30", "60"], "goal": ["life"], "place": ["online"], "money": ["0"] }
-  },
-  {
-    "id": "a26",
-    "title": "大学カフェで休憩",
-    "steps": ["席取る", "飲む", "考える"],
-    "note": "軽回復。",
-    "tags": { "time": ["30"], "goal": ["recover"], "place": ["campus"], "money": ["low"] }
-  },
-  {
-    "id": "a27",
-    "title": "SNS投稿1つ作成",
-    "steps": ["内容決め", "投稿", "終了"],
-    "note": "アウトプット。",
-    "tags": { "time": ["10", "30"], "goal": ["growth", "fun"], "place": ["online"], "money": ["0"] }
-  },
-  {
-    "id": "a28",
-    "title": "夕方散歩",
-    "steps": ["外出", "歩く", "帰宅"],
-    "note": "光を浴びる。",
-    "tags": { "time": ["60"], "goal": ["recover"], "place": ["outside"], "money": ["0"] }
-  },
-  {
-    "id": "a29",
-    "title": "キーワード暗記5個",
-    "steps": ["選ぶ", "読む", "復唱"],
-    "note": "小刻み成長。",
-    "tags": { "time": ["10"], "goal": ["growth"], "place": ["home", "campus"], "money": ["0"] }
-  },
-  {
-    "id": "a30",
-    "title": "半日図書館",
-    "steps": ["席確保", "集中", "退出"],
-    "note": "深集中。",
-    "tags": { "time": ["180"], "goal": ["growth"], "place": ["campus"], "money": ["0"] }
-  },
-  {
-    "id": "a31",
-    "title": "好きな曲探索",
-    "steps": ["検索", "再生", "保存"],
-    "note": "遊び要素。",
-    "tags": { "time": ["30"], "goal": ["fun"], "place": ["online"], "money": ["0"] }
-  },
-  {
-    "id": "a32",
-    "title": "掃除5分だけ",
-    "steps": ["範囲決め", "掃除", "終了"],
-    "note": "ハードル低。",
-    "tags": { "time": ["10"], "goal": ["life"], "place": ["home"], "money": ["0"] }
-  },
-  {
-    "id": "a33",
-    "title": "カフェで勉強",
-    "steps": ["注文", "座る", "教材開く"],
-    "note": "環境ブースト。",
-    "tags": { "time": ["60"], "goal": ["growth"], "place": ["outside"], "money": ["mid"] }
-  },
-  {
-    "id": "a34",
-    "title": "講義復習メモ",
-    "steps": ["思い出す", "書く", "保存"],
-    "note": "記憶固定。",
-    "tags": { "time": ["30"], "goal": ["growth"], "place": ["campus"], "money": ["0"] }
-  },
-  {
-    "id": "a35",
-    "title": "深呼吸3セット",
-    "steps": ["吸う", "止める", "吐く"],
-    "note": "即回復。",
-    "tags": { "time": ["10"], "goal": ["recover"], "place": ["home", "outside"], "money": ["0"] }
-  },
-  {
-    "id": "a36",
-    "title": "写真散歩",
-    "steps": ["外出", "撮影", "帰宅"],
-    "note": "観察モード。",
-    "tags": { "time": ["60"], "goal": ["fun"], "place": ["outside"], "money": ["0"] }
-  },
-  {
-    "id": "a37",
-    "title": "資料ブックマーク整理",
-    "steps": ["確認", "整理", "終了"],
-    "note": "デジタル整頓。",
-    "tags": { "time": ["30"], "goal": ["life"], "place": ["online"], "money": ["0"] }
-  },
-  {
-    "id": "a38",
-    "title": "大学ラウンジで休む",
-    "steps": ["座る", "ぼーっと", "終了"],
-    "note": "中間休憩。",
-    "tags": { "time": ["30"], "goal": ["recover"], "place": ["campus"], "money": ["0"] }
-  },
-  {
-    "id": "a39",
-    "title": "新しいアプリ触る",
-    "steps": ["DL", "触る", "削除可"],
-    "note": "探索。",
-    "tags": { "time": ["30"], "goal": ["fun"], "place": ["online"], "money": ["0"] }
-  },
-  {
-    "id": "a40",
-    "title": "外でコーヒー",
-    "steps": ["注文", "飲む", "帰る"],
-    "note": "外リセット。",
-    "tags": { "time": ["30"], "goal": ["recover"], "place": ["outside"], "money": ["low", "mid"] }
-  },
-  {
-    "id": "a41",
-    "title": "単語帳10個",
-    "steps": ["読む", "隠す", "確認"],
-    "note": "短距離学習。",
-    "tags": { "time": ["10"], "goal": ["growth"], "place": ["home", "campus"], "money": ["0"] }
-  },
-  {
-    "id": "a42",
-    "title": "ブログ下書き",
-    "steps": ["タイトル決め", "3行書く", "保存"],
-    "note": "思考アウト。",
-    "tags": { "time": ["30", "60"], "goal": ["growth", "life"], "place": ["online", "home"], "money": ["0"] }
-  },
-  {
-    "id": "a43",
-    "title": "夕方キャンパス散歩",
-    "steps": ["外出", "歩く", "戻る"],
-    "note": "切替。",
-    "tags": { "time": ["30"], "goal": ["recover"], "place": ["campus", "outside"], "money": ["0"] }
-  },
-  {
-    "id": "a44",
-    "title": "机配置を少し変える",
-    "steps": ["動かす", "座る", "確認"],
-    "note": "新鮮さ。",
-    "tags": { "time": ["30"], "goal": ["life"], "place": ["home"], "money": ["0"] }
-  },
-  {
-    "id": "a45",
-    "title": "ポッドキャスト1本",
-    "steps": ["再生", "聞く", "終了"],
-    "note": "耳学習。",
-    "tags": { "time": ["60"], "goal": ["growth", "fun"], "place": ["outside", "online"], "money": ["0"] }
-  },
-  {
-    "id": "a46",
-    "title": "半日外出デー",
-    "steps": ["目的決め", "外出", "帰宅"],
-    "note": "大きな切替。",
-    "tags": { "time": ["180"], "goal": ["fun", "life"], "place": ["outside"], "money": ["mid", "high"] }
-  },
-  {
-    "id": "a47",
-    "title": "講義動画倍速視聴",
-    "steps": ["再生", "倍速", "要点メモ"],
-    "note": "効率学習。",
-    "tags": { "time": ["30", "60"], "goal": ["growth"], "place": ["online"], "money": ["0"] }
-  },
-  {
-    "id": "a48",
-    "title": "机で瞑想5分",
-    "steps": ["座る", "呼吸", "終了"],
-    "note": "リセット。",
-    "tags": { "time": ["10"], "goal": ["recover"], "place": ["home", "campus"], "money": ["0"] }
-  },
-  {
-    "id": "a49",
-    "title": "友達に一言メッセージ",
-    "steps": ["送信", "待たない", "終了"],
-    "note": "社会接続。",
-    "tags": { "time": ["10"], "goal": ["life", "fun"], "place": ["online"], "money": ["0"] }
-  },
-  {
-    "id": "a50",
-    "title": "半日研究テーマ整理",
-    "steps": ["紙出す", "書き出す", "分類"],
-    "note": "長期思考。",
-    "tags": { "time": ["180"], "goal": ["growth"], "place": ["home", "campus"], "money": ["0"] }
-  },
-
-  {
-    "id": "a001-water-setup",
-    "title": "水を用意して作業開始の合図を出す",
-    "steps": ["コップに水を入れる", "机の中央に置く", "次の一手を1行書く"],
-    "tags": { "time": ["10"], "goal": ["recover", "life"], "place": ["home", "online"], "money": ["0"] },
-    "note": "脳は合図に弱い。合図を作れば動く。"
-  },
-  {
-    "id": "a002-air-2min",
-    "title": "換気だけして空気を入れ替える",
-    "steps": ["窓 or ドアを開ける", "深呼吸を2回", "閉めて戻る"],
-    "tags": { "time": ["10"], "goal": ["recover", "life"], "place": ["home"], "money": ["0"] },
-    "note": "空気が重い日は、思考も重い。"
-  },
-  {
-    "id": "a003-trash-5",
-    "title": "ゴミを5個だけ捨てる",
-    "steps": ["目に入るゴミを5個探す", "捨てる", "ゴミ袋を縛らず戻す"],
-    "tags": { "time": ["10"], "goal": ["life"], "place": ["home"], "money": ["0"] },
-    "note": "少量でも視界が勝つ。"
-  },
-  {
-    "id": "a004-desk-one-zone",
-    "title": "机の上を1区画だけ片付ける",
-    "steps": ["区画を決める", "戻す/捨てるを即決", "終わりに写真を1枚"],
-    "tags": { "time": ["10", "30"], "goal": ["life", "recover"], "place": ["home"], "money": ["0"] },
-    "note": "全面じゃなく1区画。勝ち筋が見える。"
-  },
-  {
-    "id": "a005-laundry-mini",
-    "title": "洗濯を“回すだけ”ルート",
-    "steps": ["洗濯物を入れる", "洗剤を入れる", "スタートだけ押す"],
-    "tags": { "time": ["10"], "goal": ["life"], "place": ["home"], "money": ["0"] },
-    "note": "始めたら半分終わったようなもの。"
-  },
-  {
-    "id": "a006-dishes-3",
-    "title": "食器を3つだけ洗う",
-    "steps": ["3つ選ぶ", "洗う", "残りは見ない"],
-    "tags": { "time": ["10"], "goal": ["life"], "place": ["home"], "money": ["0"] },
-    "note": "全部やろうとすると0になる。"
-  },
-  {
-    "id": "a007-socks-sort",
-    "title": "靴下だけ揃える",
-    "steps": ["靴下を集める", "ペアにする", "戻す"],
-    "tags": { "time": ["10"], "goal": ["life", "recover"], "place": ["home"], "money": ["0"] },
-    "note": "小さな秩序が脳を落ち着かせる。"
-  },
-  {
-    "id": "a008-bathroom-quick",
-    "title": "洗面台を30秒だけ拭く",
-    "steps": ["ティッシュ/布を用意", "洗面台をひと拭き", "捨てる/洗う"],
-    "tags": { "time": ["10"], "goal": ["life"], "place": ["home"], "money": ["0"] },
-    "note": "30秒でも“清潔”は効く。"
-  },
-  {
-    "id": "a009-bed-reset",
-    "title": "ベッド（布団）だけ整える",
-    "steps": ["掛け布団を整える", "枕を置く", "立ち上がって終了"],
-    "tags": { "time": ["10"], "goal": ["recover", "life"], "place": ["home"], "money": ["0"] },
-    "note": "居場所が整うと回復が早い。"
-  },
-  {
-    "id": "a010-warm-drink",
-    "title": "温かい飲み物でモード切替",
-    "steps": ["飲み物を用意", "一口飲む", "次の一手を決める"],
-    "tags": { "time": ["10", "30"], "goal": ["recover"], "place": ["home"], "money": ["0", "low"] },
-    "note": "儀式で切り替える。"
-  },
-
-  {
-    "id": "a011-10min-study-warmup",
-    "title": "例題を1つ読むだけ（解かなくてOK）",
-    "steps": ["教材を開く", "例題を読む", "要点を1行メモ"],
-    "tags": { "time": ["10"], "goal": ["growth"], "place": ["home", "online"], "money": ["0"] },
-    "note": "読むだけでも着火。"
-  },
-  {
-    "id": "a012-30min-problem-1",
-    "title": "問題を1問だけ解く（途中で止めてOK）",
-    "steps": ["1問選ぶ", "10分だけ解く", "続きの入口をメモ"],
-    "tags": { "time": ["30"], "goal": ["growth"], "place": ["home", "online"], "money": ["0"] },
-    "note": "完遂より“続き”を作る。"
-  },
-  {
-    "id": "a013-notes-5lines",
-    "title": "ノートを5行だけ書く",
-    "steps": ["テーマを1つ決める", "5行書く", "止める"],
-    "tags": { "time": ["10", "30"], "goal": ["growth"], "place": ["home", "online"], "money": ["0"] },
-    "note": "短さは正義。"
-  },
-  {
-    "id": "a014-flashcards-10",
-    "title": "暗記カードを10枚だけ見る",
-    "steps": ["10枚だけ選ぶ", "答える", "最後に1枚だけ復習"],
-    "tags": { "time": ["10"], "goal": ["growth"], "place": ["home", "online"], "money": ["0"] },
-    "note": "10枚は“逃げない量”。"
-  },
-  {
-    "id": "a015-english-5min",
-    "title": "英語を5分だけ触る",
-    "steps": ["短文を1つ読む", "知らない語を1個だけメモ", "閉じる"],
-    "tags": { "time": ["10"], "goal": ["growth"], "place": ["home", "online"], "money": ["0"] },
-    "note": "学習の継続は“接触回数”。"
-  },
-  {
-    "id": "a016-clean-tabs-10",
-    "title": "ブラウザのタブを10個閉じる",
-    "steps": ["重いタブから閉じる", "必要ならブクマ1つ", "ブラウザ再起動"],
-    "tags": { "time": ["10", "30"], "goal": ["life", "recover"], "place": ["online", "home"], "money": ["0"] },
-    "note": "画面＝頭の中。"
-  },
-  {
-    "id": "a017-desktop-5files",
-    "title": "デスクトップのファイルを5個だけ整理",
-    "steps": ["5個選ぶ", "フォルダへ移動", "残りは見ない"],
-    "tags": { "time": ["10", "30"], "goal": ["life"], "place": ["online", "home"], "money": ["0"] },
-    "note": "少量の整理で十分効く。"
-  },
-  {
-    "id": "a018-photos-delete-20",
-    "title": "写真を20枚だけ消す",
-    "steps": ["最近の写真を開く", "20枚だけ削除", "終了"],
-    "tags": { "time": ["10", "30"], "goal": ["life"], "place": ["online", "home"], "money": ["0"] },
-    "note": "容量より“決断筋”。"
-  },
-  {
-    "id": "a019-backup-note",
-    "title": "大事なメモを1つだけバックアップ",
-    "steps": ["メモを1つ選ぶ", "コピーして保存", "場所を1行書く"],
-    "tags": { "time": ["10"], "goal": ["life"], "place": ["online", "home"], "money": ["0"] },
-    "note": "安心が増えると集中が戻る。"
-  },
-  {
-    "id": "a020-music-one",
-    "title": "曲を1曲だけ聴いて区切る",
-    "steps": ["1曲決める", "聴く", "終わったら次の一手"],
-    "tags": { "time": ["10"], "goal": ["recover", "fun"], "place": ["home", "online"], "money": ["0"] },
-    "note": "ダラダラしない“遊びの枠”。"
-  },
-
-  {
-    "id": "a021-outside-air-3",
-    "title": "外で3分だけ空を見る",
-    "steps": ["外に出る", "空を見る", "肩を回して戻る"],
-    "tags": { "time": ["10"], "goal": ["recover"], "place": ["outside"], "money": ["0"] },
-    "note": "外気は無料の回復薬。"
-  },
-  {
-    "id": "a022-walk-15",
-    "title": "散歩15分（速くなくてOK）",
-    "steps": ["靴を履く", "15分歩く", "帰ったら水"],
-    "tags": { "time": ["30"], "goal": ["recover", "life"], "place": ["outside"], "money": ["0"] },
-    "note": "運動じゃなく移動。"
-  },
-  {
-    "id": "a023-conbini-just-look",
-    "title": "コンビニに行って何も買わず戻る",
-    "steps": ["行く", "棚を眺める", "戻る"],
-    "tags": { "time": ["30"], "goal": ["recover", "fun"], "place": ["outside"], "money": ["0"] },
-    "note": "外出の成功体験だけ取る。"
-  },
-  {
-    "id": "a024-conbini-small",
-    "title": "コンビニで小さいものを1つだけ買う",
-    "steps": ["買う物を1つ決める", "寄り道せず買う", "帰る"],
-    "tags": { "time": ["30"], "goal": ["life", "fun"], "place": ["outside"], "money": ["low"] },
-    "note": "選択肢を減らすと疲れない。"
-  },
-  {
-    "id": "a025-vending-walk",
-    "title": "自販機まで歩いて飲み物を買う",
-    "steps": ["外に出る", "自販機へ", "買って戻る"],
+    "id": "a001",
+    "title": "持ち物の最適化",
+    "steps": [
+      "予定の棚卸し。椅子から立ってやる",
+      "部屋をゾーンで攻略",
+      "コインで決める（表=続行/裏=終了）",
+      "便利で短縮してOK",
+      "深呼吸して完了"
+    ],
     "tags": {
-      "time": ["10", "30", "60"],
-      "goal": ["recover", "fun", "life"],
-      "place": ["outside"],
-      "money": ["low", "mid", "high"]
-    },
-    "note": "小さな目的で外気と達成感。"
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
   },
   {
-    "id": "a026-park-sit",
-    "title": "公園で5分だけ座る",
-    "steps": ["公園へ行く", "5分座る", "帰る"],
-    "tags": { "time": ["30"], "goal": ["recover"], "place": ["outside"], "money": ["0"] },
-    "note": "何もしない時間を意図的に作る。"
+    "id": "a002",
+    "title": "ノイズキャンセル",
+    "steps": [
+      "足音を数える。スマホは伏せたまま",
+      "目を休める",
+      "A/B二択を作って直感で選ぶ",
+      "追加購入禁止で工夫",
+      "最後に一言だけメモして閉じる"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "0"
+      ]
+    }
   },
   {
-    "id": "a027-post-letter",
-    "title": "ポストまで歩く（投函がなくてもOK）",
-    "steps": ["外に出る", "ポストまで歩く", "戻る"],
-    "tags": { "time": ["30"], "goal": ["life", "recover"], "place": ["outside"], "money": ["0"] },
-    "note": "外出の閾値を下げる訓練。"
+    "id": "a003",
+    "title": "一枚まとめ錬金術",
+    "steps": [
+      "検索は1回だけで。スマホは伏せたまま",
+      "間違いの型を1つ特定（組む）",
+      "A/B二択を作って直感で選ぶ",
+      "既存資料だけで勝つ",
+      "深呼吸して完了"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "0"
+      ]
+    }
   },
   {
-    "id": "a028-buy-fruit",
-    "title": "果物かヨーグルトを買う",
-    "steps": ["店に行く", "1つだけ買う", "帰って食べる"],
-    "tags": { "time": ["30", "60"], "goal": ["life", "recover"], "place": ["outside"], "money": ["low", "mid"] },
-    "note": "回復は“食”からも来る。"
+    "id": "a004",
+    "title": "未来の自分を救助",
+    "steps": [
+      "タブ整理。椅子から立ってやる",
+      "床の一角だけ掃除",
+      "禁止ワードを1つ決める（例:『でも』禁止）",
+      "買わずに工夫",
+      "最後に一言だけメモして閉じる"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "0"
+      ]
+    }
   },
   {
-    "id": "a029-walk-with-photo",
-    "title": "散歩しながら写真を3枚撮る",
-    "steps": ["歩く", "写真を3枚", "1枚だけ残す"],
-    "tags": { "time": ["30", "60"], "goal": ["fun", "recover"], "place": ["outside"], "money": ["0"] },
-    "note": "観察は気分を外に向ける。"
+    "id": "a005",
+    "title": "問題の型を採集する",
+    "steps": [
+      "ベンチで。椅子から立ってやる",
+      "1段落だけ読んで要点1行（組む）",
+      "禁止ワードを1つ決める（例:『でも』禁止）",
+      "コピー1回だけOK",
+      "次の一手を1行で決めて終わる"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "low"
+      ]
+    }
   },
   {
-    "id": "a030-halfday-errand",
-    "title": "用事＋寄り道を1セット（半日）",
-    "steps": ["用事を1つ決める", "寄り道を1つだけ足す", "帰って成果を1行記録"],
-    "tags": { "time": ["180"], "goal": ["life", "fun"], "place": ["outside"], "money": ["low", "mid", "high"] },
-    "note": "半日ある日は世界を動かす。"
-  },
-
-  {
-    "id": "a031-creative-10min-doodle",
-    "title": "10分だけ落書きする",
-    "steps": ["紙かアプリを開く", "10分描く", "保存して終わる"],
-    "tags": { "time": ["10"], "goal": ["fun", "recover"], "place": ["home", "online"], "money": ["0"] },
-    "note": "創作は回復にもなる。"
-  },
-  {
-    "id": "a032-creative-30min-sketch",
-    "title": "30分だけ一枚を仕上げる",
-    "steps": ["テーマを1つ", "30分だけ描く", "未完成でも保存"],
-    "tags": { "time": ["30"], "goal": ["fun", "growth"], "place": ["home", "online"], "money": ["0"] },
-    "note": "未完成を許すと量が出る。"
-  },
-  {
-    "id": "a033-write-200chars",
-    "title": "200文字だけ書く（日記でも妄想でも）",
-    "steps": ["題名を1語", "200文字", "公開/保存だけして閉じる"],
-    "tags": { "time": ["10", "30"], "goal": ["fun", "recover", "growth"], "place": ["home", "online"], "money": ["0"] },
-    "note": "短文は継続に強い。"
+    "id": "a006",
+    "title": "片づけをゲーム化",
+    "steps": [
+      "予定の棚卸し。タイマーを使わず体感で",
+      "持ち物を3点だけ整列",
+      "3つ集める（色/形/音/匂いなど）",
+      "快適性最優先でOK",
+      "最後に一言だけメモして閉じる"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "high"
+      ]
+    }
   },
   {
-    "id": "a034-voice-memo",
-    "title": "音声メモを1分だけ録る",
-    "steps": ["テーマを1つ", "1分喋る", "タイトルを付けて保存"],
-    "tags": { "time": ["10"], "goal": ["recover", "growth"], "place": ["home", "online"], "money": ["0"] },
-    "note": "言語化は思考の整理。"
+    "id": "a007",
+    "title": "生活の詰まりを抜く",
+    "steps": [
+      "提出/印刷を片付ける。タイマーを使わず体感で",
+      "生活の負債をまとめて返す",
+      "A/B二択を作って直感で選ぶ",
+      "未来が楽になる買い物OK",
+      "最後に一言だけメモして閉じる"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
   },
   {
-    "id": "a035-playlist-3songs",
-    "title": "プレイリストに3曲だけ追加",
-    "steps": ["気分を決める", "3曲追加", "名前を付ける"],
-    "tags": { "time": ["10", "30"], "goal": ["fun"], "place": ["home", "online"], "money": ["0"] },
-    "note": "小さな編集は満足感が高い。"
+    "id": "a008",
+    "title": "疲れの正体を捕まえる",
+    "steps": [
+      "通知を切る。タイマーを使わず体感で",
+      "疲れの正体を1行",
+      "コインで決める（表=続行/裏=終了）",
+      "快適さ最優先でOK",
+      "片づけて終了"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "high"
+      ]
+    }
   },
   {
-    "id": "a036-cook-simple",
-    "title": "超簡単なものを作る（卵/味噌汁/トースト等）",
-    "steps": ["材料を決める", "作る", "片付けは最低限"],
-    "tags": { "time": ["30"], "goal": ["life", "recover"], "place": ["home"], "money": ["0", "low"] },
-    "note": "自炊は生活の安定剤。"
+    "id": "a009",
+    "title": "静けさを取り戻す",
+    "steps": [
+      "タブを3つ閉じる。“1回だけ”縛り",
+      "呼吸を3回だけ数える",
+      "禁止ワードを1つ決める（例:『でも』禁止）",
+      "快適さ最優先でOK",
+      "深呼吸して完了"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "high"
+      ]
+    }
   },
   {
-    "id": "a037-bath-shower",
-    "title": "シャワーだけ浴びてリセット",
-    "steps": ["浴びる", "タオルで拭く", "服を着る"],
-    "tags": { "time": ["30"], "goal": ["recover"], "place": ["home"], "money": ["0"] },
-    "note": "身体を変えると気分が変わる。"
+    "id": "a010",
+    "title": "未来の自分を救助",
+    "steps": [
+      "移動を最適化する。椅子から立ってやる",
+      "片づけ→掃除→補充を1セット",
+      "“見つけたら勝ち”ルールを付ける",
+      "便利で短縮してOK",
+      "水を一口飲んで完了"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
   },
   {
-    "id": "a038-stretch-5",
-    "title": "ストレッチを5分だけ",
-    "steps": ["首か肩から1つ", "脚を1つ", "水を飲む"],
-    "tags": { "time": ["10"], "goal": ["recover"], "place": ["home"], "money": ["0"] },
-    "note": "5分が現実的。"
+    "id": "a011",
+    "title": "静けさを取り戻す",
+    "steps": [
+      "画面から距離を取る。“3回だけ”縛り",
+      "水を一口",
+      "禁止ワードを1つ決める（例:『でも』禁止）",
+      "場所課金してもOK",
+      "深呼吸して完了"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
   },
   {
-    "id": "a039-clean-floor-1m",
-    "title": "床を1m四方だけ掃除する",
-    "steps": ["範囲を決める", "拾う/拭く", "そこで終了"],
-    "tags": { "time": ["10", "30"], "goal": ["life"], "place": ["home"], "money": ["0"] },
-    "note": "範囲を切るのがコツ。"
+    "id": "a012",
+    "title": "即席クリエイト",
+    "steps": [
+      "街で撮る→選ぶ→整えるまで完了",
+      "“3回だけ”縛り",
+      "3つ集める（色/形/音/匂いなど）",
+      "お菓子1つOK",
+      "写真1枚で締める"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "low"
+      ]
+    }
   },
   {
-    "id": "a040-mail-5",
-    "title": "メール/連絡を5分だけ処理",
-    "steps": ["未読を開く", "返すの1件だけ", "残りは閉じる"],
-    "tags": { "time": ["10"], "goal": ["life"], "place": ["home", "online"], "money": ["0"] },
-    "note": "ゼロにしない。1件でいい。"
-  },
-
-  {
-    "id": "a041-budget-5min",
-    "title": "支出を1つだけ記録する",
-    "steps": ["今日の支出を1つ", "記録する", "終わる"],
-    "tags": { "time": ["10"], "goal": ["life"], "place": ["home", "online"], "money": ["0"] },
-    "note": "家計は“粒”で整う。"
-  },
-  {
-    "id": "a042-room-lighting",
-    "title": "部屋の照明を調整して気分を変える",
-    "steps": ["明るさを変える", "机のライト位置を変える", "一息つく"],
-    "tags": { "time": ["10"], "goal": ["recover"], "place": ["home"], "money": ["0"] },
-    "note": "環境設定は最強の裏技。"
-  },
-  {
-    "id": "a043-choose-one-task",
-    "title": "“今日やること”を1つだけ決める",
-    "steps": ["候補を3つ書く", "1つだけ丸", "他は消す"],
-    "tags": { "time": ["10"], "goal": ["growth", "life"], "place": ["home", "online"], "money": ["0"] },
-    "note": "選択は減らすほど強い。"
+    "id": "a013",
+    "title": "未来の自分を救助",
+    "steps": [
+      "用事を2つまでに制限。“1回だけ”縛り",
+      "生活の詰まりを1つ解消",
+      "3つ集める（色/形/音/匂いなど）",
+      "快適性最優先でOK",
+      "水を一口飲んで完了"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "high"
+      ]
+    }
   },
   {
-    "id": "a044-30min-focus-block",
-    "title": "30分だけ集中ブロック（タイマー）",
-    "steps": ["やることを1つ", "30分タイマー", "終わりに続きメモ"],
-    "tags": { "time": ["30"], "goal": ["growth"], "place": ["home", "online"], "money": ["0"] },
-    "note": "続きメモが次回を救う。"
+    "id": "a014",
+    "title": "理解を要約するミニ実験",
+    "steps": [
+      "通知OFFで。姿勢を一回リセットしてから",
+      "要約→自分の言葉で再説明（要約する）",
+      "“見つけたら勝ち”ルールを付ける",
+      "場所課金OK",
+      "写真1枚で締める"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
   },
   {
-    "id": "a045-60min-deep",
-    "title": "1時間だけ“重い作業”に触る",
-    "steps": ["重い作業を1つ", "1時間だけ", "区切って終える"],
-    "tags": { "time": ["60"], "goal": ["growth"], "place": ["home", "online"], "money": ["0"] },
-    "note": "長さより“区切り”。"
+    "id": "a015",
+    "title": "説明できるに寄せる",
+    "steps": [
+      "検索は1回だけで。スマホは伏せたまま",
+      "定義/公式を1つ写経（組む）",
+      "3つ集める（色/形/音/匂いなど）",
+      "最短で伸びる手段を選んでOK",
+      "写真1枚で締める"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "high"
+      ]
+    }
   },
   {
-    "id": "a046-clean-bag",
-    "title": "カバンの中を5分だけ整える",
-    "steps": ["中身を出す", "不要を1つ捨てる", "戻す"],
-    "tags": { "time": ["10"], "goal": ["life"], "place": ["home"], "money": ["0"] },
-    "note": "持ち物は思考の延長。"
+    "id": "a016",
+    "title": "片づけをゲーム化",
+    "steps": [
+      "タブ整理。“1回だけ”縛り",
+      "明日の準備を3点だけ",
+      "3つ集める（色/形/音/匂いなど）",
+      "時間を買ってOK",
+      "次の一手を1行で決めて終わる"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "high"
+      ]
+    }
   },
   {
-    "id": "a047-prepare-tomorrow",
-    "title": "明日の準備を1つだけする",
-    "steps": ["明日の障害を1つ", "準備する", "見える所に置く"],
-    "tags": { "time": ["10", "30"], "goal": ["life"], "place": ["home"], "money": ["0"] },
-    "note": "未来の自分を助けるゲーム。"
+    "id": "a017",
+    "title": "一枚まとめ錬金術",
+    "steps": [
+      "検索は1回だけで。椅子から立ってやる",
+      "理解→演習→まとめの3ブロック（組む）",
+      "3つ集める（色/形/音/匂いなど）",
+      "最短で伸びる手段を選んでOK",
+      "次の一手を1行で決めて終わる"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "high"
+      ]
+    }
   },
   {
-    "id": "a048-pick-outfit",
-    "title": "明日の服を決めて置く",
-    "steps": ["服を選ぶ", "一式まとめる", "上にメモを置く"],
-    "tags": { "time": ["10"], "goal": ["life"], "place": ["home"], "money": ["0"] },
-    "note": "朝の判断を削る。"
+    "id": "a018",
+    "title": "面白いの採集",
+    "steps": [
+      "オンラインでインプット→アウトプット1セット",
+      "完璧禁止（60点で切り上げ）",
+      "“見つけたら勝ち”ルールを付ける",
+      "道具は手元のものだけ",
+      "水を一口飲んで完了"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "0"
+      ]
+    }
   },
   {
-    "id": "a049-grocery-list",
-    "title": "買い物メモを3つだけ書く",
-    "steps": ["必要な物を3つ", "メモする", "それ以上書かない"],
-    "tags": { "time": ["10"], "goal": ["life"], "place": ["home", "online"], "money": ["0"] },
-    "note": "増やすと買いすぎる。"
+    "id": "a019",
+    "title": "理解を研ぐミニ実験",
+    "steps": [
+      "机の上だけで。タイマーを使わず体感で",
+      "ミニテスト→弱点補強（研ぐ）",
+      "コインで決める（表=続行/裏=終了）",
+      "既存資料だけで勝つ",
+      "片づけて終了"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "0"
+      ]
+    }
   },
   {
-    "id": "a050-one-reply",
-    "title": "返信を1件だけ返す",
-    "steps": ["返す相手を1人", "短く返す", "終わり"],
-    "tags": { "time": ["10"], "goal": ["life"], "place": ["home", "online"], "money": ["0"] },
-    "note": "1件で流れができる。"
-  },
-
-  {
-    "id": "a051-watch-1short",
-    "title": "短い動画を1本だけ見て終える",
-    "steps": ["1本だけ選ぶ", "見終えたら閉じる", "次の一手へ"],
-    "tags": { "time": ["10"], "goal": ["fun", "recover"], "place": ["home", "online"], "money": ["0"] },
-    "note": "遊びに“終点”を付ける。"
-  },
-  {
-    "id": "a052-read-3pages",
-    "title": "本を3ページだけ読む",
-    "steps": ["本を開く", "3ページだけ読む", "栞を挟む"],
-    "tags": { "time": ["10"], "goal": ["recover", "growth"], "place": ["home", "online"], "money": ["0"] },
-    "note": "3ページは続けやすい。"
-  },
-  {
-    "id": "a053-clean-phone-home",
-    "title": "スマホのホーム画面を1列だけ整理",
-    "steps": ["1列だけ選ぶ", "不要アプリを移動", "そこで終了"],
-    "tags": { "time": ["10"], "goal": ["life"], "place": ["home", "online"], "money": ["0"] },
-    "note": "全部やるな。1列でいい。"
+    "id": "a020",
+    "title": "感覚をゆるめる儀式",
+    "steps": [
+      "図書館入口で呼吸。音を出さない",
+      "軽ストレッチ1セット",
+      "“見つけたら勝ち”ルールを付ける",
+      "快適さ最優先でOK",
+      "深呼吸して完了"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "high"
+      ]
+    }
   },
   {
-    "id": "a054-contacts-1fix",
-    "title": "連絡先を1件だけ整える",
-    "steps": ["1件選ぶ", "名前/メモを直す", "保存"],
-    "tags": { "time": ["10"], "goal": ["life"], "place": ["online", "home"], "money": ["0"] },
-    "note": "地味な整備は後で効く。"
+    "id": "a021",
+    "title": "部屋を再配置する",
+    "steps": [
+      "寄り道を封印。“3回だけ”縛り",
+      "収納を1エリア点検",
+      "1分だけ“観察者モード”になる",
+      "コピー/自販機1回OK",
+      "深呼吸して完了"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "low"
+      ]
+    }
   },
   {
-    "id": "a055-calendar-1plan",
-    "title": "予定を1つだけ入れる or 確認する",
-    "steps": ["カレンダーを開く", "1つだけ確認/追加", "閉じる"],
-    "tags": { "time": ["10"], "goal": ["life"], "place": ["online", "home"], "money": ["0"] },
-    "note": "予定は少ないほど守れる。"
+    "id": "a022",
+    "title": "定義を武器にする",
+    "steps": [
+      "空き教室で。“3回だけ”縛り",
+      "45分集中+15分復習（検証する）",
+      "3つ集める（色/形/音/匂いなど）",
+      "無料で完結",
+      "次の一手を1行で決めて終わる"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "0"
+      ]
+    }
   },
   {
-    "id": "a056-clean-fridge-1shelf",
-    "title": "冷蔵庫の1段だけチェック",
-    "steps": ["1段だけ見る", "期限切れを1つ捨てる", "閉じる"],
-    "tags": { "time": ["10"], "goal": ["life"], "place": ["home"], "money": ["0"] },
-    "note": "一段だけが現実。"
+    "id": "a023",
+    "title": "片づけをゲーム化",
+    "steps": [
+      "予定の棚卸し。完璧禁止（60点で切り上げ）",
+      "生活の詰まりを1つ解消",
+      "“見つけたら勝ち”ルールを付ける",
+      "消耗品の補充を1つだけOK",
+      "次の一手を1行で決めて終わる"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "low"
+      ]
+    }
   },
   {
-    "id": "a057-cook-rice",
-    "title": "ご飯を炊いて未来を助ける",
-    "steps": ["米を研ぐ/洗う", "炊く", "冷凍用に分ける"],
-    "tags": { "time": ["60"], "goal": ["life"], "place": ["home"], "money": ["0", "low"] },
-    "note": "未来の自分に食を送る。"
+    "id": "a024",
+    "title": "観察のコレクション",
+    "steps": [
+      "人の少ない道でミニ企画（テーマ制）をやる",
+      "“3回だけ”縛り",
+      "1分だけ“観察者モード”になる",
+      "無料縛りで工夫",
+      "深呼吸して完了"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "0"
+      ]
+    }
   },
   {
-    "id": "a058-clean-shoes",
-    "title": "靴を1足だけ拭く",
-    "steps": ["1足選ぶ", "軽く拭く", "玄関に戻す"],
-    "tags": { "time": ["10", "30"], "goal": ["life"], "place": ["home"], "money": ["0"] },
-    "note": "外出のハードルが下がる。"
+    "id": "a025",
+    "title": "部屋を再配置する",
+    "steps": [
+      "用事を2つまでに制限。“1回だけ”縛り",
+      "明日の準備を3点だけ",
+      "3つ集める（色/形/音/匂いなど）",
+      "便利で短縮してOK",
+      "水を一口飲んで完了"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
   },
   {
-    "id": "a059-breath-4-4",
-    "title": "呼吸を4秒吸って4秒吐く×5回",
-    "steps": ["姿勢を整える", "4秒吸う/吐く", "5回で終える"],
-    "tags": { "time": ["10"], "goal": ["recover"], "place": ["home", "online"], "money": ["0"] },
-    "note": "呼吸は手動で変えられる。"
+    "id": "a026",
+    "title": "問題の型を採集する",
+    "steps": [
+      "机の上だけで。姿勢を一回リセットしてから",
+      "弱点リスト作成（研ぐ）",
+      "“見つけたら勝ち”ルールを付ける",
+      "場所課金OK",
+      "片づけて終了"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
   },
   {
-    "id": "a060-eye-rest",
-    "title": "目を休ませる（遠くを見る）",
-    "steps": ["遠くを見る", "瞬きを意識", "肩を回す"],
-    "tags": { "time": ["10"], "goal": ["recover"], "place": ["home"], "money": ["0"] },
-    "note": "眼精疲労は気分に直結。"
-  },
-
-  {
-    "id": "a061-online-learn-1video",
-    "title": "学習動画を1本だけ見る（メモは1行）",
-    "steps": ["1本選ぶ", "見る", "1行メモして閉じる"],
-    "tags": { "time": ["30", "60"], "goal": ["growth"], "place": ["online", "home"], "money": ["0"] },
-    "note": "メモ1行で回収率が上がる。"
-  },
-  {
-    "id": "a062-research-10min",
-    "title": "調べ物を10分だけする（深追い禁止）",
-    "steps": ["調べるテーマ1つ", "10分だけ検索", "結論を1行"],
-    "tags": { "time": ["10"], "goal": ["growth"], "place": ["online", "home"], "money": ["0"] },
-    "note": "深追いは次回に回す。"
-  },
-  {
-    "id": "a063-favorite-folder",
-    "title": "“お気に入り”フォルダを1個だけ整理",
-    "steps": ["1フォルダ開く", "不要を3つ削除", "閉じる"],
-    "tags": { "time": ["10", "30"], "goal": ["life"], "place": ["online", "home"], "money": ["0"] },
-    "note": "3つ削除がちょうどいい。"
+    "id": "a027",
+    "title": "疲れの正体を捕まえる",
+    "steps": [
+      "図書館入口で呼吸。姿勢を一回リセットしてから",
+      "回復メニューを3つ選ぶ",
+      "A/B二択を作って直感で選ぶ",
+      "小さなお菓子1つだけOK",
+      "深呼吸して完了"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "low"
+      ]
+    }
   },
   {
-    "id": "a064-compose-message-draft",
-    "title": "送らないメッセージ下書きを1つ書く",
-    "steps": ["相手/内容を決める", "下書きを書く", "保存して送らない"],
-    "tags": { "time": ["10", "30"], "goal": ["recover", "life"], "place": ["online", "home"], "money": ["0"] },
-    "note": "送る前に思考が整う。"
+    "id": "a028",
+    "title": "部屋を再配置する",
+    "steps": [
+      "部屋の地形を変える。完璧禁止（60点で切り上げ）",
+      "片づけ→掃除→補充を1セット",
+      "コインで決める（表=続行/裏=終了）",
+      "便利で短縮してOK",
+      "最後に一言だけメモして閉じる"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
   },
   {
-    "id": "a065-clean-wallet",
-    "title": "財布のレシートを捨てる",
-    "steps": ["財布を開く", "レシートを捨てる", "カードを戻す"],
-    "tags": { "time": ["10"], "goal": ["life"], "place": ["home"], "money": ["0"] },
-    "note": "小さな整頓は気持ちに効く。"
+    "id": "a029",
+    "title": "遊びを探す実験",
+    "steps": [
+      "図書館近くでインプット→アウトプット1セット",
+      "完璧禁止（60点で切り上げ）",
+      "コインで決める（表=続行/裏=終了）",
+      "カフェ/文具OK",
+      "次の一手を1行で決めて終わる"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
   },
   {
-    "id": "a066-walk-stairs-5min",
-    "title": "階段を少し歩く（5分）",
-    "steps": ["階段のある所へ", "上り下りをゆっくり", "水を飲む"],
-    "tags": { "time": ["10"], "goal": ["recover"], "place": ["outside"], "money": ["0"] },
-    "note": "運動というより循環の改善。"
+    "id": "a030",
+    "title": "片づけをゲーム化",
+    "steps": [
+      "寄り道を封印。椅子から立ってやる",
+      "生活の負債をまとめて返す",
+      "1分だけ“観察者モード”になる",
+      "時間を買ってOK",
+      "写真1枚で締める"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "high"
+      ]
+    }
   },
   {
-    "id": "a067-outside-coffee",
-    "title": "カフェで一杯だけ飲んで帰る",
-    "steps": ["店を決める", "一杯だけ", "長居せず帰る"],
-    "tags": { "time": ["60"], "goal": ["fun", "recover"], "place": ["outside"], "money": ["mid", "high"] },
-    "note": "外出の成功体験を稼ぐ。"
+    "id": "a031",
+    "title": "部屋を再配置する",
+    "steps": [
+      "提出/印刷を片付ける。椅子から立ってやる",
+      "床の一角だけ掃除",
+      "A/B二択を作って直感で選ぶ",
+      "快適性最優先でOK",
+      "水を一口飲んで完了"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "high"
+      ]
+    }
   },
   {
-    "id": "a068-buy-stationery",
-    "title": "文具を1つだけ買う",
-    "steps": ["1つだけ決める", "買う", "帰ってすぐ使う"],
-    "tags": { "time": ["60"], "goal": ["fun", "growth"], "place": ["outside"], "money": ["low", "mid"] },
-    "note": "道具の力で始めやすくする。"
+    "id": "a032",
+    "title": "疲れの正体を捕まえる",
+    "steps": [
+      "空を見る。姿勢を一回リセットしてから",
+      "15分×2 + 休憩で回復ブロック",
+      "禁止ワードを1つ決める（例:『でも』禁止）",
+      "最高の回復を買ってOK",
+      "最後に一言だけメモして閉じる"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a033",
+    "title": "持ち物の最適化",
+    "steps": [
+      "床面積を取り戻す。“3回だけ”縛り",
+      "部屋をゾーンで攻略",
+      "“見つけたら勝ち”ルールを付ける",
+      "便利で短縮してOK",
+      "次の一手を1行で決めて終わる"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a034",
+    "title": "面倒の根を切る",
+    "steps": [
+      "移動を最適化する。姿勢を一回リセットしてから",
+      "洗濯の1工程だけ進める",
+      "禁止ワードを1つ決める（例:『でも』禁止）",
+      "便利で短縮してOK",
+      "次の一手を1行で決めて終わる"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a035",
+    "title": "小さな冒険",
+    "steps": [
+      "1タブだけで1曲で“1動作”作る",
+      "“1回だけ”縛り",
+      "“見つけたら勝ち”ルールを付ける",
+      "体験を買ってOK",
+      "最後に一言だけメモして閉じる"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a036",
+    "title": "ノイズキャンセル",
+    "steps": [
+      "画面から距離を取る。タイマーを使わず体感で",
+      "やらないことを先に決める",
+      "コインで決める（表=続行/裏=終了）",
+      "快適さ最優先でOK",
+      "最後に一言だけメモして閉じる"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a037",
+    "title": "面白いの採集",
+    "steps": [
+      "音を小さくして1曲で“1動作”作る",
+      "タイマーを使わず体感で",
+      "“見つけたら勝ち”ルールを付ける",
+      "素材/場所に少し使ってOK",
+      "次の一手を1行で決めて終わる"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a038",
+    "title": "即席クリエイト",
+    "steps": [
+      "人の少ない道で短いレビューを1本書く",
+      "音を出さない",
+      "1分だけ“観察者モード”になる",
+      "無料縛りで工夫",
+      "片づけて終了"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a039",
+    "title": "持ち物の最適化",
+    "steps": [
+      "部屋の地形を変える。椅子から立ってやる",
+      "洗面台を1分だけ磨く",
+      "禁止ワードを1つ決める（例:『でも』禁止）",
+      "あるもので回す",
+      "深呼吸して完了"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a040",
+    "title": "面白いの採集",
+    "steps": [
+      "街で1曲で“1動作”作る",
+      "“3回だけ”縛り",
+      "3つ集める（色/形/音/匂いなど）",
+      "面白さ最優先でOK",
+      "片づけて終了"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a041",
+    "title": "観察のコレクション",
+    "steps": [
+      "部屋の中で3つ集める散歩（色/形/音）",
+      "椅子から立ってやる",
+      "“見つけたら勝ち”ルールを付ける",
+      "無料縛りで工夫",
+      "写真1枚で締める"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a042",
+    "title": "観察のコレクション",
+    "steps": [
+      "オンラインで撮る→選ぶ→整えるまで完了",
+      "スマホは伏せたまま",
+      "3つ集める（色/形/音/匂いなど）",
+      "面白さ最優先でOK",
+      "写真1枚で締める"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a043",
+    "title": "ノイズキャンセル",
+    "steps": [
+      "照明を変える。姿勢を一回リセットしてから",
+      "軽ストレッチ1セット",
+      "禁止ワードを1つ決める（例:『でも』禁止）",
+      "快適さ最優先でOK",
+      "写真1枚で締める"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a044",
+    "title": "観察のコレクション",
+    "steps": [
+      "オンラインで作品を1つ完成させる",
+      "椅子から立ってやる",
+      "コインで決める（表=続行/裏=終了）",
+      "小道具1つOK",
+      "水を一口飲んで完了"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a045",
+    "title": "脳の温度調整",
+    "steps": [
+      "布の感触を確かめる。タイマーを使わず体感で",
+      "15分×2 + 休憩で回復ブロック",
+      "A/B二択を作って直感で選ぶ",
+      "最高の回復を買ってOK",
+      "写真1枚で締める"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a046",
+    "title": "持ち物の最適化",
+    "steps": [
+      "提出/印刷を片付ける。姿勢を一回リセットしてから",
+      "家事を完成まで",
+      "禁止ワードを1つ決める（例:『でも』禁止）",
+      "コピー/自販機1回OK",
+      "次の一手を1行で決めて終わる"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a047",
+    "title": "遊びを撮る実験",
+    "steps": [
+      "部屋の中で1曲で“1動作”作る",
+      "スマホは伏せたまま",
+      "3つ集める（色/形/音/匂いなど）",
+      "面白さ最優先でOK",
+      "深呼吸して完了"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a048",
+    "title": "ノイズキャンセル",
+    "steps": [
+      "通知を切る。タイマーを使わず体感で",
+      "温める/冷やすを選ぶ",
+      "禁止ワードを1つ決める（例:『でも』禁止）",
+      "自販機/飲み物1つだけOK",
+      "深呼吸して完了"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a049",
+    "title": "面白いの採集",
+    "steps": [
+      "川/公園で趣味を1時間だけ本気",
+      "音を出さない",
+      "“見つけたら勝ち”ルールを付ける",
+      "面白さ最優先でOK",
+      "片づけて終了"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a050",
+    "title": "ルールを作って遊ぶ",
+    "steps": [
+      "掲示板の周りでインプット→アウトプット1セット",
+      "スマホは伏せたまま",
+      "“見つけたら勝ち”ルールを付ける",
+      "お菓子1つOK",
+      "片づけて終了"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a051",
+    "title": "弱点を1つ潰す",
+    "steps": [
+      "空き教室で。タイマーを使わず体感で",
+      "ミニテスト→弱点補強（研ぐ）",
+      "1分だけ“観察者モード”になる",
+      "良い道具で勝ってOK",
+      "写真1枚で締める"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a052",
+    "title": "疲れの正体を捕まえる",
+    "steps": [
+      "窓際に寄る。完璧禁止（60点で切り上げ）",
+      "水を一口",
+      "1分だけ“観察者モード”になる",
+      "追加購入禁止で工夫",
+      "写真1枚で締める"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a053",
+    "title": "小さな冒険",
+    "steps": [
+      "図書館近くで撮る→選ぶ→整えるまで完了",
+      "“1回だけ”縛り",
+      "コインで決める（表=続行/裏=終了）",
+      "素材/場所に少し使ってOK",
+      "深呼吸して完了"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a054",
+    "title": "問題の型を採集する",
+    "steps": [
+      "通知OFFで。椅子から立ってやる",
+      "例題→類題を1セット（検証する）",
+      "禁止ワードを1つ決める（例:『でも』禁止）",
+      "良い道具で勝ってOK",
+      "次の一手を1行で決めて終わる"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a055",
+    "title": "ノイズキャンセル",
+    "steps": [
+      "踊り場で止まる。姿勢を一回リセットしてから",
+      "外部刺激を減らす設計",
+      "1分だけ“観察者モード”になる",
+      "場所課金してもOK",
+      "写真1枚で締める"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a056",
+    "title": "小さな冒険",
+    "steps": [
+      "図書館近くでインプット→アウトプット1セット",
+      "完璧禁止（60点で切り上げ）",
+      "A/B二択を作って直感で選ぶ",
+      "体験を買ってOK",
+      "最後に一言だけメモして閉じる"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a057",
+    "title": "定義を武器にする",
+    "steps": [
+      "1タブだけで。完璧禁止（60点で切り上げ）",
+      "例題→類題を1セット（組む）",
+      "1分だけ“観察者モード”になる",
+      "参考書/印刷を使ってOK",
+      "写真1枚で締める"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a058",
+    "title": "脳の温度調整",
+    "steps": [
+      "足音を数える。タイマーを使わず体感で",
+      "温める/冷やすを選ぶ",
+      "“見つけたら勝ち”ルールを付ける",
+      "追加購入禁止で工夫",
+      "写真1枚で締める"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a059",
+    "title": "面白いの採集",
+    "steps": [
+      "部屋の中で趣味を1時間だけ本気",
+      "スマホは伏せたまま",
+      "3つ集める（色/形/音/匂いなど）",
+      "素材/場所に少し使ってOK",
+      "片づけて終了"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a060",
+    "title": "理解を要約するミニ実験",
+    "steps": [
+      "一枚にまとめる。“3回だけ”縛り",
+      "要約→自分の言葉で再説明（要約する）",
+      "3つ集める（色/形/音/匂いなど）",
+      "付箋/紙の小道具OK",
+      "深呼吸して完了"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a061",
+    "title": "面倒の根を切る",
+    "steps": [
+      "提出/印刷を片付ける。“3回だけ”縛り",
+      "捨てるものを5個見つける",
+      "A/B二択を作って直感で選ぶ",
+      "未来が楽になる買い物OK",
+      "片づけて終了"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a062",
+    "title": "問題の型を採集する",
+    "steps": [
+      "図書館で。“1回だけ”縛り",
+      "弱点リスト作成（分解する）",
+      "“見つけたら勝ち”ルールを付ける",
+      "コピー1回だけOK",
+      "写真1枚で締める"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a063",
+    "title": "ノイズキャンセル",
+    "steps": [
+      "窓際に寄る。完璧禁止（60点で切り上げ）",
+      "15分×2 + 休憩で回復ブロック",
+      "禁止ワードを1つ決める（例:『でも』禁止）",
+      "あるもので完結",
+      "水を一口飲んで完了"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a064",
+    "title": "一枚まとめ錬金術",
+    "steps": [
+      "紙とペンで。姿勢を一回リセットしてから",
+      "45分集中+15分復習（組む）",
+      "“見つけたら勝ち”ルールを付ける",
+      "最短で伸びる手段を選んでOK",
+      "水を一口飲んで完了"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a065",
+    "title": "ルールを作って遊ぶ",
+    "steps": [
+      "部屋の中で写真を1枚だけ“テーマ付き”で撮る",
+      "姿勢を一回リセットしてから",
+      "3つ集める（色/形/音/匂いなど）",
+      "小道具1つOK",
+      "次の一手を1行で決めて終わる"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a066",
+    "title": "脳の温度調整",
+    "steps": [
+      "窓際に寄る。スマホは伏せたまま",
+      "疲れの正体を1行",
+      "1分だけ“観察者モード”になる",
+      "最高の回復を買ってOK",
+      "水を一口飲んで完了"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a067",
+    "title": "生活の詰まりを抜く",
+    "steps": [
+      "補充で未来を助ける。椅子から立ってやる",
+      "生活の詰まりを1つ解消",
+      "禁止ワードを1つ決める（例:『でも』禁止）",
+      "時間を買ってOK",
+      "次の一手を1行で決めて終わる"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a068",
+    "title": "定義を武器にする",
+    "steps": [
+      "机の上だけで。姿勢を一回リセットしてから",
+      "暗記カードを3枚だけ（検証する）",
+      "1分だけ“観察者モード”になる",
+      "参考書/印刷を使ってOK",
+      "写真1枚で締める"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a069",
+    "title": "持ち物の最適化",
+    "steps": [
+      "タブ整理。椅子から立ってやる",
+      "床の一角だけ掃除",
+      "“見つけたら勝ち”ルールを付ける",
+      "未来が楽になる買い物OK",
+      "片づけて終了"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a070",
+    "title": "ノイズキャンセル",
+    "steps": [
+      "机の上だけ整える。“1回だけ”縛り",
+      "呼吸を3回だけ数える",
+      "禁止ワードを1つ決める（例:『でも』禁止）",
+      "追加購入禁止で工夫",
+      "深呼吸して完了"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a071",
+    "title": "生活の詰まりを抜く",
+    "steps": [
+      "補充で未来を助ける。音を出さない",
+      "床の一角だけ掃除",
+      "3つ集める（色/形/音/匂いなど）",
+      "未来が楽になる買い物OK",
+      "片づけて終了"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a072",
+    "title": "小さな冒険",
+    "steps": [
+      "机の上でミニ作品を1つ作る",
+      "タイマーを使わず体感で",
+      "コインで決める（表=続行/裏=終了）",
+      "体験を買ってOK",
+      "片づけて終了"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a073",
+    "title": "回復のスイッチ",
+    "steps": [
+      "風向きを当てる。音を出さない",
+      "目を休める",
+      "コインで決める（表=続行/裏=終了）",
+      "小さなお菓子1つだけOK",
+      "片づけて終了"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a074",
+    "title": "片づけをゲーム化",
+    "steps": [
+      "予定と持ち物を整える。スマホは伏せたまま",
+      "持ち物を3点だけ整列",
+      "“見つけたら勝ち”ルールを付ける",
+      "買わずに工夫",
+      "深呼吸して完了"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a075",
+    "title": "回復のスイッチ",
+    "steps": [
+      "画面から距離を取る。完璧禁止（60点で切り上げ）",
+      "外部刺激を減らす設計",
+      "1分だけ“観察者モード”になる",
+      "小さなご褒美を設計してOK",
+      "写真1枚で締める"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a076",
+    "title": "生活の詰まりを抜く",
+    "steps": [
+      "必要なものだけ買う。椅子から立ってやる",
+      "生活の負債をまとめて返す",
+      "3つ集める（色/形/音/匂いなど）",
+      "買わずに工夫",
+      "次の一手を1行で決めて終わる"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a077",
+    "title": "持ち物の最適化",
+    "steps": [
+      "部屋の地形を変える。スマホは伏せたまま",
+      "家事を完成まで",
+      "3つ集める（色/形/音/匂いなど）",
+      "買わずに工夫",
+      "次の一手を1行で決めて終わる"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a078",
+    "title": "片づけをゲーム化",
+    "steps": [
+      "補充で未来を助ける。音を出さない",
+      "持ち物を3点だけ整列",
+      "禁止ワードを1つ決める（例:『でも』禁止）",
+      "便利で短縮してOK",
+      "水を一口飲んで完了"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a079",
+    "title": "問題の型を採集する",
+    "steps": [
+      "空き教室で。“1回だけ”縛り",
+      "例題→類題を1セット（試す）",
+      "3つ集める（色/形/音/匂いなど）",
+      "参考書/印刷を使ってOK",
+      "深呼吸して完了"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a080",
+    "title": "持ち物の最適化",
+    "steps": [
+      "タブ整理。完璧禁止（60点で切り上げ）",
+      "生活の負債をまとめて返す",
+      "“見つけたら勝ち”ルールを付ける",
+      "時間を買ってOK",
+      "水を一口飲んで完了"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a081",
+    "title": "ルールを作って遊ぶ",
+    "steps": [
+      "掲示板の周りでランダム単語3つでミニ創作",
+      "スマホは伏せたまま",
+      "A/B二択を作って直感で選ぶ",
+      "素材/場所に少し使ってOK",
+      "片づけて終了"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a082",
+    "title": "小さな冒険",
+    "steps": [
+      "通知OFFでミニ作品を1つ作る",
+      "音を出さない",
+      "3つ集める（色/形/音/匂いなど）",
+      "素材/場所に少し使ってOK",
+      "深呼吸して完了"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a083",
+    "title": "問題の型を採集する",
+    "steps": [
+      "検索は1回だけで。“1回だけ”縛り",
+      "1問だけ解いて理由を書く（要約する）",
+      "3つ集める（色/形/音/匂いなど）",
+      "付箋/紙の小道具OK",
+      "次の一手を1行で決めて終わる"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a084",
+    "title": "定義を武器にする",
+    "steps": [
+      "歩きながら考えて。“1回だけ”縛り",
+      "弱点リスト作成（研ぐ）",
+      "1分だけ“観察者モード”になる",
+      "コピー1回だけOK",
+      "水を一口飲んで完了"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a085",
+    "title": "ノイズキャンセル",
+    "steps": [
+      "タブを3つ閉じる。完璧禁止（60点で切り上げ）",
+      "やらないことを先に決める",
+      "3つ集める（色/形/音/匂いなど）",
+      "追加購入禁止で工夫",
+      "次の一手を1行で決めて終わる"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a086",
+    "title": "面白いの採集",
+    "steps": [
+      "オンラインで写真を1枚だけ“テーマ付き”で撮る",
+      "“3回だけ”縛り",
+      "1分だけ“観察者モード”になる",
+      "無料縛りで工夫",
+      "次の一手を1行で決めて終わる"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a087",
+    "title": "小さな冒険",
+    "steps": [
+      "街でミニ作品を1つ作る",
+      "音を出さない",
+      "1分だけ“観察者モード”になる",
+      "カフェ/文具OK",
+      "深呼吸して完了"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a088",
+    "title": "遊びを作る実験",
+    "steps": [
+      "図書館近くで趣味を1時間だけ本気",
+      "音を出さない",
+      "1分だけ“観察者モード”になる",
+      "道具は手元のものだけ",
+      "深呼吸して完了"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a089",
+    "title": "感覚を戻す儀式",
+    "steps": [
+      "タブを3つ閉じる。姿勢を一回リセットしてから",
+      "15分×2 + 休憩で回復ブロック",
+      "A/B二択を作って直感で選ぶ",
+      "場所課金してもOK",
+      "最後に一言だけメモして閉じる"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a090",
+    "title": "即席クリエイト",
+    "steps": [
+      "掲示板の周りでミニ作品を1つ作る",
+      "完璧禁止（60点で切り上げ）",
+      "A/B二択を作って直感で選ぶ",
+      "面白さ最優先でOK",
+      "次の一手を1行で決めて終わる"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a091",
+    "title": "面倒の根を切る",
+    "steps": [
+      "移動を最適化する。椅子から立ってやる",
+      "収納を1エリア点検",
+      "3つ集める（色/形/音/匂いなど）",
+      "コピー/自販機1回OK",
+      "最後に一言だけメモして閉じる"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a092",
+    "title": "小さな冒険",
+    "steps": [
+      "部屋の中で趣味を1時間だけ本気",
+      "完璧禁止（60点で切り上げ）",
+      "A/B二択を作って直感で選ぶ",
+      "無料縛りで工夫",
+      "最後に一言だけメモして閉じる"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a093",
+    "title": "ルールを作って遊ぶ",
+    "steps": [
+      "街でインプット→アウトプット1セット",
+      "姿勢を一回リセットしてから",
+      "コインで決める（表=続行/裏=終了）",
+      "お菓子1つOK",
+      "最後に一言だけメモして閉じる"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a094",
+    "title": "静けさを取り戻す",
+    "steps": [
+      "タブを3つ閉じる。音を出さない",
+      "軽ストレッチ1セット",
+      "A/B二択を作って直感で選ぶ",
+      "自販機/飲み物1つだけOK",
+      "片づけて終了"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a095",
+    "title": "定義を武器にする",
+    "steps": [
+      "図書館で。完璧禁止（60点で切り上げ）",
+      "定義/公式を1つ写経（研ぐ）",
+      "1分だけ“観察者モード”になる",
+      "既存資料だけで勝つ",
+      "写真1枚で締める"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a096",
+    "title": "一枚まとめ錬金術",
+    "steps": [
+      "図書館で。音を出さない",
+      "暗記カードを3枚だけ（組む）",
+      "3つ集める（色/形/音/匂いなど）",
+      "最短で伸びる手段を選んでOK",
+      "最後に一言だけメモして閉じる"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a097",
+    "title": "問題の型を採集する",
+    "steps": [
+      "紙とペンで。“1回だけ”縛り",
+      "要約→自分の言葉で再説明（検証する）",
+      "禁止ワードを1つ決める（例:『でも』禁止）",
+      "参考書/印刷を使ってOK",
+      "最後に一言だけメモして閉じる"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a098",
+    "title": "面白いの採集",
+    "steps": [
+      "通知OFFで写真を1枚だけ“テーマ付き”で撮る",
+      "椅子から立ってやる",
+      "3つ集める（色/形/音/匂いなど）",
+      "お菓子1つOK",
+      "次の一手を1行で決めて終わる"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a099",
+    "title": "観察のコレクション",
+    "steps": [
+      "人の少ない道で短いレビューを1本書く",
+      "タイマーを使わず体感で",
+      "“見つけたら勝ち”ルールを付ける",
+      "お菓子1つOK",
+      "最後に一言だけメモして閉じる"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a100",
+    "title": "定義を武器にする",
+    "steps": [
+      "ベンチで。“3回だけ”縛り",
+      "間違いの型を1つ特定（分解する）",
+      "3つ集める（色/形/音/匂いなど）",
+      "付箋/紙の小道具OK",
+      "最後に一言だけメモして閉じる"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a101",
+    "title": "ルールを作って遊ぶ",
+    "steps": [
+      "図書館近くで作品を1つ完成させる",
+      "“3回だけ”縛り",
+      "3つ集める（色/形/音/匂いなど）",
+      "無料縛りで工夫",
+      "深呼吸して完了"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a102",
+    "title": "定義を武器にする",
+    "steps": [
+      "カフェの端で。音を出さない",
+      "要約→自分の言葉で再説明（分解する）",
+      "3つ集める（色/形/音/匂いなど）",
+      "参考書/印刷を使ってOK",
+      "写真1枚で締める"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a103",
+    "title": "生活の詰まりを抜く",
+    "steps": [
+      "必要なものだけ買う。タイマーを使わず体感で",
+      "洗濯の1工程だけ進める",
+      "1分だけ“観察者モード”になる",
+      "あるもので回す",
+      "水を一口飲んで完了"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a104",
+    "title": "観察のコレクション",
+    "steps": [
+      "音を小さくして作品を1つ完成させる",
+      "椅子から立ってやる",
+      "コインで決める（表=続行/裏=終了）",
+      "小道具1つOK",
+      "深呼吸して完了"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a105",
+    "title": "部屋を再配置する",
+    "steps": [
+      "予定と持ち物を整える。“3回だけ”縛り",
+      "部屋をゾーンで攻略",
+      "3つ集める（色/形/音/匂いなど）",
+      "買わずに工夫",
+      "深呼吸して完了"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a106",
+    "title": "脳の温度調整",
+    "steps": [
+      "風向きを当てる。姿勢を一回リセットしてから",
+      "呼吸を3回だけ数える",
+      "“見つけたら勝ち”ルールを付ける",
+      "小さなお菓子1つだけOK",
+      "次の一手を1行で決めて終わる"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a107",
+    "title": "理解を分解するミニ実験",
+    "steps": [
+      "机の上だけで。椅子から立ってやる",
+      "暗記カードを3枚だけ（分解する）",
+      "1分だけ“観察者モード”になる",
+      "無料で完結",
+      "次の一手を1行で決めて終わる"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a108",
+    "title": "小さな冒険",
+    "steps": [
+      "人の少ない道で小旅行レベルで場所を変える",
+      "完璧禁止（60点で切り上げ）",
+      "1分だけ“観察者モード”になる",
+      "カフェ/文具OK",
+      "写真1枚で締める"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a109",
+    "title": "理解を写すミニ実験",
+    "steps": [
+      "図書館で。音を出さない",
+      "ミニテスト→弱点補強（写す）",
+      "A/B二択を作って直感で選ぶ",
+      "場所課金OK",
+      "次の一手を1行で決めて終わる"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a110",
+    "title": "面白いの採集",
+    "steps": [
+      "部屋の中でランダム単語3つでミニ創作",
+      "音を出さない",
+      "1分だけ“観察者モード”になる",
+      "道具は手元のものだけ",
+      "深呼吸して完了"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a111",
+    "title": "疲れの正体を捕まえる",
+    "steps": [
+      "机の上だけ整える。音を出さない",
+      "呼吸を3回だけ数える",
+      "“見つけたら勝ち”ルールを付ける",
+      "小さなご褒美を設計してOK",
+      "水を一口飲んで完了"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a112",
+    "title": "観察のコレクション",
+    "steps": [
+      "通知OFFで写真を1枚だけ“テーマ付き”で撮る",
+      "“1回だけ”縛り",
+      "“見つけたら勝ち”ルールを付ける",
+      "カフェ/文具OK",
+      "深呼吸して完了"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a113",
+    "title": "未来の自分を救助",
+    "steps": [
+      "部屋の地形を変える。“1回だけ”縛り",
+      "床の一角だけ掃除",
+      "“見つけたら勝ち”ルールを付ける",
+      "コピー/自販機1回OK",
+      "片づけて終了"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a114",
+    "title": "ルールを作って遊ぶ",
+    "steps": [
+      "1タブだけで趣味を1時間だけ本気",
+      "タイマーを使わず体感で",
+      "3つ集める（色/形/音/匂いなど）",
+      "小道具1つOK",
+      "水を一口飲んで完了"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a115",
+    "title": "遊びを作る実験",
+    "steps": [
+      "キャンパスでミニ作品を1つ作る",
+      "完璧禁止（60点で切り上げ）",
+      "コインで決める（表=続行/裏=終了）",
+      "カフェ/文具OK",
+      "次の一手を1行で決めて終わる"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a116",
+    "title": "説明できるに寄せる",
+    "steps": [
+      "一枚にまとめる。タイマーを使わず体感で",
+      "理解→演習→まとめの3ブロック（検証する）",
+      "コインで決める（表=続行/裏=終了）",
+      "最短で伸びる手段を選んでOK",
+      "次の一手を1行で決めて終わる"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a117",
+    "title": "ルールを作って遊ぶ",
+    "steps": [
+      "街で作品を1つ完成させる",
+      "音を出さない",
+      "“見つけたら勝ち”ルールを付ける",
+      "体験を買ってOK",
+      "次の一手を1行で決めて終わる"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a118",
+    "title": "感覚を沈める儀式",
+    "steps": [
+      "窓を開ける。姿勢を一回リセットしてから",
+      "遠近でピント切替",
+      "A/B二択を作って直感で選ぶ",
+      "場所課金してもOK",
+      "次の一手を1行で決めて終わる"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a119",
+    "title": "感覚を沈める儀式",
+    "steps": [
+      "風向きを当てる。姿勢を一回リセットしてから",
+      "目を休める",
+      "A/B二択を作って直感で選ぶ",
+      "快適さ最優先でOK",
+      "最後に一言だけメモして閉じる"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a120",
+    "title": "持ち物の最適化",
+    "steps": [
+      "予定の棚卸し。音を出さない",
+      "収納を1エリア点検",
+      "3つ集める（色/形/音/匂いなど）",
+      "あるもので回す",
+      "片づけて終了"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a121",
+    "title": "面倒の根を切る",
+    "steps": [
+      "床面積を取り戻す。“1回だけ”縛り",
+      "生活の負債をまとめて返す",
+      "禁止ワードを1つ決める（例:『でも』禁止）",
+      "時間を買ってOK",
+      "水を一口飲んで完了"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a122",
+    "title": "問題の型を採集する",
+    "steps": [
+      "ベンチで。スマホは伏せたまま",
+      "要約→自分の言葉で再説明（研ぐ）",
+      "コインで決める（表=続行/裏=終了）",
+      "付箋/紙の小道具OK",
+      "深呼吸して完了"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a123",
+    "title": "片づけをゲーム化",
+    "steps": [
+      "補充で未来を助ける。タイマーを使わず体感で",
+      "洗面台を1分だけ磨く",
+      "3つ集める（色/形/音/匂いなど）",
+      "コピー/自販機1回OK",
+      "水を一口飲んで完了"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a124",
+    "title": "疲れの正体を捕まえる",
+    "steps": [
+      "空を見る。椅子から立ってやる",
+      "回復メニューを3つ選ぶ",
+      "1分だけ“観察者モード”になる",
+      "自販機/飲み物1つだけOK",
+      "次の一手を1行で決めて終わる"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a125",
+    "title": "疲れの正体を捕まえる",
+    "steps": [
+      "画面から距離を取る。完璧禁止（60点で切り上げ）",
+      "目を休める",
+      "コインで決める（表=続行/裏=終了）",
+      "場所課金してもOK",
+      "次の一手を1行で決めて終わる"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a126",
+    "title": "回復のスイッチ",
+    "steps": [
+      "タブを3つ閉じる。完璧禁止（60点で切り上げ）",
+      "回復メニューを3つ選ぶ",
+      "コインで決める（表=続行/裏=終了）",
+      "自販機/飲み物1つだけOK",
+      "水を一口飲んで完了"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a127",
+    "title": "説明できるに寄せる",
+    "steps": [
+      "検索は1回だけで。タイマーを使わず体感で",
+      "要約→自分の言葉で再説明（検証する）",
+      "“見つけたら勝ち”ルールを付ける",
+      "既存資料だけで勝つ",
+      "写真1枚で締める"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a128",
+    "title": "回復のスイッチ",
+    "steps": [
+      "タブを3つ閉じる。“3回だけ”縛り",
+      "軽ストレッチ1セット",
+      "“見つけたら勝ち”ルールを付ける",
+      "最高の回復を買ってOK",
+      "次の一手を1行で決めて終わる"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a129",
+    "title": "生活の詰まりを抜く",
+    "steps": [
+      "移動を最適化する。タイマーを使わず体感で",
+      "洗濯の1工程だけ進める",
+      "“見つけたら勝ち”ルールを付ける",
+      "コピー/自販機1回OK",
+      "次の一手を1行で決めて終わる"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a130",
+    "title": "遊びを探す実験",
+    "steps": [
+      "図書館近くでミニ作品を1つ作る",
+      "スマホは伏せたまま",
+      "1分だけ“観察者モード”になる",
+      "小道具1つOK",
+      "次の一手を1行で決めて終わる"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a131",
+    "title": "生活の詰まりを抜く",
+    "steps": [
+      "補充で未来を助ける。椅子から立ってやる",
+      "片づけ→掃除→補充を1セット",
+      "1分だけ“観察者モード”になる",
+      "買わずに工夫",
+      "水を一口飲んで完了"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a132",
+    "title": "持ち物の最適化",
+    "steps": [
+      "予定の棚卸し。椅子から立ってやる",
+      "家事を完成まで",
+      "1分だけ“観察者モード”になる",
+      "買わずに工夫",
+      "最後に一言だけメモして閉じる"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a133",
+    "title": "定義を武器にする",
+    "steps": [
+      "検索は1回だけで。姿勢を一回リセットしてから",
+      "45分集中+15分復習（検証する）",
+      "3つ集める（色/形/音/匂いなど）",
+      "コピー1回だけOK",
+      "水を一口飲んで完了"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a134",
+    "title": "ルールを作って遊ぶ",
+    "steps": [
+      "部屋の中でインプット→アウトプット1セット",
+      "“1回だけ”縛り",
+      "“見つけたら勝ち”ルールを付ける",
+      "道具は手元のものだけ",
+      "写真1枚で締める"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a135",
+    "title": "面白いの採集",
+    "steps": [
+      "1タブだけで短いレビューを1本書く",
+      "椅子から立ってやる",
+      "A/B二択を作って直感で選ぶ",
+      "面白さ最優先でOK",
+      "最後に一言だけメモして閉じる"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a136",
+    "title": "脳の温度調整",
+    "steps": [
+      "窓を開ける。音を出さない",
+      "15分×2 + 休憩で回復ブロック",
+      "3つ集める（色/形/音/匂いなど）",
+      "場所課金してもOK",
+      "最後に一言だけメモして閉じる"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a137",
+    "title": "面倒の根を切る",
+    "steps": [
+      "予定と持ち物を整える。音を出さない",
+      "収納を1エリア点検",
+      "3つ集める（色/形/音/匂いなど）",
+      "時間を買ってOK",
+      "水を一口飲んで完了"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a138",
+    "title": "弱点を1つ潰す",
+    "steps": [
+      "ベンチで。“1回だけ”縛り",
+      "ミニテスト→弱点補強（要約する）",
+      "A/B二択を作って直感で選ぶ",
+      "既存資料だけで勝つ",
+      "片づけて終了"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a139",
+    "title": "ノイズキャンセル",
+    "steps": [
+      "タブを3つ閉じる。音を出さない",
+      "呼吸を3回だけ数える",
+      "A/B二択を作って直感で選ぶ",
+      "小さなお菓子1つだけOK",
+      "写真1枚で締める"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a140",
+    "title": "面白いの採集",
+    "steps": [
+      "キャンパスで写真を1枚だけ“テーマ付き”で撮る",
+      "スマホは伏せたまま",
+      "コインで決める（表=続行/裏=終了）",
+      "無料縛りで工夫",
+      "水を一口飲んで完了"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a141",
+    "title": "問題の型を採集する",
+    "steps": [
+      "図書館で。“1回だけ”縛り",
+      "定義/公式を1つ写経（試す）",
+      "禁止ワードを1つ決める（例:『でも』禁止）",
+      "付箋/紙の小道具OK",
+      "最後に一言だけメモして閉じる"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a142",
+    "title": "疲れの正体を捕まえる",
+    "steps": [
+      "風向きを当てる。椅子から立ってやる",
+      "外部刺激を減らす設計",
+      "コインで決める（表=続行/裏=終了）",
+      "最高の回復を買ってOK",
+      "深呼吸して完了"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a143",
+    "title": "感覚を沈める儀式",
+    "steps": [
+      "空を見る。姿勢を一回リセットしてから",
+      "温める/冷やすを選ぶ",
+      "コインで決める（表=続行/裏=終了）",
+      "自販機/飲み物1つだけOK",
+      "最後に一言だけメモして閉じる"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a144",
+    "title": "回復のスイッチ",
+    "steps": [
+      "踊り場で止まる。スマホは伏せたまま",
+      "呼吸を3回だけ数える",
+      "A/B二択を作って直感で選ぶ",
+      "小さなご褒美を設計してOK",
+      "片づけて終了"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a145",
+    "title": "問題の型を採集する",
+    "steps": [
+      "静かな席で。タイマーを使わず体感で",
+      "45分集中+15分復習（分解する）",
+      "“見つけたら勝ち”ルールを付ける",
+      "コピー1回だけOK",
+      "片づけて終了"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a146",
+    "title": "疲れの正体を捕まえる",
+    "steps": [
+      "照明を変える。完璧禁止（60点で切り上げ）",
+      "やらないことを先に決める",
+      "コインで決める（表=続行/裏=終了）",
+      "自販機/飲み物1つだけOK",
+      "最後に一言だけメモして閉じる"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a147",
+    "title": "定義を武器にする",
+    "steps": [
+      "一枚にまとめる。椅子から立ってやる",
+      "定義/公式を1つ写経（写す）",
+      "1分だけ“観察者モード”になる",
+      "コピー1回だけOK",
+      "片づけて終了"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a148",
+    "title": "弱点を1つ潰す",
+    "steps": [
+      "空き教室で。姿勢を一回リセットしてから",
+      "1問だけ解いて理由を書く（試す）",
+      "3つ集める（色/形/音/匂いなど）",
+      "場所課金OK",
+      "深呼吸して完了"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a149",
+    "title": "疲れの正体を捕まえる",
+    "steps": [
+      "静かな端に移動。スマホは伏せたまま",
+      "回復メニューを3つ選ぶ",
+      "禁止ワードを1つ決める（例:『でも』禁止）",
+      "快適さ最優先でOK",
+      "水を一口飲んで完了"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a150",
+    "title": "説明できるに寄せる",
+    "steps": [
+      "検索は1回だけで。姿勢を一回リセットしてから",
+      "1問だけ解いて理由を書く（研ぐ）",
+      "コインで決める（表=続行/裏=終了）",
+      "既存資料だけで勝つ",
+      "写真1枚で締める"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a151",
+    "title": "遊びを語る実験",
+    "steps": [
+      "机の上でインプット→アウトプット1セット",
+      "音を出さない",
+      "A/B二択を作って直感で選ぶ",
+      "面白さ最優先でOK",
+      "片づけて終了"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a152",
+    "title": "ルールを作って遊ぶ",
+    "steps": [
+      "通知OFFで短いレビューを1本書く",
+      "“3回だけ”縛り",
+      "コインで決める（表=続行/裏=終了）",
+      "小道具1つOK",
+      "次の一手を1行で決めて終わる"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a153",
+    "title": "生活の詰まりを抜く",
+    "steps": [
+      "寄り道を封印。タイマーを使わず体感で",
+      "床の一角だけ掃除",
+      "禁止ワードを1つ決める（例:『でも』禁止）",
+      "コピー/自販機1回OK",
+      "水を一口飲んで完了"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a154",
+    "title": "感覚を冷やす儀式",
+    "steps": [
+      "布の感触を確かめる。椅子から立ってやる",
+      "軽ストレッチ1セット",
+      "A/B二択を作って直感で選ぶ",
+      "小さなお菓子1つだけOK",
+      "次の一手を1行で決めて終わる"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a155",
+    "title": "疲れの正体を捕まえる",
+    "steps": [
+      "窓際に寄る。音を出さない",
+      "呼吸を3回だけ数える",
+      "1分だけ“観察者モード”になる",
+      "自販機/飲み物1つだけOK",
+      "最後に一言だけメモして閉じる"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a156",
+    "title": "ノイズキャンセル",
+    "steps": [
+      "窓際に寄る。スマホは伏せたまま",
+      "温める/冷やすを選ぶ",
+      "コインで決める（表=続行/裏=終了）",
+      "場所課金してもOK",
+      "写真1枚で締める"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a157",
+    "title": "未来の自分を救助",
+    "steps": [
+      "用事を2つまでに制限。姿勢を一回リセットしてから",
+      "洗面台を1分だけ磨く",
+      "“見つけたら勝ち”ルールを付ける",
+      "便利で短縮してOK",
+      "片づけて終了"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a158",
+    "title": "脳の温度調整",
+    "steps": [
+      "照明を変える。タイマーを使わず体感で",
+      "軽ストレッチ1セット",
+      "コインで決める（表=続行/裏=終了）",
+      "追加購入禁止で工夫",
+      "次の一手を1行で決めて終わる"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a159",
+    "title": "理解を写すミニ実験",
+    "steps": [
+      "カフェの端で。“3回だけ”縛り",
+      "1段落だけ読んで要点1行（写す）",
+      "3つ集める（色/形/音/匂いなど）",
+      "参考書/印刷を使ってOK",
+      "深呼吸して完了"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a160",
+    "title": "持ち物の最適化",
+    "steps": [
+      "ファイル整理。タイマーを使わず体感で",
+      "洗面台を1分だけ磨く",
+      "3つ集める（色/形/音/匂いなど）",
+      "買わずに工夫",
+      "次の一手を1行で決めて終わる"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a161",
+    "title": "ルールを作って遊ぶ",
+    "steps": [
+      "部屋の中で趣味を1時間だけ本気",
+      "完璧禁止（60点で切り上げ）",
+      "1分だけ“観察者モード”になる",
+      "体験を買ってOK",
+      "最後に一言だけメモして閉じる"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a162",
+    "title": "小さな冒険",
+    "steps": [
+      "オンラインで小旅行レベルで場所を変える",
+      "姿勢を一回リセットしてから",
+      "コインで決める（表=続行/裏=終了）",
+      "カフェ/文具OK",
+      "写真1枚で締める"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a163",
+    "title": "面倒の根を切る",
+    "steps": [
+      "タブ整理。“1回だけ”縛り",
+      "家事を完成まで",
+      "3つ集める（色/形/音/匂いなど）",
+      "コピー/自販機1回OK",
+      "次の一手を1行で決めて終わる"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a164",
+    "title": "ルールを作って遊ぶ",
+    "steps": [
+      "川/公園で写真を1枚だけ“テーマ付き”で撮る",
+      "椅子から立ってやる",
+      "1分だけ“観察者モード”になる",
+      "お菓子1つOK",
+      "次の一手を1行で決めて終わる"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a165",
+    "title": "脳の温度調整",
+    "steps": [
+      "人の少ない道へ。椅子から立ってやる",
+      "回復メニューを3つ選ぶ",
+      "禁止ワードを1つ決める（例:『でも』禁止）",
+      "あるもので完結",
+      "深呼吸して完了"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a166",
+    "title": "弱点を1つ潰す",
+    "steps": [
+      "ベンチで。姿勢を一回リセットしてから",
+      "テーマ1つを深掘り（要約する）",
+      "3つ集める（色/形/音/匂いなど）",
+      "無料で完結",
+      "水を一口飲んで完了"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a167",
+    "title": "感覚をほどく儀式",
+    "steps": [
+      "風向きを当てる。“3回だけ”縛り",
+      "遠近でピント切替",
+      "禁止ワードを1つ決める（例:『でも』禁止）",
+      "場所課金してもOK",
+      "最後に一言だけメモして閉じる"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a168",
+    "title": "面倒の根を切る",
+    "steps": [
+      "寄り道を封印。音を出さない",
+      "持ち物を3点だけ整列",
+      "禁止ワードを1つ決める（例:『でも』禁止）",
+      "時間を買ってOK",
+      "深呼吸して完了"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a169",
+    "title": "ルールを作って遊ぶ",
+    "steps": [
+      "通知OFFでインプット→アウトプット1セット",
+      "椅子から立ってやる",
+      "“見つけたら勝ち”ルールを付ける",
+      "体験を買ってOK",
+      "水を一口飲んで完了"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a170",
+    "title": "片づけをゲーム化",
+    "steps": [
+      "ファイル整理。タイマーを使わず体感で",
+      "収納を1エリア点検",
+      "A/B二択を作って直感で選ぶ",
+      "未来が楽になる買い物OK",
+      "次の一手を1行で決めて終わる"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a171",
+    "title": "定義を武器にする",
+    "steps": [
+      "紙とペンで。タイマーを使わず体感で",
+      "間違いの型を1つ特定（写す）",
+      "コインで決める（表=続行/裏=終了）",
+      "付箋/紙の小道具OK",
+      "深呼吸して完了"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a172",
+    "title": "生活の詰まりを抜く",
+    "steps": [
+      "予定と持ち物を整える。椅子から立ってやる",
+      "洗濯の1工程だけ進める",
+      "3つ集める（色/形/音/匂いなど）",
+      "あるもので回す",
+      "片づけて終了"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a173",
+    "title": "説明できるに寄せる",
+    "steps": [
+      "検索は1回だけで。スマホは伏せたまま",
+      "弱点リスト作成（試す）",
+      "3つ集める（色/形/音/匂いなど）",
+      "付箋/紙の小道具OK",
+      "写真1枚で締める"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a174",
+    "title": "弱点を1つ潰す",
+    "steps": [
+      "通知OFFで。姿勢を一回リセットしてから",
+      "例題→類題を1セット（研ぐ）",
+      "3つ集める（色/形/音/匂いなど）",
+      "コピー1回だけOK",
+      "水を一口飲んで完了"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a175",
+    "title": "面白いの採集",
+    "steps": [
+      "部屋の中で短いレビューを1本書く",
+      "完璧禁止（60点で切り上げ）",
+      "“見つけたら勝ち”ルールを付ける",
+      "小道具1つOK",
+      "水を一口飲んで完了"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a176",
+    "title": "生活の詰まりを抜く",
+    "steps": [
+      "部屋の地形を変える。タイマーを使わず体感で",
+      "生活の負債をまとめて返す",
+      "“見つけたら勝ち”ルールを付ける",
+      "コピー/自販機1回OK",
+      "片づけて終了"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a177",
+    "title": "感覚をゆるめる儀式",
+    "steps": [
+      "窓を開ける。音を出さない",
+      "温める/冷やすを選ぶ",
+      "禁止ワードを1つ決める（例:『でも』禁止）",
+      "追加購入禁止で工夫",
+      "水を一口飲んで完了"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a178",
+    "title": "問題の型を採集する",
+    "steps": [
+      "紙とペンで。タイマーを使わず体感で",
+      "弱点リスト作成（組む）",
+      "禁止ワードを1つ決める（例:『でも』禁止）",
+      "コピー1回だけOK",
+      "次の一手を1行で決めて終わる"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a179",
+    "title": "未来の自分を救助",
+    "steps": [
+      "寄り道を封印。音を出さない",
+      "部屋をゾーンで攻略",
+      "禁止ワードを1つ決める（例:『でも』禁止）",
+      "未来が楽になる買い物OK",
+      "深呼吸して完了"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a180",
+    "title": "ノイズキャンセル",
+    "steps": [
+      "布の感触を確かめる。“1回だけ”縛り",
+      "呼吸を3回だけ数える",
+      "コインで決める（表=続行/裏=終了）",
+      "自販機/飲み物1つだけOK",
+      "次の一手を1行で決めて終わる"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a181",
+    "title": "面白いの採集",
+    "steps": [
+      "キャンパスで写真を1枚だけ“テーマ付き”で撮る",
+      "“1回だけ”縛り",
+      "3つ集める（色/形/音/匂いなど）",
+      "面白さ最優先でOK",
+      "最後に一言だけメモして閉じる"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a182",
+    "title": "未来の自分を救助",
+    "steps": [
+      "予定と持ち物を整える。“1回だけ”縛り",
+      "生活の負債をまとめて返す",
+      "1分だけ“観察者モード”になる",
+      "時間を買ってOK",
+      "片づけて終了"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a183",
+    "title": "静けさを取り戻す",
+    "steps": [
+      "踊り場で止まる。“3回だけ”縛り",
+      "やらないことを先に決める",
+      "A/B二択を作って直感で選ぶ",
+      "追加購入禁止で工夫",
+      "写真1枚で締める"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a184",
+    "title": "定義を武器にする",
+    "steps": [
+      "紙とペンで。音を出さない",
+      "1問だけ解いて理由を書く（分解する）",
+      "コインで決める（表=続行/裏=終了）",
+      "最短で伸びる手段を選んでOK",
+      "深呼吸して完了"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a185",
+    "title": "部屋を再配置する",
+    "steps": [
+      "予定と持ち物を整える。“3回だけ”縛り",
+      "洗面台を1分だけ磨く",
+      "A/B二択を作って直感で選ぶ",
+      "時間を買ってOK",
+      "深呼吸して完了"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a186",
+    "title": "静けさを取り戻す",
+    "steps": [
+      "机の上だけ整える。完璧禁止（60点で切り上げ）",
+      "水を一口",
+      "3つ集める（色/形/音/匂いなど）",
+      "快適さ最優先でOK",
+      "深呼吸して完了"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a187",
+    "title": "片づけをゲーム化",
+    "steps": [
+      "必要なものだけ買う。“1回だけ”縛り",
+      "家事を完成まで",
+      "禁止ワードを1つ決める（例:『でも』禁止）",
+      "コピー/自販機1回OK",
+      "片づけて終了"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a188",
+    "title": "即席クリエイト",
+    "steps": [
+      "キャンパスでミニ企画（テーマ制）をやる",
+      "“1回だけ”縛り",
+      "禁止ワードを1つ決める（例:『でも』禁止）",
+      "小道具1つOK",
+      "片づけて終了"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a189",
+    "title": "感覚を戻す儀式",
+    "steps": [
+      "静かな端に移動。姿勢を一回リセットしてから",
+      "軽ストレッチ1セット",
+      "“見つけたら勝ち”ルールを付ける",
+      "追加購入禁止で工夫",
+      "次の一手を1行で決めて終わる"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a190",
+    "title": "小さな冒険",
+    "steps": [
+      "図書館近くで写真を1枚だけ“テーマ付き”で撮る",
+      "タイマーを使わず体感で",
+      "3つ集める（色/形/音/匂いなど）",
+      "小道具1つOK",
+      "最後に一言だけメモして閉じる"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a191",
+    "title": "遊びを集める実験",
+    "steps": [
+      "キャンパスでミニ企画（テーマ制）をやる",
+      "完璧禁止（60点で切り上げ）",
+      "コインで決める（表=続行/裏=終了）",
+      "面白さ最優先でOK",
+      "深呼吸して完了"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a192",
+    "title": "観察のコレクション",
+    "steps": [
+      "川/公園で作品を1つ完成させる",
+      "椅子から立ってやる",
+      "禁止ワードを1つ決める（例:『でも』禁止）",
+      "道具は手元のものだけ",
+      "写真1枚で締める"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a193",
+    "title": "部屋を再配置する",
+    "steps": [
+      "寄り道を封印。タイマーを使わず体感で",
+      "捨てるものを5個見つける",
+      "コインで決める（表=続行/裏=終了）",
+      "買わずに工夫",
+      "次の一手を1行で決めて終わる"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a194",
+    "title": "問題の型を採集する",
+    "steps": [
+      "図書館で。“1回だけ”縛り",
+      "例題→類題を1セット（試す）",
+      "コインで決める（表=続行/裏=終了）",
+      "無料で完結",
+      "片づけて終了"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a195",
+    "title": "説明できるに寄せる",
+    "steps": [
+      "静かな席で。“3回だけ”縛り",
+      "テーマ1つを深掘り（試す）",
+      "“見つけたら勝ち”ルールを付ける",
+      "無料で完結",
+      "次の一手を1行で決めて終わる"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a196",
+    "title": "説明できるに寄せる",
+    "steps": [
+      "図書館で。スマホは伏せたまま",
+      "理解→演習→まとめの3ブロック（分解する）",
+      "コインで決める（表=続行/裏=終了）",
+      "最短で伸びる手段を選んでOK",
+      "深呼吸して完了"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a197",
+    "title": "感覚を戻す儀式",
+    "steps": [
+      "画面から距離を取る。“3回だけ”縛り",
+      "15分×2 + 休憩で回復ブロック",
+      "コインで決める（表=続行/裏=終了）",
+      "あるもので完結",
+      "深呼吸して完了"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a198",
+    "title": "脳の温度調整",
+    "steps": [
+      "布の感触を確かめる。音を出さない",
+      "やらないことを先に決める",
+      "“見つけたら勝ち”ルールを付ける",
+      "場所課金してもOK",
+      "写真1枚で締める"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a199",
+    "title": "説明できるに寄せる",
+    "steps": [
+      "紙とペンで。スマホは伏せたまま",
+      "1問だけ解いて理由を書く（要約する）",
+      "禁止ワードを1つ決める（例:『でも』禁止）",
+      "既存資料だけで勝つ",
+      "最後に一言だけメモして閉じる"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a200",
+    "title": "回復のスイッチ",
+    "steps": [
+      "空を見る。“1回だけ”縛り",
+      "呼吸を3回だけ数える",
+      "1分だけ“観察者モード”になる",
+      "追加購入禁止で工夫",
+      "深呼吸して完了"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a201",
+    "title": "弱点を1つ潰す",
+    "steps": [
+      "通知OFFで。“3回だけ”縛り",
+      "1問だけ解いて理由を書く（組む）",
+      "A/B二択を作って直感で選ぶ",
+      "参考書/印刷を使ってOK",
+      "写真1枚で締める"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a202",
+    "title": "面倒の根を切る",
+    "steps": [
+      "予定の棚卸し。音を出さない",
+      "生活の詰まりを1つ解消",
+      "A/B二択を作って直感で選ぶ",
+      "時間を買ってOK",
+      "深呼吸して完了"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a203",
+    "title": "理解を研ぐミニ実験",
+    "steps": [
+      "机の上だけで。完璧禁止（60点で切り上げ）",
+      "弱点リスト作成（研ぐ）",
+      "A/B二択を作って直感で選ぶ",
+      "無料で完結",
+      "写真1枚で締める"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a204",
+    "title": "説明できるに寄せる",
+    "steps": [
+      "検索は1回だけで。椅子から立ってやる",
+      "45分集中+15分復習（試す）",
+      "禁止ワードを1つ決める（例:『でも』禁止）",
+      "最短で伸びる手段を選んでOK",
+      "水を一口飲んで完了"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a205",
+    "title": "生活の詰まりを抜く",
+    "steps": [
+      "タブ整理。音を出さない",
+      "持ち物を3点だけ整列",
+      "コインで決める（表=続行/裏=終了）",
+      "便利で短縮してOK",
+      "深呼吸して完了"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a206",
+    "title": "定義を武器にする",
+    "steps": [
+      "ベンチで。完璧禁止（60点で切り上げ）",
+      "45分集中+15分復習（検証する）",
+      "禁止ワードを1つ決める（例:『でも』禁止）",
+      "最短で伸びる手段を選んでOK",
+      "最後に一言だけメモして閉じる"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a207",
+    "title": "理解を写すミニ実験",
+    "steps": [
+      "通知OFFで。椅子から立ってやる",
+      "理解→演習→まとめの3ブロック（写す）",
+      "A/B二択を作って直感で選ぶ",
+      "参考書/印刷を使ってOK",
+      "深呼吸して完了"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a208",
+    "title": "定義を武器にする",
+    "steps": [
+      "ベンチで。タイマーを使わず体感で",
+      "暗記カードを3枚だけ（分解する）",
+      "1分だけ“観察者モード”になる",
+      "良い道具で勝ってOK",
+      "水を一口飲んで完了"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a209",
+    "title": "弱点を1つ潰す",
+    "steps": [
+      "1タブだけで。姿勢を一回リセットしてから",
+      "理解→演習→まとめの3ブロック（分解する）",
+      "3つ集める（色/形/音/匂いなど）",
+      "無料で完結",
+      "次の一手を1行で決めて終わる"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a210",
+    "title": "回復のスイッチ",
+    "steps": [
+      "人の少ない道へ。完璧禁止（60点で切り上げ）",
+      "やらないことを先に決める",
+      "コインで決める（表=続行/裏=終了）",
+      "小さなご褒美を設計してOK",
+      "片づけて終了"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a211",
+    "title": "即席クリエイト",
+    "steps": [
+      "通知OFFで趣味を1時間だけ本気",
+      "姿勢を一回リセットしてから",
+      "1分だけ“観察者モード”になる",
+      "カフェ/文具OK",
+      "最後に一言だけメモして閉じる"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a212",
+    "title": "感覚を整える儀式",
+    "steps": [
+      "人の少ない道へ。“1回だけ”縛り",
+      "肩を5回回す",
+      "コインで決める（表=続行/裏=終了）",
+      "最高の回復を買ってOK",
+      "最後に一言だけメモして閉じる"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a213",
+    "title": "部屋を再配置する",
+    "steps": [
+      "ファイル整理。音を出さない",
+      "明日の準備を3点だけ",
+      "1分だけ“観察者モード”になる",
+      "消耗品の補充を1つだけOK",
+      "深呼吸して完了"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a214",
+    "title": "静けさを取り戻す",
+    "steps": [
+      "風向きを当てる。椅子から立ってやる",
+      "疲れの正体を1行",
+      "A/B二択を作って直感で選ぶ",
+      "場所課金してもOK",
+      "最後に一言だけメモして閉じる"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a215",
+    "title": "生活の詰まりを抜く",
+    "steps": [
+      "タブ整理。“1回だけ”縛り",
+      "持ち物を3点だけ整列",
+      "1分だけ“観察者モード”になる",
+      "コピー/自販機1回OK",
+      "写真1枚で締める"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a216",
+    "title": "問題の型を採集する",
+    "steps": [
+      "ベンチで。スマホは伏せたまま",
+      "1問だけ解いて理由を書く（試す）",
+      "“見つけたら勝ち”ルールを付ける",
+      "最短で伸びる手段を選んでOK",
+      "次の一手を1行で決めて終わる"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a217",
+    "title": "弱点を1つ潰す",
+    "steps": [
+      "図書館で。完璧禁止（60点で切り上げ）",
+      "1段落だけ読んで要点1行（要約する）",
+      "禁止ワードを1つ決める（例:『でも』禁止）",
+      "最短で伸びる手段を選んでOK",
+      "写真1枚で締める"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a218",
+    "title": "未来の自分を救助",
+    "steps": [
+      "必要なものだけ買う。“1回だけ”縛り",
+      "収納を1エリア点検",
+      "3つ集める（色/形/音/匂いなど）",
+      "未来が楽になる買い物OK",
+      "片づけて終了"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a219",
+    "title": "持ち物の最適化",
+    "steps": [
+      "必要なものだけ買う。タイマーを使わず体感で",
+      "床の一角だけ掃除",
+      "コインで決める（表=続行/裏=終了）",
+      "快適性最優先でOK",
+      "水を一口飲んで完了"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a220",
+    "title": "弱点を1つ潰す",
+    "steps": [
+      "紙とペンで。音を出さない",
+      "暗記カードを3枚だけ（組む）",
+      "禁止ワードを1つ決める（例:『でも』禁止）",
+      "良い道具で勝ってOK",
+      "写真1枚で締める"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a221",
+    "title": "ノイズキャンセル",
+    "steps": [
+      "音量ゼロ。姿勢を一回リセットしてから",
+      "目を休める",
+      "1分だけ“観察者モード”になる",
+      "あるもので完結",
+      "水を一口飲んで完了"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a222",
+    "title": "面倒の根を切る",
+    "steps": [
+      "部屋の地形を変える。“1回だけ”縛り",
+      "洗面台を1分だけ磨く",
+      "禁止ワードを1つ決める（例:『でも』禁止）",
+      "時間を買ってOK",
+      "写真1枚で締める"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a223",
+    "title": "回復のスイッチ",
+    "steps": [
+      "図書館入口で呼吸。“3回だけ”縛り",
+      "水を一口",
+      "コインで決める（表=続行/裏=終了）",
+      "快適さ最優先でOK",
+      "水を一口飲んで完了"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a224",
+    "title": "感覚を整える儀式",
+    "steps": [
+      "空を見る。スマホは伏せたまま",
+      "肩を5回回す",
+      "1分だけ“観察者モード”になる",
+      "小さなご褒美を設計してOK",
+      "片づけて終了"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a225",
+    "title": "面白いの採集",
+    "steps": [
+      "机の上でミニ企画（テーマ制）をやる",
+      "“3回だけ”縛り",
+      "“見つけたら勝ち”ルールを付ける",
+      "小道具1つOK",
+      "写真1枚で締める"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a226",
+    "title": "静けさを取り戻す",
+    "steps": [
+      "図書館入口で呼吸。姿勢を一回リセットしてから",
+      "軽ストレッチ1セット",
+      "3つ集める（色/形/音/匂いなど）",
+      "小さなご褒美を設計してOK",
+      "写真1枚で締める"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a227",
+    "title": "未来の自分を救助",
+    "steps": [
+      "必要なものだけ買う。完璧禁止（60点で切り上げ）",
+      "生活の詰まりを1つ解消",
+      "1分だけ“観察者モード”になる",
+      "買わずに工夫",
+      "最後に一言だけメモして閉じる"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a228",
+    "title": "理解を組むミニ実験",
+    "steps": [
+      "紙とペンで。“3回だけ”縛り",
+      "1段落だけ読んで要点1行（組む）",
+      "3つ集める（色/形/音/匂いなど）",
+      "参考書/印刷を使ってOK",
+      "片づけて終了"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a229",
+    "title": "小さな冒険",
+    "steps": [
+      "図書館近くで3つ集める散歩（色/形/音）",
+      "姿勢を一回リセットしてから",
+      "3つ集める（色/形/音/匂いなど）",
+      "無料縛りで工夫",
+      "片づけて終了"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a230",
+    "title": "ルールを作って遊ぶ",
+    "steps": [
+      "音を小さくしてミニ作品を1つ作る",
+      "タイマーを使わず体感で",
+      "禁止ワードを1つ決める（例:『でも』禁止）",
+      "カフェ/文具OK",
+      "水を一口飲んで完了"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a231",
+    "title": "生活の詰まりを抜く",
+    "steps": [
+      "床面積を取り戻す。スマホは伏せたまま",
+      "生活の詰まりを1つ解消",
+      "A/B二択を作って直感で選ぶ",
+      "消耗品の補充を1つだけOK",
+      "水を一口飲んで完了"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a232",
+    "title": "理解を組むミニ実験",
+    "steps": [
+      "カフェの端で。音を出さない",
+      "弱点リスト作成（組む）",
+      "コインで決める（表=続行/裏=終了）",
+      "参考書/印刷を使ってOK",
+      "深呼吸して完了"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a233",
+    "title": "未来の自分を救助",
+    "steps": [
+      "補充で未来を助ける。スマホは伏せたまま",
+      "洗濯の1工程だけ進める",
+      "1分だけ“観察者モード”になる",
+      "時間を買ってOK",
+      "水を一口飲んで完了"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a234",
+    "title": "回復のスイッチ",
+    "steps": [
+      "画面から距離を取る。タイマーを使わず体感で",
+      "肩を5回回す",
+      "コインで決める（表=続行/裏=終了）",
+      "追加購入禁止で工夫",
+      "深呼吸して完了"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a235",
+    "title": "遊びを語る実験",
+    "steps": [
+      "机の上で作品を1つ完成させる",
+      "スマホは伏せたまま",
+      "“見つけたら勝ち”ルールを付ける",
+      "素材/場所に少し使ってOK",
+      "最後に一言だけメモして閉じる"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a236",
+    "title": "即席クリエイト",
+    "steps": [
+      "1タブだけで短いレビューを1本書く",
+      "音を出さない",
+      "1分だけ“観察者モード”になる",
+      "道具は手元のものだけ",
+      "水を一口飲んで完了"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "online"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a237",
+    "title": "一枚まとめ錬金術",
+    "steps": [
+      "空き教室で。“1回だけ”縛り",
+      "間違いの型を1つ特定（写す）",
+      "コインで決める（表=続行/裏=終了）",
+      "コピー1回だけOK",
+      "片づけて終了"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a238",
+    "title": "静けさを取り戻す",
+    "steps": [
+      "窓を開ける。“1回だけ”縛り",
+      "外部刺激を減らす設計",
+      "コインで決める（表=続行/裏=終了）",
+      "あるもので完結",
+      "次の一手を1行で決めて終わる"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a239",
+    "title": "未来の自分を救助",
+    "steps": [
+      "予定と持ち物を整える。姿勢を一回リセットしてから",
+      "洗面台を1分だけ磨く",
+      "3つ集める（色/形/音/匂いなど）",
+      "消耗品の補充を1つだけOK",
+      "水を一口飲んで完了"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a240",
+    "title": "面倒の根を切る",
+    "steps": [
+      "用事を2つまでに制限。スマホは伏せたまま",
+      "洗面台を1分だけ磨く",
+      "禁止ワードを1つ決める（例:『でも』禁止）",
+      "コピー/自販機1回OK",
+      "深呼吸して完了"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a241",
+    "title": "説明できるに寄せる",
+    "steps": [
+      "ベンチで。椅子から立ってやる",
+      "1段落だけ読んで要点1行（要約する）",
+      "禁止ワードを1つ決める（例:『でも』禁止）",
+      "無料で完結",
+      "写真1枚で締める"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a242",
+    "title": "遊びを撮る実験",
+    "steps": [
+      "人の少ない道で1曲で“1動作”作る",
+      "椅子から立ってやる",
+      "3つ集める（色/形/音/匂いなど）",
+      "道具は手元のものだけ",
+      "片づけて終了"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a243",
+    "title": "定義を武器にする",
+    "steps": [
+      "静かな席で。椅子から立ってやる",
+      "弱点リスト作成（組む）",
+      "1分だけ“観察者モード”になる",
+      "参考書/印刷を使ってOK",
+      "写真1枚で締める"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "growth"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a244",
+    "title": "感覚をほどく儀式",
+    "steps": [
+      "照明を変える。完璧禁止（60点で切り上げ）",
+      "外部刺激を減らす設計",
+      "コインで決める（表=続行/裏=終了）",
+      "快適さ最優先でOK",
+      "次の一手を1行で決めて終わる"
+    ],
+    "tags": {
+      "time": [
+        "180"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "high"
+      ]
+    }
+  },
+  {
+    "id": "a245",
+    "title": "静けさを取り戻す",
+    "steps": [
+      "布の感触を確かめる。スマホは伏せたまま",
+      "温める/冷やすを選ぶ",
+      "禁止ワードを1つ決める（例:『でも』禁止）",
+      "小さなお菓子1つだけOK",
+      "水を一口飲んで完了"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "recover"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "low"
+      ]
+    }
+  },
+  {
+    "id": "a246",
+    "title": "小さな冒険",
+    "steps": [
+      "人の少ない道で1曲で“1動作”作る",
+      "“3回だけ”縛り",
+      "1分だけ“観察者モード”になる",
+      "カフェ/文具OK",
+      "水を一口飲んで完了"
+    ],
+    "tags": {
+      "time": [
+        "10"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a247",
+    "title": "ルールを作って遊ぶ",
+    "steps": [
+      "街で撮る→選ぶ→整えるまで完了",
+      "スマホは伏せたまま",
+      "A/B二択を作って直感で選ぶ",
+      "素材/場所に少し使ってOK",
+      "写真1枚で締める"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "mid"
+      ]
+    }
+  },
+  {
+    "id": "a248",
+    "title": "片づけをゲーム化",
+    "steps": [
+      "補充で未来を助ける。椅子から立ってやる",
+      "床の一角だけ掃除",
+      "3つ集める（色/形/音/匂いなど）",
+      "買わずに工夫",
+      "水を一口飲んで完了"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "home"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a249",
+    "title": "生活の詰まりを抜く",
+    "steps": [
+      "予定と持ち物を整える。“1回だけ”縛り",
+      "片づけ→掃除→補充を1セット",
+      "1分だけ“観察者モード”になる",
+      "あるもので回す",
+      "深呼吸して完了"
+    ],
+    "tags": {
+      "time": [
+        "60"
+      ],
+      "goal": [
+        "life"
+      ],
+      "place": [
+        "campus"
+      ],
+      "money": [
+        "0"
+      ]
+    }
+  },
+  {
+    "id": "a250",
+    "title": "ルールを作って遊ぶ",
+    "steps": [
+      "川/公園で短いレビューを1本書く",
+      "椅子から立ってやる",
+      "A/B二択を作って直感で選ぶ",
+      "体験を買ってOK",
+      "最後に一言だけメモして閉じる"
+    ],
+    "tags": {
+      "time": [
+        "30"
+      ],
+      "goal": [
+        "fun"
+      ],
+      "place": [
+        "outside"
+      ],
+      "money": [
+        "high"
+      ]
+    }
   }
 ]
