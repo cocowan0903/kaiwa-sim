@@ -1,3 +1,10 @@
+// App.js（このファイルを“まるごと”置き換えてコピペ）
+// ✅ あなたの actions.json（title/tags/modesのみ・steps無し）でも落ちない版
+// ✅ 「生成（結果を見る）」で必ず #/result に遷移する版（hashchange待ちしない）
+// ✅ Gate は「10歩歩く」で固定（1日1回）
+// ✅ student/general モード対応（actions.json の modes でちゃんと絞る）
+//
+// 使い方：src/App.js をこれで全置換 → 保存 → npm run dev / npm start
 import React, { useEffect, useMemo, useState } from "react";
 import "./App.css";
 import ACTIONS from "./actions.json";
@@ -73,23 +80,14 @@ const OPTIONS_BY_MODE = {
 };
 
 const DEFAULTS_BY_MODE = {
-  student: {
-    time: "30",
-    goal: "recover",
-    place: "home",
-    money: "0",
-  },
-  general: {
-    time: "30",
-    goal: "recover",
-    place: "home",
-    money: "0",
-  },
+  student: { time: "30", goal: "recover", place: "home", money: "0" },
+  general: { time: "30", goal: "recover", place: "home", money: "0" },
 };
 
 const KEYS = ["time", "goal", "place", "money"];
-const GATE_DONE_KEY = "decision_router_gate_done_ymd";
-const GATE_ACTION_KEY = "decision_router_gate_action_v1";
+
+// Gate（1日1回）
+const GATE_DONE_KEY = "decision_router_gate_done_ymd_v3";
 
 function clamp(n, min, max) {
   return Math.max(min, Math.min(max, n));
@@ -105,8 +103,6 @@ function labelFor(options, key, value) {
 
 /** =========================
  * Hash Router helpers
- *  - #/            (select)
- *  - #/result?...  (result)
  * ========================= */
 function parseHash() {
   const raw = window.location.hash || "#/";
@@ -117,7 +113,7 @@ function parseHash() {
   return { path, sp };
 }
 
-// URL互換: 旧campusが来た時の変換
+// URL互換: 旧campusが来た時の変換（URL側）
 function normalizePlaceFromUrl(place, mode) {
   if (place === "campus") return mode === "student" ? "school" : "outside";
   return place;
@@ -146,7 +142,7 @@ function readSelFromSP(sp, mode) {
   };
 }
 
-function navigateHash(path, mode, sel) {
+function buildHash(path, mode, sel) {
   const sp = new URLSearchParams();
   sp.set("mode", mode);
   if (sel) {
@@ -156,31 +152,57 @@ function navigateHash(path, mode, sel) {
     sp.set("money", sel.money);
   }
   const q = sp.toString();
-  window.location.hash = q ? `#${path}?${q}` : `#${path}`;
+  return q ? `#${path}?${q}` : `#${path}`;
 }
 
 /** =========================
- *  Matching / Scoring
+ * Matching / Scoring（campus互換 + modes対応 + steps無しでも落ちない）
  * ========================= */
-function matchesAllAction(action, sel) {
-  return KEYS.every((k) => action.tags[k]?.includes(sel[k]));
+function normalizePlaceForMatch(value, mode) {
+  if (value === "campus") return mode === "student" ? "school" : "outside";
+  return value;
 }
 
-function scoreAction(action, sel) {
+function ensureSteps(action) {
+  // actions.json に steps が無くても結果画面で落ちないようにする
+  if (Array.isArray(action.steps) && action.steps.length) return action;
+  return { ...action, steps: [action.title] };
+}
+
+function inMode(action, mode) {
+  // modes が無い行動は両対応扱い（安全）
+  if (!Array.isArray(action.modes) || action.modes.length === 0) return true;
+  return action.modes.includes(mode);
+}
+
+function actionHasTag(action, key, value, mode) {
+  const tags = action.tags?.[key] ?? [];
+  if (key !== "place") return tags.includes(value);
+
+  const normalizedTags = tags.map((t) => normalizePlaceForMatch(t, mode));
+  const normalizedValue = normalizePlaceForMatch(value, mode);
+  return normalizedTags.includes(normalizedValue);
+}
+
+function matchesAllAction(action, sel, mode) {
+  return KEYS.every((k) => actionHasTag(action, k, sel[k], mode));
+}
+
+function scoreAction(action, sel, mode) {
   let s = 0;
-  if (action.tags.time?.includes(sel.time)) s += 3;
-  if (action.tags.goal?.includes(sel.goal)) s += 4;
-  if (action.tags.place?.includes(sel.place)) s += 3;
-  if (action.tags.money?.includes(sel.money)) s += 3;
+  if (actionHasTag(action, "time", sel.time, mode)) s += 3;
+  if (actionHasTag(action, "goal", sel.goal, mode)) s += 4;
+  if (actionHasTag(action, "place", sel.place, mode)) s += 3;
+  if (actionHasTag(action, "money", sel.money, mode)) s += 3;
   return s;
 }
 
 function maxScoreForAction(action) {
   let m = 0;
-  if (action.tags.time?.length) m += 3;
-  if (action.tags.goal?.length) m += 4;
-  if (action.tags.place?.length) m += 3;
-  if (action.tags.money?.length) m += 3;
+  if (action.tags?.time?.length) m += 3;
+  if (action.tags?.goal?.length) m += 4;
+  if (action.tags?.place?.length) m += 3;
+  if (action.tags?.money?.length) m += 3;
   return m || 1;
 }
 
@@ -193,18 +215,21 @@ function pickNRandomUnique(arr, n) {
   return copy.slice(0, Math.min(n, copy.length));
 }
 
-function pick3Actions(sel) {
-  const strict = ACTIONS.filter((a) => matchesAllAction(a, sel));
+function pick3Actions(sel, mode) {
+  const base = ACTIONS.filter((a) => inMode(a, mode)).map(ensureSteps);
+
+  const strict = base.filter((a) => matchesAllAction(a, sel, mode));
   const pickedStrict = pickNRandomUnique(strict, 3).map((a) => ({
     ...a,
     _mode: "strict",
-    _score: scoreAction(a, sel),
+    _score: scoreAction(a, sel, mode),
   }));
 
   if (pickedStrict.length === 3) return pickedStrict;
 
-  const rest = ACTIONS.filter((a) => !pickedStrict.some((p) => p.id === a.id))
-    .map((a) => ({ ...a, _score: scoreAction(a, sel) }))
+  const rest = base
+    .filter((a) => !pickedStrict.some((p) => p.id === a.id))
+    .map((a) => ({ ...a, _score: scoreAction(a, sel, mode) }))
     .sort((a, b) => b._score - a._score);
 
   const top = rest[0]?._score ?? 0;
@@ -214,13 +239,28 @@ function pick3Actions(sel) {
   const fill = pickNRandomUnique(pool, 3 - pickedStrict.length).map((a) => ({
     ...a,
     _mode: "fallback",
+    _score: a._score ?? scoreAction(a, sel, mode),
   }));
 
   return [...pickedStrict, ...fill];
 }
 
+function maxPossiblePercent(sel, mode) {
+  let best = 0;
+  for (const rawAction of ACTIONS) {
+    if (!inMode(rawAction, mode)) continue;
+    const a = ensureSteps(rawAction);
+    const raw = scoreAction(a, sel, mode);
+    const max = maxScoreForAction(a);
+    const pct = Math.round((raw / max) * 100);
+    if (pct > best) best = pct;
+    if (best === 100) break;
+  }
+  return clamp(best, 0, 100);
+}
+
 /** =========================
- * Gate helpers (1日1回 + 今日の行動固定)
+ * Gate helpers
  * ========================= */
 function todayKey() {
   const d = new Date();
@@ -241,29 +281,6 @@ function isGateDoneToday() {
 function markGateDoneToday() {
   try {
     localStorage.setItem(GATE_DONE_KEY, todayKey());
-  } catch {
-    // ignore
-  }
-}
-
-function loadGateActionForToday() {
-  try {
-    const raw = localStorage.getItem(GATE_ACTION_KEY);
-    if (!raw) return null;
-    const obj = JSON.parse(raw);
-    if (obj?.ymd !== todayKey()) return null;
-    return obj.action ?? null;
-  } catch {
-    return null;
-  }
-}
-
-function saveGateActionForToday(action) {
-  try {
-    localStorage.setItem(
-      GATE_ACTION_KEY,
-      JSON.stringify({ ymd: todayKey(), action })
-    );
   } catch {
     // ignore
   }
@@ -306,6 +323,14 @@ function ModeTabs({ mode, onChange }) {
   );
 }
 
+// ✅ Gate固定行動：10歩歩く
+const FIXED_GATE_ACTION = {
+  id: "gate_fixed_10steps",
+  title: "10歩歩く",
+  steps: ["いま立つ", "部屋の中で10歩だけ歩く", "席に戻る（OK）"],
+  note: "小さくていい。脳に「始めた」旗を立てるだけ。",
+};
+
 function Gate({ action, checked, onToggle, onProceed }) {
   return (
     <div
@@ -339,17 +364,11 @@ function Gate({ action, checked, onToggle, onProceed }) {
             <b>{action?.title ?? "（行動が見つからない）"}</b>
           </p>
 
-          {action?.steps?.length ? (
-            <ol className="routeSteps" style={{ marginTop: 8 }}>
-              {action.steps.map((s, i) => (
-                <li key={i}>{s}</li>
-              ))}
-            </ol>
-          ) : (
-            <p style={{ opacity: 0.7 }}>
-              actions.json に候補が足りないか、タグが合ってないかも。
-            </p>
-          )}
+          <ol className="routeSteps" style={{ marginTop: 8 }}>
+            {(action?.steps?.length ? action.steps : [action?.title]).map((s, i) => (
+              <li key={i}>{s}</li>
+            ))}
+          </ol>
 
           {action?.note ? (
             <p style={{ marginBottom: 0, opacity: 0.75 }}>メモ: {action.note}</p>
@@ -391,7 +410,6 @@ function SelectPage({ mode, setMode, options, sel, setKey, onReset, onGenerate, 
     <div className="wrap">
       <div className="card">
         <div className="header">
-          {/* ✅ 追加：学生編 / 一般編 */}
           <ModeTabs mode={mode} onChange={setMode} />
 
           <div className="hgroup">
@@ -475,7 +493,7 @@ function SelectPage({ mode, setMode, options, sel, setKey, onReset, onGenerate, 
                 リセット
               </button>
               <button className="btn primary" type="button" onClick={onGenerate}>
-                生成（結果へ） →
+                生成（結果を見る） →
               </button>
             </div>
 
@@ -491,9 +509,7 @@ function SelectPage({ mode, setMode, options, sel, setKey, onReset, onGenerate, 
 
           <div className="panel resultsPanel">
             <h2 className="panelTitle">プレビュー（参考）</h2>
-            <p style={{ opacity: 0.75, marginTop: 0 }}>
-              生成を押すと結果ページへ移動するよ。
-            </p>
+            <p style={{ opacity: 0.75, marginTop: 0 }}>生成を押すと結果ページへ移動するよ。</p>
           </div>
         </div>
       </div>
@@ -506,7 +522,6 @@ function ResultPage({ mode, setMode, options, sel, actions, onBack, onReroll }) 
     <div className="wrap">
       <div className="card">
         <div className="header">
-          {/* ✅ 追加：学生編 / 一般編 */}
           <ModeTabs mode={mode} onChange={setMode} />
 
           <div className="hgroup">
@@ -545,21 +560,14 @@ function ResultPage({ mode, setMode, options, sel, actions, onBack, onReroll }) 
                 </p>
 
                 <ol className="routeSteps">
-                  {a.steps.map((s, i) => (
+                  {(a.steps?.length ? a.steps : [a.title]).map((s, i) => (
                     <li key={i}>{s}</li>
                   ))}
                 </ol>
 
                 <div className="smallNote">
-                  {a.note ? (
-                    <>
-                      メモ: {a.note}
-                      <br />
-                    </>
-                  ) : null}
                   <span style={{ opacity: 0.75 }}>
-                    一致: {a._mode === "strict" ? "厳密" : "近い候補から救済"} / スコア{" "}
-                    {scoreAction(a, sel)}
+                    一致: {a._mode === "strict" ? "厳密" : "近い候補から救済"} / スコア {a._score ?? 0}
                   </span>
                 </div>
               </div>
@@ -592,45 +600,26 @@ export default function App() {
     return () => window.removeEventListener("hashchange", onHash);
   }, []);
 
-  // mode: from URL (default student)
+  // mode + selection
   const [mode, setMode] = useState(() => readModeFromSP(sp));
   const options = useMemo(() => OPTIONS_BY_MODE[mode], [mode]);
-
-  // selection based on current route query if exists; else defaults (mode-aware)
   const [sel, setSel] = useState(() => readSelFromSP(sp, mode));
 
-  // keep mode + sel synced when route query changes
+  // ✅ ルート変更に追従
   useEffect(() => {
     const nextMode = readModeFromSP(sp);
     setMode(nextMode);
     setSel(readSelFromSP(sp, nextMode));
   }, [path, sp.toString()]);
 
-  // generated actions are stored to keep result stable on the result page
+  // ✅ 生成結果（resultページで固定）
   const [generatedActions, setGeneratedActions] = useState(() =>
-    pick3Actions(readSelFromSP(sp, readModeFromSP(sp)))
+    pick3Actions(readSelFromSP(sp, readModeFromSP(sp)), readModeFromSP(sp))
   );
 
-  // Gate
+  // ✅ Gate（固定で10歩歩く）
   const [gateOpen, setGateOpen] = useState(() => !isGateDoneToday());
   const [gateChecked, setGateChecked] = useState(false);
-
-  const [gateAction, setGateAction] = useState(() => {
-    const saved = loadGateActionForToday();
-    if (saved) return saved;
-    const first = pick3Actions(readSelFromSP(sp, readModeFromSP(sp)))[0] ?? null;
-    if (first) saveGateActionForToday(first);
-    return first;
-  });
-
-  // If gate is open and selection changes, update today's gate action (and reset checkbox)
-  useEffect(() => {
-    if (!gateOpen) return;
-    const next = pick3Actions(sel)[0] ?? null;
-    setGateAction(next);
-    if (next) saveGateActionForToday(next);
-    setGateChecked(false);
-  }, [sel, gateOpen]);
 
   const pills = useMemo(
     () => ({
@@ -642,68 +631,57 @@ export default function App() {
     [options, sel]
   );
 
-  const fitScore = useMemo(() => {
-    const preview = pick3Actions(sel);
-    const scored = preview
-      .map((a) => {
-        const raw = scoreAction(a, sel);
-        const max = maxScoreForAction(a);
-        return Math.round((raw / max) * 100);
-      })
-      .sort((a, b) => b - a);
+  const fitScore = useMemo(() => maxPossiblePercent(sel, mode), [sel, mode]);
 
-    return clamp(scored[0] ?? 0, 0, 100);
-  }, [sel]);
+  // ✅ 遷移を“確実に”反映（hashchange待ちしない）
+  const go = (nextPath, nextMode, nextSel) => {
+    window.location.hash = buildHash(nextPath, nextMode, nextSel);
+    setRoute(parseHash()); // 即同期（これが「生成押しても開かない」対策の核）
+  };
 
-  // ✅ タブ切り替え（学生/一般）
+  // ✅ モード切替
   const changeMode = (nextMode) => {
     const nextOptions = OPTIONS_BY_MODE[nextMode];
     const nextDefaults = DEFAULTS_BY_MODE[nextMode];
 
     const nextSel = {
       ...sel,
-      // 一般編でschoolが無効になるので自動補正
       place: validOption(nextOptions, "place", sel.place) ? sel.place : nextDefaults.place,
     };
 
     setMode(nextMode);
     setSel(nextSel);
+    go(path || "/", nextMode, nextSel);
 
-    // 今いるページのまま URL を更新（共有URLが常に正しい）
-    navigateHash(path || "/", nextMode, nextSel);
+    // 結果ページなら、モードに合わせて中身も更新
+    if (path === "/result") {
+      setGeneratedActions(pick3Actions(nextSel, nextMode));
+    }
   };
 
-  // ✅ チップ押したら URL も更新（元コードの狙いを維持）
+  // ✅ チップ更新 + URL更新
   const setKey = (key, value) => {
     const next = { ...sel, [key]: value };
     setSel(next);
-    navigateHash(path || "/", mode, next);
+    go(path || "/", mode, next);
   };
 
   const onReset = () => {
     const next = { ...DEFAULTS_BY_MODE[mode] };
     setSel(next);
-    navigateHash("/", mode, next);
+    go("/", mode, next);
   };
 
   const onGenerate = () => {
-    const picked = pick3Actions(sel);
-    setGeneratedActions(picked);
-    // result page へ
-    navigateHash("/result", mode, sel);
+    setGeneratedActions(pick3Actions(sel, mode));
+    go("/result", mode, sel);
   };
 
-  const onBack = () => {
-    navigateHash("/", mode, sel);
-  };
+  const onBack = () => go("/", mode, sel);
 
-  const onReroll = () => {
-    const picked = pick3Actions(sel);
-    setGeneratedActions(picked);
-  };
+  const onReroll = () => setGeneratedActions(pick3Actions(sel, mode));
 
   const proceedGate = () => {
-    if (gateAction) saveGateActionForToday(gateAction);
     markGateDoneToday();
     setGateOpen(false);
   };
@@ -714,7 +692,7 @@ export default function App() {
     <>
       {gateOpen ? (
         <Gate
-          action={gateAction}
+          action={FIXED_GATE_ACTION}
           checked={gateChecked}
           onToggle={() => setGateChecked((v) => !v)}
           onProceed={proceedGate}
