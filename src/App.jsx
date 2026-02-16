@@ -9,42 +9,82 @@ import ACTIONS from "./actions.json";
  * - 結果ページ（#/result?...）
  * - 生成ボタンで「結果ページへ遷移」
  * - Vercel 404回避のため hash routing（#/...）を採用
- * - URL共有可能
+ * - URL共有可能（modeも含める）
  * - Gate（今の行動）1日1回（localStorage）
+ *
+ * ✅ 追加仕様（学生編 / 一般編）
+ * - 条件より上にタブ設置
+ * - 学生編: placeに「学校(school)」を含む（旧campusはschool扱い）
+ * - 一般編: placeから「学校(school)」を除外
  */
 
-const OPTIONS = {
-  time: [
-    { value: "10", label: "10分" },
-    { value: "30", label: "30分" },
-    { value: "60", label: "1時間" },
-    { value: "180", label: "半日" },
-  ],
-  goal: [
-    { value: "recover", label: "回復" },
-    { value: "growth", label: "成長" },
-    { value: "life", label: "生活" },
-    { value: "fun", label: "遊び" },
-  ],
-  place: [
-    { value: "home", label: "家" },
-    { value: "campus", label: "大学" },
-    { value: "outside", label: "外" },
-    { value: "online", label: "オンライン" },
-  ],
-  money: [
-    { value: "0", label: "0円" },
-    { value: "low", label: "少し（〜500円）" },
-    { value: "mid", label: "まあまあ（〜2000円）" },
-    { value: "high", label: "気にしない" },
-  ],
+const OPTIONS_BY_MODE = {
+  student: {
+    time: [
+      { value: "10", label: "10分" },
+      { value: "30", label: "30分" },
+      { value: "60", label: "1時間" },
+      { value: "180", label: "半日" },
+    ],
+    goal: [
+      { value: "recover", label: "回復" },
+      { value: "growth", label: "成長" },
+      { value: "life", label: "生活" },
+      { value: "fun", label: "遊び" },
+    ],
+    place: [
+      { value: "home", label: "家" },
+      { value: "school", label: "学校" },
+      { value: "outside", label: "外" },
+      { value: "online", label: "オンライン" },
+    ],
+    money: [
+      { value: "0", label: "0円" },
+      { value: "low", label: "少し（〜500円）" },
+      { value: "mid", label: "まあまあ（〜2000円）" },
+      { value: "high", label: "気にしない" },
+    ],
+  },
+  general: {
+    time: [
+      { value: "10", label: "10分" },
+      { value: "30", label: "30分" },
+      { value: "60", label: "1時間" },
+      { value: "180", label: "半日" },
+    ],
+    goal: [
+      { value: "recover", label: "回復" },
+      { value: "growth", label: "成長" },
+      { value: "life", label: "生活" },
+      { value: "fun", label: "遊び" },
+    ],
+    place: [
+      { value: "home", label: "家" },
+      { value: "outside", label: "外" },
+      { value: "online", label: "オンライン" },
+    ],
+    money: [
+      { value: "0", label: "0円" },
+      { value: "low", label: "少し（〜500円）" },
+      { value: "mid", label: "まあまあ（〜2000円）" },
+      { value: "high", label: "気にしない" },
+    ],
+  },
 };
 
-const DEFAULTS = {
-  time: "30",
-  goal: "recover",
-  place: "home",
-  money: "0",
+const DEFAULTS_BY_MODE = {
+  student: {
+    time: "30",
+    goal: "recover",
+    place: "home",
+    money: "0",
+  },
+  general: {
+    time: "30",
+    goal: "recover",
+    place: "home",
+    money: "0",
+  },
 };
 
 const KEYS = ["time", "goal", "place", "money"];
@@ -55,8 +95,12 @@ function clamp(n, min, max) {
   return Math.max(min, Math.min(max, n));
 }
 
-function labelFor(key, value) {
-  return OPTIONS[key].find((o) => o.value === value)?.label ?? value;
+function validOption(options, key, value) {
+  return options[key].some((o) => o.value === value);
+}
+
+function labelFor(options, key, value) {
+  return options[key].find((o) => o.value === value)?.label ?? value;
 }
 
 /** =========================
@@ -70,12 +114,41 @@ function parseHash() {
   const [pathPart, queryPart = ""] = withoutHash.split("?");
   const path = pathPart || "/";
   const sp = new URLSearchParams(queryPart);
-
   return { path, sp };
 }
 
-function navigateHash(path, sel) {
+// URL互換: 旧campusが来た時の変換
+function normalizePlaceFromUrl(place, mode) {
+  if (place === "campus") return mode === "student" ? "school" : "outside";
+  return place;
+}
+
+function readModeFromSP(sp) {
+  const m = sp.get("mode");
+  return m === "general" ? "general" : "student";
+}
+
+function readSelFromSP(sp, mode) {
+  const options = OPTIONS_BY_MODE[mode];
+  const defaults = DEFAULTS_BY_MODE[mode];
+
+  const time = sp.get("time") ?? defaults.time;
+  const goal = sp.get("goal") ?? defaults.goal;
+  const rawPlace = sp.get("place") ?? defaults.place;
+  const place = normalizePlaceFromUrl(rawPlace, mode);
+  const money = sp.get("money") ?? defaults.money;
+
+  return {
+    time: validOption(options, "time", time) ? time : defaults.time,
+    goal: validOption(options, "goal", goal) ? goal : defaults.goal,
+    place: validOption(options, "place", place) ? place : defaults.place,
+    money: validOption(options, "money", money) ? money : defaults.money,
+  };
+}
+
+function navigateHash(path, mode, sel) {
   const sp = new URLSearchParams();
+  sp.set("mode", mode);
   if (sel) {
     sp.set("time", sel.time);
     sp.set("goal", sel.goal);
@@ -84,22 +157,6 @@ function navigateHash(path, sel) {
   }
   const q = sp.toString();
   window.location.hash = q ? `#${path}?${q}` : `#${path}`;
-}
-
-function readSelFromSP(sp) {
-  const time = sp.get("time") ?? DEFAULTS.time;
-  const goal = sp.get("goal") ?? DEFAULTS.goal;
-  const place = sp.get("place") ?? DEFAULTS.place;
-  const money = sp.get("money") ?? DEFAULTS.money;
-
-  const valid = (key, value) => OPTIONS[key].some((o) => o.value === value);
-
-  return {
-    time: valid("time", time) ? time : DEFAULTS.time,
-    goal: valid("goal", goal) ? goal : DEFAULTS.goal,
-    place: valid("place", place) ? place : DEFAULTS.place,
-    money: valid("money", money) ? money : DEFAULTS.money,
-  };
 }
 
 /** =========================
@@ -228,6 +285,27 @@ function Chip({ label, selected, onClick }) {
   );
 }
 
+function ModeTabs({ mode, onChange }) {
+  return (
+    <div className="modeTabs">
+      <button
+        type="button"
+        className={`modeTab ${mode === "student" ? "active" : ""}`}
+        onClick={() => onChange("student")}
+      >
+        学生編
+      </button>
+      <button
+        type="button"
+        className={`modeTab ${mode === "general" ? "active" : ""}`}
+        onClick={() => onChange("general")}
+      >
+        一般編
+      </button>
+    </div>
+  );
+}
+
 function Gate({ action, checked, onToggle, onProceed }) {
   return (
     <div
@@ -249,7 +327,7 @@ function Gate({ action, checked, onToggle, onProceed }) {
               今の行動 ✅
             </h1>
             <p className="subtitle" style={{ margin: 0 }}>
-              まず1個だけやる。終わったらチェックして次へ。
+              一つだけやってみよう！終わったらチェックして次へ。
             </p>
           </div>
         </div>
@@ -281,7 +359,7 @@ function Gate({ action, checked, onToggle, onProceed }) {
 
           <label style={{ display: "flex", gap: 10, alignItems: "center" }}>
             <input type="checkbox" checked={checked} onChange={onToggle} />
-            <span>できた（またはやる準備できた）</span>
+            <span>できた</span>
           </label>
 
           <div className="actions" style={{ marginTop: 16, justifyContent: "center" }}>
@@ -297,7 +375,7 @@ function Gate({ action, checked, onToggle, onProceed }) {
           </div>
 
           <p style={{ textAlign: "center", fontSize: 12, opacity: 0.65, marginBottom: 0 }}>
-            ※ 今日はこのゲートはもう出さない（1日1回）
+            ※ 1日1回
           </p>
         </div>
       </div>
@@ -308,16 +386,17 @@ function Gate({ action, checked, onToggle, onProceed }) {
 /** =========================
  * Pages
  * ========================= */
-function SelectPage({ sel, setKey, onReset, onGenerate, pills, fitScore }) {
+function SelectPage({ mode, setMode, options, sel, setKey, onReset, onGenerate, pills, fitScore }) {
   return (
     <div className="wrap">
       <div className="card">
         <div className="header">
+          {/* ✅ 追加：学生編 / 一般編 */}
+          <ModeTabs mode={mode} onChange={setMode} />
+
           <div className="hgroup">
             <h1 className="title">Decision Router</h1>
-            <p className="subtitle">
-              所要時間・目的・場所・お金を選ぶ → 生成で「結果ページ」に移動。
-            </p>
+            <p className="subtitle">条件選択 → 生成で「結果ページ」に移動。</p>
           </div>
 
           <div className="pills">
@@ -337,7 +416,7 @@ function SelectPage({ sel, setKey, onReset, onGenerate, pills, fitScore }) {
 
             <p className="kicker">⏱️ 所要時間</p>
             <div className="chipRow">
-              {OPTIONS.time.map((o) => (
+              {options.time.map((o) => (
                 <Chip
                   key={o.value}
                   label={o.label}
@@ -351,7 +430,7 @@ function SelectPage({ sel, setKey, onReset, onGenerate, pills, fitScore }) {
 
             <p className="kicker">📍 場所</p>
             <div className="chipRow">
-              {OPTIONS.place.map((o) => (
+              {options.place.map((o) => (
                 <Chip
                   key={o.value}
                   label={o.label}
@@ -365,7 +444,7 @@ function SelectPage({ sel, setKey, onReset, onGenerate, pills, fitScore }) {
 
             <p className="kicker">💸 お金</p>
             <div className="chipRow">
-              {OPTIONS.money.map((o) => (
+              {options.money.map((o) => (
                 <Chip
                   key={o.value}
                   label={o.label}
@@ -379,7 +458,7 @@ function SelectPage({ sel, setKey, onReset, onGenerate, pills, fitScore }) {
 
             <p className="kicker">🎯 目的</p>
             <div className="chipRow">
-              {OPTIONS.goal.map((o) => (
+              {options.goal.map((o) => (
                 <Chip
                   key={o.value}
                   label={o.label}
@@ -405,7 +484,7 @@ function SelectPage({ sel, setKey, onReset, onGenerate, pills, fitScore }) {
               ※ URLに条件が反映されます（共有可能）。
               <br />
               <span style={{ opacity: 0.9 }}>
-                #/result?time=30&amp;goal=recover&amp;place=home&amp;money=0
+                #/result?mode=student&amp;time=30&amp;goal=recover&amp;place=home&amp;money=0
               </span>
             </p>
           </div>
@@ -422,21 +501,24 @@ function SelectPage({ sel, setKey, onReset, onGenerate, pills, fitScore }) {
   );
 }
 
-function ResultPage({ sel, actions, onBack, onReroll }) {
+function ResultPage({ mode, setMode, options, sel, actions, onBack, onReroll }) {
   return (
     <div className="wrap">
       <div className="card">
         <div className="header">
+          {/* ✅ 追加：学生編 / 一般編 */}
+          <ModeTabs mode={mode} onChange={setMode} />
+
           <div className="hgroup">
             <h1 className="title">結果</h1>
             <p className="subtitle">今日の行動（ランダム3つ）</p>
           </div>
 
           <div className="pills">
-            <div className="pill">⏱️ <b>{labelFor("time", sel.time)}</b></div>
-            <div className="pill">🎯 <b>{labelFor("goal", sel.goal)}</b></div>
-            <div className="pill">📍 <b>{labelFor("place", sel.place)}</b></div>
-            <div className="pill">💸 <b>{labelFor("money", sel.money)}</b></div>
+            <div className="pill">⏱️ <b>{labelFor(options, "time", sel.time)}</b></div>
+            <div className="pill">🎯 <b>{labelFor(options, "goal", sel.goal)}</b></div>
+            <div className="pill">📍 <b>{labelFor(options, "place", sel.place)}</b></div>
+            <div className="pill">💸 <b>{labelFor(options, "money", sel.money)}</b></div>
           </div>
         </div>
 
@@ -510,26 +592,33 @@ export default function App() {
     return () => window.removeEventListener("hashchange", onHash);
   }, []);
 
-  // selection is based on current route query if exists; else defaults
-  const [sel, setSel] = useState(() => readSelFromSP(sp));
+  // mode: from URL (default student)
+  const [mode, setMode] = useState(() => readModeFromSP(sp));
+  const options = useMemo(() => OPTIONS_BY_MODE[mode], [mode]);
 
-  // keep sel synced when route query changes
+  // selection based on current route query if exists; else defaults (mode-aware)
+  const [sel, setSel] = useState(() => readSelFromSP(sp, mode));
+
+  // keep mode + sel synced when route query changes
   useEffect(() => {
-    setSel(readSelFromSP(sp));
+    const nextMode = readModeFromSP(sp);
+    setMode(nextMode);
+    setSel(readSelFromSP(sp, nextMode));
   }, [path, sp.toString()]);
 
   // generated actions are stored to keep result stable on the result page
   const [generatedActions, setGeneratedActions] = useState(() =>
-    pick3Actions(readSelFromSP(sp))
+    pick3Actions(readSelFromSP(sp, readModeFromSP(sp)))
   );
 
   // Gate
   const [gateOpen, setGateOpen] = useState(() => !isGateDoneToday());
   const [gateChecked, setGateChecked] = useState(false);
+
   const [gateAction, setGateAction] = useState(() => {
     const saved = loadGateActionForToday();
     if (saved) return saved;
-    const first = pick3Actions(sel)[0] ?? null;
+    const first = pick3Actions(readSelFromSP(sp, readModeFromSP(sp)))[0] ?? null;
     if (first) saveGateActionForToday(first);
     return first;
   });
@@ -545,12 +634,12 @@ export default function App() {
 
   const pills = useMemo(
     () => ({
-      time: labelFor("time", sel.time),
-      goal: labelFor("goal", sel.goal),
-      place: labelFor("place", sel.place),
-      money: labelFor("money", sel.money),
+      time: labelFor(options, "time", sel.time),
+      goal: labelFor(options, "goal", sel.goal),
+      place: labelFor(options, "place", sel.place),
+      money: labelFor(options, "money", sel.money),
     }),
-    [sel]
+    [options, sel]
   );
 
   const fitScore = useMemo(() => {
@@ -566,25 +655,46 @@ export default function App() {
     return clamp(scored[0] ?? 0, 0, 100);
   }, [sel]);
 
+  // ✅ タブ切り替え（学生/一般）
+  const changeMode = (nextMode) => {
+    const nextOptions = OPTIONS_BY_MODE[nextMode];
+    const nextDefaults = DEFAULTS_BY_MODE[nextMode];
+
+    const nextSel = {
+      ...sel,
+      // 一般編でschoolが無効になるので自動補正
+      place: validOption(nextOptions, "place", sel.place) ? sel.place : nextDefaults.place,
+    };
+
+    setMode(nextMode);
+    setSel(nextSel);
+
+    // 今いるページのまま URL を更新（共有URLが常に正しい）
+    navigateHash(path || "/", nextMode, nextSel);
+  };
+
+  // ✅ チップ押したら URL も更新（元コードの狙いを維持）
   const setKey = (key, value) => {
-    setSel((prev) => ({ ...prev, [key]: value }));
+    const next = { ...sel, [key]: value };
+    setSel(next);
+    navigateHash(path || "/", mode, next);
   };
 
   const onReset = () => {
-    const next = { ...DEFAULTS };
+    const next = { ...DEFAULTS_BY_MODE[mode] };
     setSel(next);
-    navigateHash("/", next);
+    navigateHash("/", mode, next);
   };
 
   const onGenerate = () => {
     const picked = pick3Actions(sel);
     setGeneratedActions(picked);
     // result page へ
-    navigateHash("/result", sel);
+    navigateHash("/result", mode, sel);
   };
 
   const onBack = () => {
-    navigateHash("/", sel);
+    navigateHash("/", mode, sel);
   };
 
   const onReroll = () => {
@@ -612,9 +722,20 @@ export default function App() {
       ) : null}
 
       {isResult ? (
-        <ResultPage sel={sel} actions={generatedActions} onBack={onBack} onReroll={onReroll} />
+        <ResultPage
+          mode={mode}
+          setMode={changeMode}
+          options={options}
+          sel={sel}
+          actions={generatedActions}
+          onBack={onBack}
+          onReroll={onReroll}
+        />
       ) : (
         <SelectPage
+          mode={mode}
+          setMode={changeMode}
+          options={options}
           sel={sel}
           setKey={setKey}
           onReset={onReset}
