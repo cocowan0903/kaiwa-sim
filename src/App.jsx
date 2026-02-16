@@ -327,8 +327,8 @@ function ModeTabs({ mode, onChange }) {
 const FIXED_GATE_ACTION = {
   id: "gate_fixed_10steps",
   title: "10歩歩く",
-  steps: ["いま立つ", "部屋の中で10歩だけ歩く", "席に戻る（OK）"],
-  note: "小さくていい。脳に「始めた」旗を立てるだけ。",
+  steps: ["立つ", "部屋の中で10歩だけ歩く", "席に戻る"],
+  note: "行動あるのみ！！",
 };
 
 function Gate({ action, checked, onToggle, onProceed }) {
@@ -349,10 +349,10 @@ function Gate({ action, checked, onToggle, onProceed }) {
         <div className="header" style={{ paddingBottom: 8 }}>
           <div className="hgroup">
             <h1 className="title" style={{ marginBottom: 6 }}>
-              今の行動 ✅
+              まずはやってみよう ✅
             </h1>
             <p className="subtitle" style={{ margin: 0 }}>
-              一つだけやってみよう！終わったらチェックして次へ。
+              終わったらチェックして次へ👇
             </p>
           </div>
         </div>
