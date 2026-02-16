@@ -1,10 +1,12 @@
 // App.js（このファイルを“まるごと”置き換えてコピペ）
 // ✅ あなたの actions.json（title/tags/modesのみ・steps無し）でも落ちない版
 // ✅ 「生成（結果を見る）」で必ず #/result に遷移する版（hashchange待ちしない）
-// ✅ Gate は「10歩歩く」で固定（1日1回）
+// ✅ Gate は「10歩歩く」で固定
+// ✅ Gate は「URLを開き直すたび（ページ読み込みごと）」に毎回出る（localStorage不使用）
 // ✅ student/general モード対応（actions.json の modes でちゃんと絞る）
 //
 // 使い方：src/App.js をこれで全置換 → 保存 → npm run dev / npm start
+
 import React, { useEffect, useMemo, useState } from "react";
 import "./App.css";
 import ACTIONS from "./actions.json";
@@ -17,12 +19,15 @@ import ACTIONS from "./actions.json";
  * - 生成ボタンで「結果ページへ遷移」
  * - Vercel 404回避のため hash routing（#/...）を採用
  * - URL共有可能（modeも含める）
- * - Gate（今の行動）1日1回（localStorage）
  *
  * ✅ 追加仕様（学生編 / 一般編）
  * - 条件より上にタブ設置
  * - 学生編: placeに「学校(school)」を含む（旧campusはschool扱い）
  * - 一般編: placeから「学校(school)」を除外
+ *
+ * ✅ Gate仕様（ここが変更点）
+ * - 「URLを開き直すたび（=ページ読み込みごと）」に毎回出す
+ * - localStorage による“1日1回”は使わない
  */
 
 const OPTIONS_BY_MODE = {
@@ -85,9 +90,6 @@ const DEFAULTS_BY_MODE = {
 };
 
 const KEYS = ["time", "goal", "place", "money"];
-
-// Gate（1日1回）
-const GATE_DONE_KEY = "decision_router_gate_done_ymd_v3";
 
 function clamp(n, min, max) {
   return Math.max(min, Math.min(max, n));
@@ -164,13 +166,11 @@ function normalizePlaceForMatch(value, mode) {
 }
 
 function ensureSteps(action) {
-  // actions.json に steps が無くても結果画面で落ちないようにする
   if (Array.isArray(action.steps) && action.steps.length) return action;
   return { ...action, steps: [action.title] };
 }
 
 function inMode(action, mode) {
-  // modes が無い行動は両対応扱い（安全）
   if (!Array.isArray(action.modes) || action.modes.length === 0) return true;
   return action.modes.includes(mode);
 }
@@ -260,33 +260,6 @@ function maxPossiblePercent(sel, mode) {
 }
 
 /** =========================
- * Gate helpers
- * ========================= */
-function todayKey() {
-  const d = new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
-}
-
-function isGateDoneToday() {
-  try {
-    return localStorage.getItem(GATE_DONE_KEY) === todayKey();
-  } catch {
-    return false;
-  }
-}
-
-function markGateDoneToday() {
-  try {
-    localStorage.setItem(GATE_DONE_KEY, todayKey());
-  } catch {
-    // ignore
-  }
-}
-
-/** =========================
  * UI bits
  * ========================= */
 function Chip({ label, selected, onClick }) {
@@ -365,13 +338,17 @@ function Gate({ action, checked, onToggle, onProceed }) {
           </p>
 
           <ol className="routeSteps" style={{ marginTop: 8 }}>
-            {(action?.steps?.length ? action.steps : [action?.title]).map((s, i) => (
-              <li key={i}>{s}</li>
-            ))}
+            {(action?.steps?.length ? action.steps : [action?.title]).map(
+              (s, i) => (
+                <li key={i}>{s}</li>
+              )
+            )}
           </ol>
 
           {action?.note ? (
-            <p style={{ marginBottom: 0, opacity: 0.75 }}>メモ: {action.note}</p>
+            <p style={{ marginBottom: 0, opacity: 0.75 }}>
+              メモ: {action.note}
+            </p>
           ) : null}
 
           <div className="divider" style={{ margin: "16px 0" }} />
@@ -381,7 +358,10 @@ function Gate({ action, checked, onToggle, onProceed }) {
             <span>できた</span>
           </label>
 
-          <div className="actions" style={{ marginTop: 16, justifyContent: "center" }}>
+          <div
+            className="actions"
+            style={{ marginTop: 16, justifyContent: "center" }}
+          >
             <button
               className="btn primary"
               type="button"
@@ -393,8 +373,15 @@ function Gate({ action, checked, onToggle, onProceed }) {
             </button>
           </div>
 
-          <p style={{ textAlign: "center", fontSize: 12, opacity: 0.65, marginBottom: 0 }}>
-            ※ 1日1回
+          <p
+            style={{
+              textAlign: "center",
+              fontSize: 12,
+              opacity: 0.65,
+              marginBottom: 0,
+            }}
+          >
+            ※ URLを開き直すたびに表示
           </p>
         </div>
       </div>
@@ -405,7 +392,17 @@ function Gate({ action, checked, onToggle, onProceed }) {
 /** =========================
  * Pages
  * ========================= */
-function SelectPage({ mode, setMode, options, sel, setKey, onReset, onGenerate, pills, fitScore }) {
+function SelectPage({
+  mode,
+  setMode,
+  options,
+  sel,
+  setKey,
+  onReset,
+  onGenerate,
+  pills,
+  fitScore,
+}) {
   return (
     <div className="wrap">
       <div className="card">
@@ -418,11 +415,21 @@ function SelectPage({ mode, setMode, options, sel, setKey, onReset, onGenerate, 
           </div>
 
           <div className="pills">
-            <div className="pill">⏱️ <b>{pills.time}</b></div>
-            <div className="pill">🎯 <b>{pills.goal}</b></div>
-            <div className="pill">📍 <b>{pills.place}</b></div>
-            <div className="pill">💸 <b>{pills.money}</b></div>
-            <div className="pill">適合 <b>{fitScore}</b></div>
+            <div className="pill">
+              ⏱️ <b>{pills.time}</b>
+            </div>
+            <div className="pill">
+              🎯 <b>{pills.goal}</b>
+            </div>
+            <div className="pill">
+              📍 <b>{pills.place}</b>
+            </div>
+            <div className="pill">
+              💸 <b>{pills.money}</b>
+            </div>
+            <div className="pill">
+              適合 <b>{fitScore}</b>
+            </div>
           </div>
         </div>
 
@@ -498,7 +505,15 @@ function SelectPage({ mode, setMode, options, sel, setKey, onReset, onGenerate, 
             </div>
 
             <div className="spacer" />
-            <p className="muted" style={{ margin: 0, fontSize: 12, lineHeight: 1.4, textAlign: "center" }}>
+            <p
+              className="muted"
+              style={{
+                margin: 0,
+                fontSize: 12,
+                lineHeight: 1.4,
+                textAlign: "center",
+              }}
+            >
               ※ URLに条件が反映されます（共有可能）。
               <br />
               <span style={{ opacity: 0.9 }}>
@@ -509,7 +524,9 @@ function SelectPage({ mode, setMode, options, sel, setKey, onReset, onGenerate, 
 
           <div className="panel resultsPanel">
             <h2 className="panelTitle">プレビュー（参考）</h2>
-            <p style={{ opacity: 0.75, marginTop: 0 }}>生成を押すと結果ページへ移動するよ。</p>
+            <p style={{ opacity: 0.75, marginTop: 0 }}>
+              生成を押すと結果ページへ移動するよ。
+            </p>
           </div>
         </div>
       </div>
@@ -530,10 +547,18 @@ function ResultPage({ mode, setMode, options, sel, actions, onBack, onReroll }) 
           </div>
 
           <div className="pills">
-            <div className="pill">⏱️ <b>{labelFor(options, "time", sel.time)}</b></div>
-            <div className="pill">🎯 <b>{labelFor(options, "goal", sel.goal)}</b></div>
-            <div className="pill">📍 <b>{labelFor(options, "place", sel.place)}</b></div>
-            <div className="pill">💸 <b>{labelFor(options, "money", sel.money)}</b></div>
+            <div className="pill">
+              ⏱️ <b>{labelFor(options, "time", sel.time)}</b>
+            </div>
+            <div className="pill">
+              🎯 <b>{labelFor(options, "goal", sel.goal)}</b>
+            </div>
+            <div className="pill">
+              📍 <b>{labelFor(options, "place", sel.place)}</b>
+            </div>
+            <div className="pill">
+              💸 <b>{labelFor(options, "money", sel.money)}</b>
+            </div>
           </div>
         </div>
 
@@ -556,7 +581,9 @@ function ResultPage({ mode, setMode, options, sel, actions, onBack, onReroll }) 
               <div className="resultCard">
                 <p className="routeTitle">
                   {idx === 0 ? "行動A（おすすめ）" : idx === 1 ? "行動B" : "行動C"}{" "}
-                  <span style={{ opacity: 0.8, fontWeight: 400 }}>· {a.title}</span>
+                  <span style={{ opacity: 0.8, fontWeight: 400 }}>
+                    · {a.title}
+                  </span>
                 </p>
 
                 <ol className="routeSteps">
@@ -567,7 +594,8 @@ function ResultPage({ mode, setMode, options, sel, actions, onBack, onReroll }) 
 
                 <div className="smallNote">
                   <span style={{ opacity: 0.75 }}>
-                    一致: {a._mode === "strict" ? "厳密" : "近い候補から救済"} / スコア {a._score ?? 0}
+                    一致: {a._mode === "strict" ? "厳密" : "近い候補から救済"} /
+                    スコア {a._score ?? 0}
                   </span>
                 </div>
               </div>
@@ -617,8 +645,8 @@ export default function App() {
     pick3Actions(readSelFromSP(sp, readModeFromSP(sp)), readModeFromSP(sp))
   );
 
-  // ✅ Gate（固定で10歩歩く）
-  const [gateOpen, setGateOpen] = useState(() => !isGateDoneToday());
+  // ✅ Gate（ページ読み込みごとに毎回出す）
+  const [gateOpen, setGateOpen] = useState(true);
   const [gateChecked, setGateChecked] = useState(false);
 
   const pills = useMemo(
@@ -636,7 +664,7 @@ export default function App() {
   // ✅ 遷移を“確実に”反映（hashchange待ちしない）
   const go = (nextPath, nextMode, nextSel) => {
     window.location.hash = buildHash(nextPath, nextMode, nextSel);
-    setRoute(parseHash()); // 即同期（これが「生成押しても開かない」対策の核）
+    setRoute(parseHash()); // 即同期（「生成押しても開かない」対策）
   };
 
   // ✅ モード切替
@@ -646,14 +674,15 @@ export default function App() {
 
     const nextSel = {
       ...sel,
-      place: validOption(nextOptions, "place", sel.place) ? sel.place : nextDefaults.place,
+      place: validOption(nextOptions, "place", sel.place)
+        ? sel.place
+        : nextDefaults.place,
     };
 
     setMode(nextMode);
     setSel(nextSel);
     go(path || "/", nextMode, nextSel);
 
-    // 結果ページなら、モードに合わせて中身も更新
     if (path === "/result") {
       setGeneratedActions(pick3Actions(nextSel, nextMode));
     }
@@ -682,7 +711,6 @@ export default function App() {
   const onReroll = () => setGeneratedActions(pick3Actions(sel, mode));
 
   const proceedGate = () => {
-    markGateDoneToday();
     setGateOpen(false);
   };
 
