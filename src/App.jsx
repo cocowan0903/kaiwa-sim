@@ -2,13 +2,25 @@
 import React, { useEffect, useMemo, useState } from "react";
 import "./App.css";
 import RAW_ACTIONS from "./actions.json";
-import Header from "./Header";
-import SideGame from "./SideGame";
+
+/**
+ * Decision Router (hash routing)
+ * - 条件選択：#/
+ * - 結果：#/result?mode=student&time=30&goal=recover&place=home&money=0
+ * - 履歴/お気に入り：localStorage（安全ラッパー）
+ * - Gate（今の行動）：1日1回（localStorage）
+ * - 右側ゲーム欄：.appShell + .sideGame（CSSで右/下切替）
+ *
+ * ✅ actions.json 互換
+ * - tags が「配列」でも「{time:[...],goal:[...]}」でも動く
+ * - place: outside / money: low|mid|high を UI 側も対応
+ */
 
 const LS = {
   gateKey: "dr_gate_done_day",
   history: "dr_history_v1",
   favs: "dr_favs_v1",
+  game: "dr_game_v1",
 };
 
 const OPTIONS = {
@@ -24,17 +36,19 @@ const OPTIONS = {
     { value: "life", label: "生活" },
     { value: "fun", label: "遊び" },
   ],
+  // ✅ actions.json は outside
   place: [
     { value: "home", label: "家" },
     { value: "school", label: "学校" },
-    { value: "out", label: "外" },
+    { value: "outside", label: "外" },
     { value: "online", label: "オンライン" },
   ],
+  // ✅ actions.json は low/mid/high
   money: [
     { value: "0", label: "0円" },
-    { value: "500", label: "少し（〜500円）" },
-    { value: "2000", label: "まあまあ（〜2000円）" },
-    { value: "any", label: "気にしない" },
+    { value: "low", label: "少し" },
+    { value: "mid", label: "まあまあ" },
+    { value: "high", label: "気にしない" },
   ],
 };
 
@@ -46,7 +60,9 @@ const DEFAULTS = {
   money: "0",
 };
 
-/* ===== Safe Storage ===== */
+/* =========================
+   Safe storage
+========================= */
 function safeGetItem(key) {
   try {
     return window.localStorage.getItem(key);
@@ -58,7 +74,7 @@ function safeSetItem(key, value) {
   try {
     window.localStorage.setItem(key, value);
   } catch {
-    // ignore
+    // storage unavailable -> ignore
   }
 }
 function safeJsonParse(str, fallback) {
@@ -76,7 +92,9 @@ function writeLS(key, value) {
   safeSetItem(key, JSON.stringify(value));
 }
 
-/* ===== Utils ===== */
+/* =========================
+   Utils
+========================= */
 function todayKey() {
   const d = new Date();
   const y = d.getFullYear();
@@ -92,16 +110,16 @@ function normalizeActions(raw) {
 }
 
 function parseHash() {
-  // "#/result?x=1", "#result?x=1", "#/?x=1", "#", ""
+  // Accept: "#/result?x=1", "#result?x=1", "#/?x=1", "#", "", "/result?x=1"
   const raw = window.location.hash || "#/";
   const withoutHash = raw.startsWith("#") ? raw.slice(1) : raw;
-  const base = withoutHash.trim();
 
+  const base = withoutHash.trim();
   if (!base || base === "/") return { path: "/", query: {} };
 
   const normalized = base.startsWith("/") ? base : `/${base}`;
   const [pathPart, queryPart] = normalized.split("?");
-  const path = pathPart || "/";
+  const path = pathPart === "" ? "/" : pathPart;
 
   const params = new URLSearchParams(queryPart || "");
   const obj = {};
@@ -141,19 +159,72 @@ function makeCondKey(mode, cond) {
   return `${mode}|${cond.time}|${cond.goal}|${cond.place}|${cond.money}`;
 }
 
+/* =========================
+   tags対応（配列型 / オブジェクト型）
+========================= */
+
+// tags が object なら返す（actions.json の形式）
+function getTagObj(action) {
+  const t = action?.tags;
+  if (t && typeof t === "object" && !Array.isArray(t)) return t;
+  return null;
+}
+
+// tags が array なら返す（旧形式 "goal:recover" など）
+function getTagArray(action) {
+  const t = action?.tags;
+  if (Array.isArray(t)) return t.map(String);
+  return null;
+}
+
+function listify(v) {
+  if (Array.isArray(v)) return v.map(String);
+  if (v === undefined || v === null) return [];
+  return [String(v)];
+}
+
+function actionHasAny(action, key, wantedValue) {
+  const want = String(wantedValue);
+
+  // object tags
+  const obj = getTagObj(action);
+  if (obj) {
+    const arr = listify(obj[key]);
+    return arr.includes(want);
+  }
+
+  // array tags: "key:value" or bare tokens
+  const arr = getTagArray(action);
+  if (arr) {
+    return arr.includes(`${key}:${want}`) || arr.includes(want);
+  }
+
+  return false;
+}
+
+function prettyTags(action) {
+  const obj = getTagObj(action);
+  if (obj) {
+    const out = [];
+    for (const k of ["time", "goal", "place", "money"]) {
+      const arr = listify(obj[k]);
+      for (const v of arr) out.push(`${k}:${v}`);
+    }
+    return out;
+  }
+  const arr = getTagArray(action);
+  return arr ? arr : [];
+}
+
 function calcFitScore(action, cond) {
-  const tags = action?.tags ?? [];
-  const want = [
-    `time:${cond.time}`,
-    `goal:${cond.goal}`,
-    `place:${cond.place}`,
-    `money:${cond.money}`,
-    cond.goal,
-    cond.place,
+  const checks = [
+    actionHasAny(action, "time", cond.time),
+    actionHasAny(action, "goal", cond.goal),
+    actionHasAny(action, "place", cond.place),
+    actionHasAny(action, "money", cond.money),
   ];
-  const hit = want.filter((w) => tags.includes(w)).length;
-  const denom = Math.max(1, want.length);
-  return Math.round((hit / denom) * 100);
+  const hit = checks.filter(Boolean).length;
+  return Math.round((hit / checks.length) * 100);
 }
 
 function filterActionsByMode(actions, mode) {
@@ -167,18 +238,26 @@ function filterActionsByMode(actions, mode) {
 }
 
 function filterActionsByConditions(actions, cond) {
-  const mustTags = [`goal:${cond.goal}`, `place:${cond.place}`, `money:${cond.money}`, `time:${cond.time}`];
-
   const filtered = (actions || []).filter((a) => {
-    const tags = a?.tags ?? [];
-    const hasAny = mustTags.some((t) => tags.includes(t));
-    return hasAny || tags.length === 0;
+    // tags が無い/壊れてるなら候補から落とさない（0件防止）
+    const hasTags = !!getTagObj(a) || !!getTagArray(a);
+    if (!hasTags) return true;
+
+    // まずは “どれか一致” で候補を作る（データが増えてもゼロになりにくい）
+    return (
+      actionHasAny(a, "time", cond.time) ||
+      actionHasAny(a, "goal", cond.goal) ||
+      actionHasAny(a, "place", cond.place) ||
+      actionHasAny(a, "money", cond.money)
+    );
   });
 
   return filtered.length ? filtered : (actions || []);
 }
 
-/* ===== UI ===== */
+/* =========================
+   UI Parts
+========================= */
 function GateOverlay({ isOpen, onDone }) {
   if (!isOpen) return null;
   return (
@@ -315,6 +394,65 @@ function FavoritesList({ items, onRemove, onUse }) {
   );
 }
 
+/* =========================
+   Mini Game (Simple Clicker)
+========================= */
+function GamePanel() {
+  const [game, setGame] = useState(() => readLS(LS.game, { best: 0, today: 0, day: todayKey() }));
+
+  useEffect(() => {
+    const t = todayKey();
+    if (game.day !== t) {
+      const next = { ...game, today: 0, day: t };
+      setGame(next);
+      writeLS(LS.game, next);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function addPoint() {
+    const nextToday = game.today + 1;
+    const nextBest = Math.max(game.best, nextToday);
+    const next = { ...game, today: nextToday, best: nextBest };
+    setGame(next);
+    writeLS(LS.game, next);
+  }
+
+  function resetToday() {
+    const next = { ...game, today: 0 };
+    setGame(next);
+    writeLS(LS.game, next);
+  }
+
+  return (
+    <div className="gamePanel">
+      <div className="gameTitle">ゲーム</div>
+      <div className="gameBody">
+        <div className="muted small">クリックでスコアが増えるだけの最小ミニゲーム。</div>
+
+        <div className="gameCard">
+          <div className="gameCardTitle">本日のスコア</div>
+          <div className="gameScore">{game.today}</div>
+
+          <div className="gameBtns">
+            <button className="btnPrimary" onClick={addPoint}>
+              ＋1
+            </button>
+            <button className="btnGhost" onClick={resetToday}>
+              リセット
+            </button>
+          </div>
+
+          <div className="muted small">自己ベスト：{game.best}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* =========================
+   Pages
+========================= */
 function SelectPage({
   mode,
   setMode,
@@ -350,11 +488,21 @@ function SelectPage({
         </div>
 
         <div className="pills">
-          <div className="pill">⏱️ <b>{pills.time}</b></div>
-          <div className="pill">🎯 <b>{pills.goal}</b></div>
-          <div className="pill">📍 <b>{pills.place}</b></div>
-          <div className="pill">💸 <b>{pills.money}</b></div>
-          <div className="pill">適合 <b>{fitScore}</b></div>
+          <div className="pill">
+            ⏱️ <b>{pills.time}</b>
+          </div>
+          <div className="pill">
+            🎯 <b>{pills.goal}</b>
+          </div>
+          <div className="pill">
+            📍 <b>{pills.place}</b>
+          </div>
+          <div className="pill">
+            💸 <b>{pills.money}</b>
+          </div>
+          <div className="pill">
+            適合 <b>{fitScore}</b>
+          </div>
         </div>
 
         <SubTabs tab={tab} setTab={setTab} />
@@ -373,13 +521,19 @@ function SelectPage({
               <ConditionGroup title="🎯 目的" options={OPTIONS.goal} value={cond.goal} onChange={(v) => setCond((c) => ({ ...c, goal: v }))} />
 
               <div className="actionsRow">
-                <button className="btnGhost" onClick={onReset}>リセット</button>
-                <button className="btnPrimary" onClick={onGenerate}>生成（結果を見る） →</button>
+                <button className="btnGhost" onClick={onReset}>
+                  リセット
+                </button>
+                <button className="btnPrimary" onClick={onGenerate}>
+                  生成（結果を見る） →
+                </button>
               </div>
 
               <div className="muted small">
                 ※ URLに条件が反映されます（共有可能）。
-                <div className="mono">#/result{toQueryString({ mode, time: cond.time, goal: cond.goal, place: cond.place, money: cond.money })}</div>
+                <div className="mono">
+                  #/result{toQueryString({ mode, time: cond.time, goal: cond.goal, place: cond.place, money: cond.money })}
+                </div>
               </div>
             </>
           )}
@@ -416,10 +570,18 @@ function ResultPage({ mode, setMode, cond, results, onBack, onRegenerate, onAddF
         </div>
 
         <div className="pills">
-          <div className="pill">⏱️ <b>{pills.time}</b></div>
-          <div className="pill">🎯 <b>{pills.goal}</b></div>
-          <div className="pill">📍 <b>{pills.place}</b></div>
-          <div className="pill">💸 <b>{pills.money}</b></div>
+          <div className="pill">
+            ⏱️ <b>{pills.time}</b>
+          </div>
+          <div className="pill">
+            🎯 <b>{pills.goal}</b>
+          </div>
+          <div className="pill">
+            📍 <b>{pills.place}</b>
+          </div>
+          <div className="pill">
+            💸 <b>{pills.money}</b>
+          </div>
         </div>
 
         <ModeTabs mode={mode} onChange={setMode} />
@@ -427,8 +589,12 @@ function ResultPage({ mode, setMode, cond, results, onBack, onRegenerate, onAddF
 
       <div className="card">
         <div className="actionsRow">
-          <button className="btnGhost" onClick={onBack}>← 条件に戻る</button>
-          <button className="btnPrimary" onClick={onRegenerate}>もう一回生成</button>
+          <button className="btnGhost" onClick={onBack}>
+            ← 条件に戻る
+          </button>
+          <button className="btnPrimary" onClick={onRegenerate}>
+            もう一回生成
+          </button>
           <button className={`btnGhost ${isFav ? "active" : ""}`} onClick={onAddFav}>
             {isFav ? "★ お気に入り済み" : "☆ お気に入りに追加"}
           </button>
@@ -439,9 +605,11 @@ function ResultPage({ mode, setMode, cond, results, onBack, onRegenerate, onAddF
             <div className="muted">候補が見つからなかった。条件を変えてみて。</div>
           ) : (
             results.map((r, idx) => (
-              <div key={`${r.title}-${idx}`} className="resultItem">
+              <div key={`${r.id || r.title}-${idx}`} className="resultItem">
                 <div className="resultTitle">{r.title}</div>
-                <div className="resultMeta muted small">適合 {r.fit} / tags: {(r.tags || []).slice(0, 6).join(", ")}</div>
+                <div className="resultMeta muted small">
+                  適合 {r.fit} / tags: {prettyTags(r).slice(0, 8).join(", ")}
+                </div>
               </div>
             ))
           )}
@@ -451,11 +619,14 @@ function ResultPage({ mode, setMode, cond, results, onBack, onRegenerate, onAddF
   );
 }
 
-/* ===== App ===== */
+/* =========================
+   App
+========================= */
 export default function App() {
   const [{ path, query }, setRoute] = useState(() => parseHash());
 
   const ACTIONS = useMemo(() => normalizeActions(RAW_ACTIONS), []);
+
   const [mode, setMode] = useState(query.mode || DEFAULTS.mode);
   const [cond, setCond] = useState({
     time: query.time || DEFAULTS.time,
@@ -469,12 +640,14 @@ export default function App() {
   const [favs, setFavs] = useState(() => readLS(LS.favs, []));
   const [gateOpen, setGateOpen] = useState(false);
 
+  // hash listener
   useEffect(() => {
     const onHash = () => setRoute(parseHash());
     window.addEventListener("hashchange", onHash);
     return () => window.removeEventListener("hashchange", onHash);
   }, []);
 
+  // route -> state sync
   useEffect(() => {
     const q = query || {};
     if (q.mode && q.mode !== mode) setMode(q.mode);
@@ -486,11 +659,14 @@ export default function App() {
       money: q.money || cond.money,
     };
 
-    const changed = next.time !== cond.time || next.goal !== cond.goal || next.place !== cond.place || next.money !== cond.money;
+    const changed =
+      next.time !== cond.time || next.goal !== cond.goal || next.place !== cond.place || next.money !== cond.money;
+
     if (changed) setCond(next);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [path, JSON.stringify(query)]);
 
+  // gate (1/day)
   useEffect(() => {
     const doneDay = safeGetItem(LS.gateKey);
     const t = todayKey();
@@ -507,7 +683,10 @@ export default function App() {
 
   const results = useMemo(() => {
     if (path !== "/result") return [];
-    const scored = narrowed.map((a) => ({ ...a, fit: calcFitScore(a, cond) })).sort((a, b) => b.fit - a.fit);
+    const scored = narrowed
+      .map((a) => ({ ...a, fit: calcFitScore(a, cond) }))
+      .sort((a, b) => b.fit - a.fit);
+
     const top = scored.slice(0, Math.min(15, scored.length));
     return pickRandom(top, 3);
   }, [path, narrowed, cond]);
@@ -524,8 +703,11 @@ export default function App() {
     const newKey = makeCondKey(mode, currentCond);
 
     let next;
-    if (head && headKey === newKey) next = [{ ...head, at: now }, ...history.slice(1)];
-    else next = [item, ...history].slice(0, 50);
+    if (head && headKey === newKey) {
+      next = [{ ...head, at: now }, ...history.slice(1)];
+    } else {
+      next = [item, ...history].slice(0, 50);
+    }
 
     setHistory(next);
     writeLS(LS.history, next);
@@ -565,8 +747,10 @@ export default function App() {
   }
 
   function handleAddFav() {
-    if (favs.some((f) => f.key === favKey)) return;
-    const item = { key: favKey, mode, ...cond, at: Date.now() };
+    const key = favKey;
+    if (favs.some((f) => f.key === key)) return;
+
+    const item = { key, mode, ...cond, at: Date.now() };
     const next = [item, ...favs].slice(0, 80);
     setFavs(next);
     writeLS(LS.favs, next);
@@ -601,44 +785,42 @@ export default function App() {
     <div className="appShell">
       <GateOverlay isOpen={gateOpen} onDone={handleGateDone} />
 
-      <div className="mainCol">
-        <Header />
-        <main>
-          {path === "/result" ? (
-            <ResultPage
-              mode={mode}
-              setMode={setMode}
-              cond={cond}
-              results={results}
-              onBack={handleBack}
-              onRegenerate={handleRegenerate}
-              onAddFav={handleAddFav}
-              isFav={isFav}
-            />
-          ) : (
-            <SelectPage
-              mode={mode}
-              setMode={setMode}
-              cond={cond}
-              setCond={setCond}
-              tab={tab}
-              setTab={setTab}
-              fitScore={fitScore}
-              history={history}
-              favs={favs}
-              onGenerate={handleGenerate}
-              onReset={handleReset}
-              onPickHistory={handlePickHistory}
-              onClearHistory={handleClearHistory}
-              onUseFav={handleUseFav}
-              onRemoveFav={handleRemoveFav}
-            />
-          )}
-        </main>
-      </div>
+      <main className="mainCol">
+        {path === "/result" ? (
+          <ResultPage
+            mode={mode}
+            setMode={setMode}
+            cond={cond}
+            results={results}
+            onBack={handleBack}
+            onRegenerate={handleRegenerate}
+            onAddFav={handleAddFav}
+            isFav={isFav}
+          />
+        ) : (
+          <SelectPage
+            mode={mode}
+            setMode={setMode}
+            cond={cond}
+            setCond={setCond}
+            tab={tab}
+            setTab={setTab}
+            fitScore={fitScore}
+            history={history}
+            favs={favs}
+            onGenerate={handleGenerate}
+            onReset={handleReset}
+            onPickHistory={handlePickHistory}
+            onClearHistory={handleClearHistory}
+            onUseFav={handleUseFav}
+            onRemoveFav={handleRemoveFav}
+          />
+        )}
+      </main>
 
-      <aside className="sideCol">
-        <SideGame />
+      {/* 右側（or 画面狭いと下） */}
+      <aside className="sideGame">
+        <GamePanel />
       </aside>
     </div>
   );

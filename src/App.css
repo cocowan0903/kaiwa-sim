@@ -41,20 +41,11 @@ body{
   min-width:0;
 }
 
-.sideCol{
-  width:min(1100px, 100%);
-  min-width:0;
-}
-
+/* 右カラム（SideGame） */
 @media (min-width:980px){
   .appShell{
     grid-template-columns: minmax(320px, 1100px) 340px;
     align-items:start;
-  }
-  .sideCol{
-    position:sticky;
-    top:16px;
-    height:calc(100vh - 32px);
   }
 }
 
@@ -147,7 +138,7 @@ body{
 }
 
 /* ===== Buttons ===== */
-.actionsRow{ display:flex; gap:8px; margin-top:12px; }
+.actionsRow{ display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
 .btnPrimary{
   background:linear-gradient(135deg,var(--accent),var(--accent2));
   border:none;
@@ -169,8 +160,9 @@ body{
 
 /* ===== Lists ===== */
 .listWrap{ display:flex; flex-direction:column; gap:8px; }
-.listHead{ display:flex; justify-content:space-between; align-items:center; }
+.listHead{ display:flex; justify-content:space-between; align-items:center; gap:10px; }
 .list{ display:flex; flex-direction:column; gap:8px; }
+
 .listItem{
   width:100%;
   text-align:left;
@@ -180,10 +172,11 @@ body{
   padding:10px;
   cursor:pointer;
 }
+
 .listMain{ display:flex; flex-direction:column; gap:2px; }
 .listSub{ color:var(--muted); font-size:12px; margin-top:2px; }
 
-.favItem{ display:flex; justify-content:space-between; gap:10px; }
+.favItem{ display:flex; justify-content:space-between; gap:10px; align-items:stretch; }
 .favUse{
   flex:1;
   border:1px solid var(--border);
@@ -233,6 +226,8 @@ body{
 .muted{ color:var(--muted); }
 .small{ font-size:12px; }
 .mono{ font-family:monospace; margin-top:4px; }
+
+/* ===== App Header (optional) ===== */
 .appHeader{
   margin-bottom:12px;
   border-radius:18px;
@@ -253,8 +248,9 @@ body{
 .appHeaderSub{ color:var(--muted); font-size:12px; margin-top:2px; }
 .headerLink{ color:var(--text); text-decoration:none; opacity:0.9; }
 .headerLink:hover{ opacity:1; }
+
+/* ===== SideGame ===== */
 .sideGame{
-  height:100%;
   border-radius:18px;
   border:1px solid var(--border);
   background:var(--card);
@@ -262,6 +258,14 @@ body{
   box-shadow:var(--shadow2);
   overflow:hidden;
   min-width:0;
+}
+
+@media (min-width:980px){
+  .sideGame{
+    position: sticky;
+    top:16px;
+    height: calc(100vh - 32px);
+  }
 }
 
 .sideGameHead{
@@ -276,8 +280,16 @@ body{
 .sideGameTitle{ font-weight:700; }
 .sideGameHint{ color:var(--muted); font-size:12px; }
 
-.sideGameCanvasWrap{ padding:10px; height:calc(100% - 54px - 44px); }
-.sideGameCanvas{ width:100%; height:100%; display:block; border-radius:12px; }
+.sideGameCanvasWrap{
+  padding:10px;
+  height:calc(100% - 54px - 44px);
+}
+.sideGameCanvas{
+  width:100%;
+  height:100%;
+  display:block;
+  border-radius:12px;
+}
 
 .btn{
   border:1px solid var(--border);
