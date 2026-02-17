@@ -213,8 +213,14 @@ body {
   height: 14px;
 }
 
+/* ✅ 追加：手順が消えた時の表示 */
+.oneLineStep {
+  margin: 0;
+  opacity: 0.7;
+  font-size: 13px;
+}
+
 /* ===== 学生編 / 一般編 タブ ===== */
-/* ヘッダー内で潰れにくいように “幅が足りないときはタブごと次行へ” を安定させる */
 .modeTabs {
   display: flex;
   gap: 10px;
@@ -250,9 +256,8 @@ body {
 }
 
 /* ===== Gate（モーダル）補強 ===== */
-/* Gate内部でも .card を使ってるので、モーダル時の “見た目暴走” を抑えるための安全柵 */
 @media (max-width: 720px) {
   .card {
-    padding: 20px; /* 画面狭い時に詰まりすぎない */
+    padding: 20px;
   }
 }
