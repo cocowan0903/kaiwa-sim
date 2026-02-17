@@ -18,6 +18,11 @@ import RAW_ACTIONS from "./actions.json";
  * 設定（漏洩・DoS対策）
  * ========================= */
 
+// Vite想定：開発判定（本番でログを出さない）
+const __DEV__ = typeof import.meta !== "undefined" && import.meta.env
+  ? import.meta.env.DEV
+  : false;
+
 // URLに載せるキーを固定（将来、個人情報っぽいものを追加してもURLに出ない）
 const URL_ALLOWED_KEYS = new Set(["mode", "time", "goal", "place", "money"]);
 
@@ -30,12 +35,8 @@ const LIMITS = {
   actionsMax: 5000,
 };
 
-// 開発時のみログ（本番の恥スクショ事故防止）
-const __DEV__ =
-  typeof process !== "undefined" && process.env?.NODE_ENV !== "production";
-
 /** =========================
- * Options
+ * OPTIONS
  * ========================= */
 const OPTIONS_BY_MODE = {
   student: {
@@ -121,11 +122,15 @@ function normalizeForCompare(s) {
 }
 
 function validOption(options, key, value) {
-  return options[key].some((o) => o.value === value);
+  const list = options?.[key];
+  if (!Array.isArray(list)) return false;
+  return list.some((o) => o.value === value);
 }
 
 function labelFor(options, key, value) {
-  return options[key].find((o) => o.value === value)?.label ?? value;
+  const list = options?.[key];
+  if (!Array.isArray(list)) return value;
+  return list.find((o) => o.value === value)?.label ?? value;
 }
 
 /** =========================
@@ -162,8 +167,8 @@ function readModeFromSP(sp) {
 }
 
 function readSelFromSP(sp, mode) {
-  const options = OPTIONS_BY_MODE[mode];
-  const defaults = DEFAULTS_BY_MODE[mode];
+  const options = OPTIONS_BY_MODE[mode] ?? OPTIONS_BY_MODE.student;
+  const defaults = DEFAULTS_BY_MODE[mode] ?? DEFAULTS_BY_MODE.student;
 
   const time = sp.get("time") ?? defaults.time;
   const goal = sp.get("goal") ?? defaults.goal;
@@ -498,26 +503,6 @@ function Gate({ action, checked, onToggle, onProceed }) {
 
           <div className="divider" style={{ margin: "16px 0" }} />
 
-          <div
-            style={{
-              background: "rgba(255,255,255,0.06)",
-              border: "1px solid rgba(255,255,255,0.12)",
-              borderRadius: 12,
-              padding: 12,
-              fontSize: 13,
-              lineHeight: 1.55,
-              opacity: 0.92,
-            }}
-          >
-            <b>安心ポイント</b>
-            <div style={{ marginTop: 6 }}>
-              このアプリは入力フォームやアカウント機能がなく、外部への送信を前提にしていません。
-              URL共有も条件のみを扱う設計です。
-            </div>
-          </div>
-
-          <div className="divider" style={{ margin: "16px 0" }} />
-
           <label style={{ display: "flex", gap: 10, alignItems: "center" }}>
             <input type="checkbox" checked={checked} onChange={onToggle} />
             <span>できた</span>
@@ -796,7 +781,7 @@ export default function App() {
     console.log("✅ App loaded");
     console.log("ACTIONS length =", ACTIONS.length);
     console.log("last id =", ACTIONS[ACTIONS.length - 1]?.id);
-  }, [ACTIONS.length]);
+  }, [ACTIONS.length, ACTIONS]);
 
   // hash router
   const [hashStr, setHashStr] = useState(() => getHashString());
@@ -816,7 +801,7 @@ export default function App() {
 
   // mode + selection
   const [mode, setMode] = useState(() => readModeFromSP(sp));
-  const options = useMemo(() => OPTIONS_BY_MODE[mode], [mode]);
+  const options = useMemo(() => OPTIONS_BY_MODE[mode] ?? OPTIONS_BY_MODE.student, [mode]);
   const [sel, setSel] = useState(() => readSelFromSP(sp, mode));
 
   // ルート変更に追従（URL→state）
@@ -897,8 +882,8 @@ export default function App() {
 
   // モード切替
   const changeMode = (nextMode) => {
-    const nextOptions = OPTIONS_BY_MODE[nextMode];
-    const nextDefaults = DEFAULTS_BY_MODE[nextMode];
+    const nextOptions = OPTIONS_BY_MODE[nextMode] ?? OPTIONS_BY_MODE.student;
+    const nextDefaults = DEFAULTS_BY_MODE[nextMode] ?? DEFAULTS_BY_MODE.student;
 
     const nextSel = {
       ...sel,
