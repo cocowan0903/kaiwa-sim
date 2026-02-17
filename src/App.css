@@ -1,94 +1,381 @@
 /* =========================
-   Favorites UI polish
-   App.css の末尾に追記
+   Decision Router - Pro-ish Layout Pack
+   App.css 全置換版
    ========================= */
 
-/* --- Sub tabs (条件/履歴/お気に入り) --- */
-.subTabs {
+:root{
+  --bg0: #0b1020;
+  --bg1: rgba(255,255,255,0.06);
+  --bg2: rgba(255,255,255,0.09);
+  --line1: rgba(255,255,255,0.12);
+  --line2: rgba(255,255,255,0.20);
+  --text: rgba(255,255,255,0.92);
+  --muted: rgba(255,255,255,0.70);
+  --shadow: 0 16px 60px rgba(0,0,0,0.42);
+  --shadow2: 0 10px 26px rgba(0,0,0,0.28);
+  --r-xl: 22px;
+  --r-lg: 16px;
+  --r-md: 12px;
+  --pad: 18px;
+}
+
+*{ box-sizing: border-box; }
+
+html, body{
+  height: 100%;
+}
+
+body{
+  margin: 0;
+  color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans JP", "Apple Color Emoji","Segoe UI Emoji";
+  line-height: 1.55;
+
+  /* 背景を“工夫”: うるさくない奥行き */
+  background:
+    radial-gradient(1000px 700px at 20% 0%, rgba(120,110,255,0.18), transparent 55%),
+    radial-gradient(900px 680px at 90% 15%, rgba(0,220,255,0.12), transparent 52%),
+    radial-gradient(700px 520px at 40% 95%, rgba(255,80,160,0.10), transparent 55%),
+    linear-gradient(180deg, #070a14 0%, #0b1020 55%, #070a14 100%);
+}
+
+/* =========================
+   Layout containers
+   ========================= */
+
+.wrap{
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 28px 16px 44px;
+}
+
+.card{
+  border-radius: var(--r-xl);
+  border: 1px solid var(--line1);
+  background: rgba(255,255,255,0.06);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.header{
+  padding: 18px 18px 10px;
+}
+
+.hgroup .title{
+  margin: 10px 0 6px;
+  font-size: 22px;
+  letter-spacing: 0.01em;
+}
+
+.subtitle{
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.divider{
+  height: 1px;
+  background: var(--line1);
+  width: 100%;
+}
+
+.grid{
+  display: grid;
+  gap: 16px;
+  padding: 16px;
+  grid-template-columns: 1.2fr 0.8fr;
+  align-items: start;
+}
+
+@media (max-width: 920px){
+  .grid{ grid-template-columns: 1fr; }
+}
+
+/* =========================
+   Panels
+   ========================= */
+
+.panel{
+  border-radius: var(--r-lg);
+  border: 1px solid var(--line1);
+  background: rgba(255,255,255,0.05);
+  box-shadow: var(--shadow2);
+  padding: 16px;
+}
+
+.panelTitle{
+  margin: 0 0 10px;
+  font-size: 15px;
+  letter-spacing: 0.01em;
+}
+
+.kicker{
+  margin: 12px 0 8px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.80);
+  letter-spacing: 0.02em;
+}
+
+.resultsPanel{
+  min-height: 260px;
+}
+
+/* =========================
+   Pills (status chips top)
+   ========================= */
+
+.pills{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.pill{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(0,0,0,0.18);
+  font-size: 12px;
+  color: rgba(255,255,255,0.88);
+}
+
+/* =========================
+   Mode tabs + sub tabs
+   ========================= */
+
+.modeTabs{
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.modeTab{
+  padding: 9px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.16);
+  background: rgba(255,255,255,0.06);
+  color: inherit;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  transition: transform 0.06s ease, background 0.15s ease, border-color 0.15s ease;
+}
+
+.modeTab:hover{
+  background: rgba(255,255,255,0.10);
+  border-color: rgba(255,255,255,0.28);
+}
+
+.modeTab:active{ transform: translateY(1px); }
+
+.modeTab.active{
+  background: rgba(255,255,255,0.14);
+  border-color: rgba(255,255,255,0.36);
+}
+
+.subTabs{
   display: flex;
   gap: 10px;
   margin-top: 12px;
   flex-wrap: wrap;
 }
 
-.subTab {
+.subTab{
   padding: 10px 14px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.06);
   color: inherit;
   cursor: pointer;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 0.02em;
   transition: transform 0.05s ease, background 0.15s ease, border-color 0.15s ease;
 }
 
-.subTab:hover {
-  background: rgba(255, 255, 255, 0.10);
-  border-color: rgba(255, 255, 255, 0.28);
+.subTab:hover{
+  background: rgba(255,255,255,0.10);
+  border-color: rgba(255,255,255,0.28);
 }
 
-.subTab:active {
+.subTab:active{ transform: translateY(1px); }
+
+.subTab.active{
+  background: rgba(255,255,255,0.14);
+  border-color: rgba(255,255,255,0.36);
+}
+
+/* =========================
+   Choice chips
+   ========================= */
+
+.chipRow{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.chip{
+  padding: 10px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.16);
+  background: rgba(255,255,255,0.06);
+  color: inherit;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 800;
+  transition: transform 0.06s ease, background 0.15s ease, border-color 0.15s ease;
+  user-select: none;
+}
+
+.chip:hover{
+  background: rgba(255,255,255,0.10);
+  border-color: rgba(255,255,255,0.30);
+}
+
+.chip:active{
   transform: translateY(1px);
 }
 
-.subTab.active {
-  background: rgba(255, 255, 255, 0.14);
-  border-color: rgba(255, 255, 255, 0.36);
+.chip[data-selected="true"]{
+  background: rgba(255,255,255,0.18);
+  border-color: rgba(255,255,255,0.40);
 }
 
-/* --- Result card top row (タイトル + お気に入りボタン) --- */
-.resultTopRow {
+/* =========================
+   Buttons
+   ========================= */
+
+.actions{
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.btn{
+  padding: 11px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.07);
+  color: inherit;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  transition: transform 0.06s ease, background 0.15s ease, border-color 0.15s ease;
+}
+
+.btn:hover{
+  background: rgba(255,255,255,0.11);
+  border-color: rgba(255,255,255,0.30);
+}
+
+.btn:active{ transform: translateY(1px); }
+
+.btn.primary{
+  background: rgba(255,255,255,0.18);
+  border-color: rgba(255,255,255,0.40);
+}
+
+.btn.primary:hover{
+  background: rgba(255,255,255,0.22);
+  border-color: rgba(255,255,255,0.52);
+}
+
+.btn:disabled{
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* =========================
+   Result cards
+   ========================= */
+
+.resultCard{
+  padding: 14px;
+  border-radius: var(--r-lg);
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.14);
+}
+
+.routeTitle{
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.routeSteps{
+  margin: 10px 0 0;
+  padding-left: 18px;
+  color: rgba(255,255,255,0.88);
+  font-size: 13px;
+}
+
+.smallNote{
+  margin-top: 10px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.70);
+}
+
+/* タイトル行 + お気に入りボタン */
+.resultTopRow{
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
 }
 
-/* --- お気に入りボタン（結果ページの☆/★） --- */
-.starBtn {
+/* =========================
+   Favorite star button: readable + labeled
+   ========================= */
+
+.starBtn{
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
 
-  min-width: 132px; /* 「お気に入り」ラベルが入る幅 */
+  min-width: 132px;
   height: 38px;
   padding: 0 12px;
 
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255,255,255,0.22);
+  background: rgba(255,255,255,0.07);
 
   color: inherit;
   cursor: pointer;
 
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 900;
   letter-spacing: 0.02em;
 
   transition: transform 0.06s ease, background 0.15s ease, border-color 0.15s ease;
   user-select: none;
 }
 
-.starBtn:hover {
-  background: rgba(255, 255, 255, 0.11);
-  border-color: rgba(255, 255, 255, 0.34);
+.starBtn:hover{
+  background: rgba(255,255,255,0.11);
+  border-color: rgba(255,255,255,0.34);
 }
 
-.starBtn:active {
-  transform: translateY(1px);
+.starBtn:active{ transform: translateY(1px); }
+
+.starBtn.on{
+  background: rgba(255,255,255,0.16);
+  border-color: rgba(255,255,255,0.42);
 }
 
-/* ON状態（★）は押した感＆重要感を上げる */
-.starBtn.on {
-  background: rgba(255, 255, 255, 0.16);
-  border-color: rgba(255, 255, 255, 0.42);
-}
-
-/* ☆/★の見た目を大きく */
-.starBtn::before {
+.starBtn::before{
   content: "☆";
   font-size: 18px;
   line-height: 1;
@@ -96,59 +383,49 @@
   opacity: 0.95;
 }
 
-.starBtn.on::before {
-  content: "★";
-}
+.starBtn.on::before{ content: "★"; }
 
-/* ラベルをCSS側で固定（JSを触らず「分かりやすく」する） */
-.starBtn::after {
+.starBtn::after{
   content: "お気に入り";
   font-size: 12px;
   opacity: 0.95;
 }
 
-.starBtn.on::after {
+.starBtn.on::after{
   content: "お気に入り中";
   opacity: 0.90;
 }
 
-/* --- お気に入り欄の「解除」ボタン（★）を目立たせる --- */
-/* SelectPageで starBtn on を使ってるので、favList内だけ「解除」にする */
-.favList .starBtn::after,
-.resultsPanel .favList .starBtn::after {
+/* お気に入り欄は “解除” 表示 */
+.favList .starBtn::after{
   content: "解除";
   opacity: 0.95;
 }
 
-/* お気に入り欄の解除ボタンは “危険操作” っぽくしたいので視認性を上げる */
-.favList .starBtn,
-.resultsPanel .favList .starBtn {
-  min-width: 96px;
-  background: rgba(255, 255, 255, 0.10);
-  border-color: rgba(255, 255, 255, 0.30);
+.starBtn:disabled{
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
 }
 
-.favList .starBtn:hover,
-.resultsPanel .favList .starBtn:hover {
-  background: rgba(255, 255, 255, 0.14);
-  border-color: rgba(255, 255, 255, 0.44);
-}
+/* =========================
+   History list
+   ========================= */
 
-/* --- 履歴カードを少し押せる感じに --- */
-.historyList {
+.historyList{
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.historyCard {
+.historyCard{
   padding: 12px;
   border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.12);
 }
 
-.historyTop {
+.historyTop{
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -156,50 +433,122 @@
   margin-bottom: 6px;
 }
 
-/* --- ボタン全般の「押せる感」補助（既存btnが薄い場合の上書き） --- */
-.btn {
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.07);
+/* =========================
+   Gate (confirm page) - white card + clear contrast
+   ========================= */
+
+.gateOverlay{
+  position: fixed;
+  inset: 0;
+  padding: 16px;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+
+  /* 背景: 見やすい暗幕 + ほんのり彩度 */
+  background:
+    radial-gradient(900px 600px at 30% 10%, rgba(120,110,255,0.25), transparent 60%),
+    radial-gradient(820px 560px at 90% 20%, rgba(0,220,255,0.16), transparent 60%),
+    rgba(0,0,0,0.55);
+}
+
+.gateCard{
+  width: min(720px, 100%);
+  border-radius: 20px;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.55);
+  overflow: hidden;
+
+  /* 要望: 白背景で文字が潰れない */
+  background: #ffffff;
+  color: #14161a;
+  border: 1px solid rgba(0,0,0,0.10);
+}
+
+.gateHeader{
+  padding: 18px 18px 12px;
+  background:
+    radial-gradient(700px 240px at 20% 0%, rgba(120,110,255,0.18), transparent 60%),
+    radial-gradient(700px 240px at 90% 0%, rgba(0,220,255,0.14), transparent 60%),
+    #ffffff;
+}
+
+.gateCard .subtitle{
+  color: rgba(0,0,0,0.60);
+}
+
+.gateBody{
+  padding: 16px 18px 18px;
+}
+
+.gateNote{
+  margin: 10px 0 0;
+  color: rgba(0,0,0,0.65);
+  font-size: 13px;
+}
+
+.gateHint{
+  border: 1px solid rgba(0,0,0,0.10);
+  background: rgba(0,0,0,0.04);
+  border-radius: 14px;
+  padding: 12px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: rgba(0,0,0,0.78);
+}
+
+.gateCheckRow{
+  display: flex;
+  gap: 10px;
+  align-items: center;
   font-weight: 800;
-  letter-spacing: 0.02em;
-  transition: transform 0.06s ease, background 0.15s ease, border-color 0.15s ease;
+  color: rgba(0,0,0,0.78);
 }
 
-.btn:hover {
-  background: rgba(255, 255, 255, 0.11);
-  border-color: rgba(255, 255, 255, 0.30);
+/* Gate内ボタンは白背景に合わせて少し濃く */
+.gateCard .btn{
+  border-color: rgba(0,0,0,0.14);
+  background: rgba(0,0,0,0.05);
+  color: #14161a;
 }
 
-.btn:active {
-  transform: translateY(1px);
+.gateCard .btn:hover{
+  background: rgba(0,0,0,0.08);
+  border-color: rgba(0,0,0,0.22);
 }
 
-/* primaryの視認性を上げる（背景が薄くて迷子になる対策） */
-.btn.primary {
-  background: rgba(255, 255, 255, 0.18);
-  border-color: rgba(255, 255, 255, 0.40);
+.gateCard .btn.primary{
+  background: rgba(0,0,0,0.12);
+  border-color: rgba(0,0,0,0.22);
 }
 
-.btn.primary:hover {
-  background: rgba(255, 255, 255, 0.22);
-  border-color: rgba(255, 255, 255, 0.52);
+.gateCard .btn.primary:hover{
+  background: rgba(0,0,0,0.16);
+  border-color: rgba(0,0,0,0.28);
 }
 
-/* disabledの見え方を明確に */
-.btn:disabled,
-.starBtn:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-  transform: none;
+.gateFootnote{
+  text-align: center;
+  font-size: 12px;
+  color: rgba(0,0,0,0.55);
+  margin: 12px 0 0;
 }
 
-/* --- モバイルでボタン幅が邪魔になりがちなので少し縮める --- */
-@media (max-width: 420px) {
-  .starBtn {
-    min-width: 112px;
-    height: 36px;
-  }
-  .subTab {
-    padding: 9px 12px;
-  }
+/* =========================
+   Small helpers
+   ========================= */
+
+.muted{
+  color: var(--muted);
+}
+
+.spacer{
+  height: 12px;
+}
+
+@media (max-width: 420px){
+  .wrap{ padding-top: 22px; }
+  .header{ padding: 16px 16px 10px; }
+  .grid{ padding: 14px; gap: 14px; }
+  .panel{ padding: 14px; }
+  .starBtn{ min-width: 118px; }
 }

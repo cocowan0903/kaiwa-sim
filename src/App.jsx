@@ -1,8 +1,14 @@
 // src/App.jsx（このファイルを“まるごと”置き換えてコピペ）
 //
-// ✅ 追加：お気に入り欄から解除（★ボタン）
-// ✅ 履歴（直近10件） + お気に入り（localStorage）
-// ✅ Gate / hash routing / URL共有 / actions耐性 / フリーズ耐性 / 重複steps除去 も維持
+// ✅ Gate（開くたびに必ず表示）
+// ✅ hash routing（#/ / #/result?...）
+// ✅ URL共有（mode/time/goal/place/moneyのみ）
+// ✅ actions.json 耐性（型チェック/欠損耐性/上限）
+// ✅ フリーズ耐性（steps/title上限）
+// ✅ steps内の title 重複除去（表示用）
+// ✅ 履歴（直近10件） localStorage
+// ✅ お気に入り（localStorage）
+// ✅ お気に入り欄から解除（★ボタン）
 
 import React, { useEffect, useMemo, useState } from "react";
 import "./App.css";
@@ -538,20 +544,9 @@ const FIXED_GATE_ACTION = {
 
 function Gate({ action, checked, onToggle, onProceed }) {
   return (
-    <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        background: "rgba(0,0,0,0.55)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: 16,
-        zIndex: 9999,
-      }}
-    >
-      <div className="card" style={{ maxWidth: 680, width: "100%", margin: 0 }}>
-        <div className="header" style={{ paddingBottom: 8 }}>
+    <div className="gateOverlay">
+      <div className="gateCard">
+        <div className="gateHeader">
           <div className="hgroup">
             <h1 className="title" style={{ marginBottom: 6 }}>
               まずはやってみよう ✅
@@ -564,8 +559,8 @@ function Gate({ action, checked, onToggle, onProceed }) {
 
         <div className="divider" />
 
-        <div style={{ padding: 16 }}>
-          <p style={{ marginTop: 0, opacity: 0.9 }}>
+        <div className="gateBody">
+          <p style={{ marginTop: 0 }}>
             <b>{action?.title ?? "（行動が見つからない）"}</b>
           </p>
 
@@ -575,23 +570,26 @@ function Gate({ action, checked, onToggle, onProceed }) {
             ))}
           </ol>
 
-          {action?.note ? (
-            <p style={{ marginBottom: 0, opacity: 0.75 }}>
-              メモ: {action.note}
-            </p>
-          ) : null}
+          {action?.note ? <p className="gateNote">メモ: {action.note}</p> : null}
 
           <div className="divider" style={{ margin: "16px 0" }} />
 
-          <label style={{ display: "flex", gap: 10, alignItems: "center" }}>
+          <div className="gateHint">
+            <b>安心ポイント</b>
+            <div style={{ marginTop: 6 }}>
+              このアプリは入力フォームやアカウント機能がなく、外部への送信を前提にしていません。
+              URL共有も条件のみを扱う設計です。
+            </div>
+          </div>
+
+          <div className="divider" style={{ margin: "16px 0" }} />
+
+          <label className="gateCheckRow">
             <input type="checkbox" checked={checked} onChange={onToggle} />
             <span>できた</span>
           </label>
 
-          <div
-            className="actions"
-            style={{ marginTop: 16, justifyContent: "center" }}
-          >
+          <div className="actions" style={{ marginTop: 16, justifyContent: "center" }}>
             <button
               className="btn primary"
               type="button"
@@ -603,16 +601,7 @@ function Gate({ action, checked, onToggle, onProceed }) {
             </button>
           </div>
 
-          <p
-            style={{
-              textAlign: "center",
-              fontSize: 12,
-              opacity: 0.65,
-              marginBottom: 0,
-            }}
-          >
-            ※ URLを開き直すたびに表示
-          </p>
+          <p className="gateFootnote">※ URLを開き直すたびに表示</p>
         </div>
       </div>
     </div>
@@ -637,7 +626,7 @@ function SelectPage({
   history,
   favActions,
   onOpenHistory,
-  onUnfavFromList, // ★解除（お気に入り欄）
+  onUnfavFromList,
 }) {
   return (
     <div className="wrap">
@@ -745,12 +734,7 @@ function SelectPage({
               <div className="spacer" />
               <p
                 className="muted"
-                style={{
-                  margin: 0,
-                  fontSize: 12,
-                  lineHeight: 1.4,
-                  textAlign: "center",
-                }}
+                style={{ margin: 0, fontSize: 12, lineHeight: 1.4, textAlign: "center" }}
               >
                 ※ URLに条件が反映されます（共有可能）。
                 <br />
@@ -777,7 +761,7 @@ function SelectPage({
                 {history.map((h) => (
                   <div key={h.id} className="historyCard">
                     <div className="historyTop">
-                      <div style={{ fontWeight: 700 }}>
+                      <div style={{ fontWeight: 800 }}>
                         {h.createdAt ? h.createdAt.replace("T", " ").slice(0, 16) : "—"}
                       </div>
                       <button className="btn" type="button" onClick={() => onOpenHistory(h)}>
@@ -807,7 +791,6 @@ function SelectPage({
                         ⭐ <span style={{ opacity: 0.9 }}>{a.title}</span>
                       </p>
 
-                      {/* ✅ ここが追加：お気に入り欄から解除 */}
                       <button
                         type="button"
                         className="starBtn on"
@@ -852,7 +835,6 @@ function ResultPage({
       <div className="card">
         <div className="header">
           <ModeTabs mode={mode} onChange={setMode} />
-
           <div className="hgroup">
             <h1 className="title">結果</h1>
             <p className="subtitle">今日の行動（ランダム3つ）</p>
@@ -891,15 +873,14 @@ function ResultPage({
           {actions.map((a, idx) => {
             const steps = dedupeStepsWithTitle(a.title, a.steps);
             const fav = isFav(a.id);
+
             return (
               <React.Fragment key={a.id}>
                 <div className="resultCard">
                   <div className="resultTopRow">
                     <p className="routeTitle" style={{ margin: 0 }}>
                       {idx === 0 ? "行動A（おすすめ）" : idx === 1 ? "行動B" : "行動C"}{" "}
-                      <span style={{ opacity: 0.8, fontWeight: 400 }}>
-                        · {a.title}
-                      </span>
+                      <span style={{ opacity: 0.8, fontWeight: 400 }}>· {a.title}</span>
                     </p>
 
                     <button
@@ -976,7 +957,7 @@ export default function App() {
   const options = useMemo(() => OPTIONS_BY_MODE[mode] ?? OPTIONS_BY_MODE.student, [mode]);
   const [sel, setSel] = useState(() => readSelFromSP(sp, mode));
 
-  // ルート変更に追従（URL→state）
+  // URL→state 追従
   useEffect(() => {
     const nextMode = readModeFromSP(sp);
     const nextSel = readSelFromSP(sp, nextMode);
@@ -984,6 +965,7 @@ export default function App() {
     setSel(nextSel);
   }, [path, sp.toString()]);
 
+  // index
   const index = useMemo(() => buildIndex(ACTIONS, mode), [ACTIONS, mode]);
 
   // 生成結果
@@ -996,7 +978,6 @@ export default function App() {
   const [favs, setFavs] = useState(() => loadFavs()); // [{id, createdAt}]
 
   const favIdSet = useMemo(() => new Set(favs.map((f) => f.id)), [favs]);
-
   const isFav = (id) => favIdSet.has(id);
 
   const toggleFav = (id) => {
@@ -1005,20 +986,20 @@ export default function App() {
       const next = exists
         ? prev.filter((f) => f.id !== id)
         : [{ id, createdAt: nowIso() }, ...prev];
+
       const clipped = next.slice(0, FAVS_MAX);
       saveFavs(clipped);
       return clipped;
     });
   };
 
-  // ✅ お気に入り欄からの解除（結果と同じトグルでOK）
   const onUnfavFromList = (id) => toggleFav(id);
 
   const favActions = useMemo(() => {
     return favs.map((f) => actionsById.get(f.id)).filter(Boolean);
   }, [favs, actionsById]);
 
-  // ✅ Gate
+  // ✅ Gate（開き直しで必ず出す）
   const [gateOpen, setGateOpen] = useState(false);
   const [gateChecked, setGateChecked] = useState(false);
 
@@ -1027,6 +1008,7 @@ export default function App() {
       setGateOpen(true);
       setGateChecked(false);
     };
+
     openGate();
 
     const onPageShow = () => openGate();
@@ -1041,6 +1023,11 @@ export default function App() {
       document.removeEventListener("visibilitychange", onVisibility);
     };
   }, []);
+
+  const proceedGate = () => {
+    setGateOpen(false);
+    setGateChecked(false);
+  };
 
   // 開発ログ
   useEffect(() => {
@@ -1075,6 +1062,7 @@ export default function App() {
     setHashStr((prev) => (prev === nextHash ? prev : nextHash));
   };
 
+  // モード切替
   const changeMode = (nextMode) => {
     const nextOptions = OPTIONS_BY_MODE[nextMode] ?? OPTIONS_BY_MODE.student;
     const nextDefaults = DEFAULTS_BY_MODE[nextMode] ?? DEFAULTS_BY_MODE.student;
@@ -1098,6 +1086,7 @@ export default function App() {
     }
   };
 
+  // チップ更新
   const setKey = (key, value) => {
     const next = { ...sel, [key]: value };
     setSel(next);
@@ -1110,22 +1099,14 @@ export default function App() {
     go("/", mode, next);
   };
 
+  // 生成（履歴保存）
   const onGenerate = () => {
     const picked = pick3ActionsIndexed(actionsById, index, sel, mode);
     setGeneratedActions(picked);
 
     setHistory((prev) => {
       const entry = makeHistoryEntry(mode, sel, picked);
-      const filtered = prev.filter(
-        (h) =>
-          !(
-            h.mode === entry.mode &&
-            JSON.stringify(h.sel) === JSON.stringify(entry.sel) &&
-            Array.isArray(h.actionIds) &&
-            h.actionIds.join(",") === entry.actionIds.join(",")
-          )
-      );
-      const next = [entry, ...filtered].slice(0, HISTORY_MAX);
+      const next = [entry, ...prev].slice(0, HISTORY_MAX);
       saveHistory(next);
       return next;
     });
@@ -1147,16 +1128,13 @@ export default function App() {
     });
   };
 
-  const proceedGate = () => {
-    setGateOpen(false);
-    setGateChecked(false);
-  };
-
   const isResult = (path || "/") === "/result";
 
   const onOpenHistory = (h) => {
     const nextMode = h.mode === "general" ? "general" : "student";
-    const nextSel = h.sel && typeof h.sel === "object" ? h.sel : DEFAULTS_BY_MODE[nextMode];
+    const nextSel =
+      h.sel && typeof h.sel === "object" ? h.sel : DEFAULTS_BY_MODE[nextMode];
+
     setMode(nextMode);
     setSel(nextSel);
 
@@ -1164,11 +1142,7 @@ export default function App() {
       .map((id) => actionsById.get(id))
       .filter(Boolean)
       .slice(0, 3)
-      .map((a) => ({
-        ...a,
-        _mode: "history",
-        _score: scoreAction(a, nextSel, nextMode),
-      }));
+      .map((a) => ({ ...a, _mode: "history", _score: scoreAction(a, nextSel, nextMode) }));
 
     const nextIndex = buildIndex(ACTIONS, nextMode);
     const fill =
