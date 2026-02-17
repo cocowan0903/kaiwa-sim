@@ -108,8 +108,36 @@ function labelFor(options, key, value) {
   return options[key].find((o) => o.value === value)?.label ?? value;
 }
 
+/** ✅ タイトルと同じ手順を除去（厳しめ版）
+ * - 完全一致
+ * - 記号/句読点/スペース差の吸収
+ */
+function normalizeForCompare(s) {
+  return safeStr(s, 9999)
+    .replace(/[・･•●◎○◯◆◇■□▼▲▶▷→←⇒⇔]/g, "")
+    .replace(/[　\s]/g, "")
+    .replace(/[「」『』（）()\[\]【】]/g, "")
+    .replace(/[！!？?。．.,，、]/g, "")
+    .toLowerCase();
+}
+
+function dedupeStepsWithTitle(title, steps) {
+  const t0 = normalizeForCompare(title);
+  const arr = Array.isArray(steps) ? steps : [];
+  if (!arr.length) return [];
+  const out = [];
+  for (let i = 0; i < arr.length; i++) {
+    const st = arr[i];
+    const s0 = normalizeForCompare(st);
+    // 先頭に「タイトルそのもの」が来るのを落とす（最重要）
+    if (i === 0 && s0 === t0) continue;
+    out.push(st);
+  }
+  return out;
+}
+
 /** =========================
- * Hash router (単一ソース)
+ * Hash router
  * ========================= */
 function getHashString() {
   return window.location.hash || "#/";
@@ -408,7 +436,7 @@ function ModeTabs({ mode, onChange }) {
 }
 
 /** =========================
- * ✅ Gateメッセージ（ここに安全宣言を入れる）
+ * Gate
  * ========================= */
 const SECURITY_MESSAGE = [
   "このアプリは個人情報の入力や保存をしていません。",
@@ -417,12 +445,11 @@ const SECURITY_MESSAGE = [
   "盗む“データ”が存在しない設計です。",
 ];
 
-// Gate固定行動：10歩歩く
 const FIXED_GATE_ACTION = {
   id: "gate_fixed_10steps",
   title: "10歩歩く",
   steps: ["立つ", "部屋の中で10歩だけ歩く", "席に戻る"],
-  noteLines: SECURITY_MESSAGE, // ✅ ここ！
+  noteLines: SECURITY_MESSAGE,
 };
 
 function Gate({ action, checked, onToggle, onProceed }) {
@@ -466,7 +493,6 @@ function Gate({ action, checked, onToggle, onProceed }) {
             )}
           </ol>
 
-          {/* ✅ ここに「安全宣言」を表示 */}
           {Array.isArray(action?.noteLines) && action.noteLines.length ? (
             <>
               <div className="divider" style={{ margin: "16px 0" }} />
@@ -717,33 +743,46 @@ function ResultPage({ mode, setMode, options, sel, actions, onBack, onReroll }) 
         <div className="divider" />
 
         <div className="panel resultsPanel">
-          {actions.map((a, idx) => (
-            <React.Fragment key={a.id}>
-              <div className="resultCard">
-                <p className="routeTitle">
-                  {idx === 0 ? "行動A（おすすめ）" : idx === 1 ? "行動B" : "行動C"}{" "}
-                  <span style={{ opacity: 0.8, fontWeight: 400 }}>
-                    · {a.title}
-                  </span>
-                </p>
+          {actions.map((a, idx) => {
+            // ✅ ここで重複を潰す
+            const rawSteps = Array.isArray(a.steps) ? a.steps : [];
+            const steps = dedupeStepsWithTitle(a.title, rawSteps);
 
-                <ol className="routeSteps">
-                  {(a.steps?.length ? a.steps : [a.title]).map((s, i) => (
-                    <li key={i}>{s}</li>
-                  ))}
-                </ol>
+            return (
+              <React.Fragment key={a.id}>
+                <div className="resultCard">
+                  <p className="routeTitle">
+                    {idx === 0
+                      ? "行動A（おすすめ）"
+                      : idx === 1
+                      ? "行動B"
+                      : "行動C"}{" "}
+                    <span style={{ opacity: 0.8, fontWeight: 400 }}>
+                      · {a.title}
+                    </span>
+                  </p>
 
-                <div className="smallNote">
-                  <span style={{ opacity: 0.75 }}>
-                    一致: {a._mode === "strict" ? "厳密" : "近い候補から救済"} /
-                    スコア {a._score ?? 0}
-                  </span>
+                  {/* ✅ steps が空なら“何も出さない”（重複回避で自然） */}
+                  {steps.length ? (
+                    <ol className="routeSteps">
+                      {steps.map((s, i) => (
+                        <li key={i}>{s}</li>
+                      ))}
+                    </ol>
+                  ) : null}
+
+                  <div className="smallNote">
+                    <span style={{ opacity: 0.75 }}>
+                      一致: {a._mode === "strict" ? "厳密" : "近い候補から救済"} /
+                      スコア {a._score ?? 0}
+                    </span>
+                  </div>
                 </div>
-              </div>
 
-              {idx < actions.length - 1 ? <div className="divider" /> : null}
-            </React.Fragment>
-          ))}
+                {idx < actions.length - 1 ? <div className="divider" /> : null}
+              </React.Fragment>
+            );
+          })}
         </div>
       </div>
     </div>
