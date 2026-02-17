@@ -1,5 +1,4 @@
-import React from "react";
-
+// src/Header.jsx
 import React from "react";
 
 export default function Header() {
@@ -7,9 +6,7 @@ export default function Header() {
     <header className="appHeader" role="banner">
       <div className="appHeaderInner">
         <div className="appHeaderLeft">
-          <a className="headerLink" href="#/">
-            条件
-          </a>
+          <a className="headerLink" href="#/">条件</a>
         </div>
 
         <div className="appHeaderCenter">
@@ -18,9 +15,7 @@ export default function Header() {
         </div>
 
         <div className="appHeaderRight">
-          <a className="headerLink" href="#/result">
-            結果
-          </a>
+          <a className="headerLink" href="#/result">結果</a>
         </div>
       </div>
     </header>

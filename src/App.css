@@ -1,8 +1,5 @@
 /* src/App.css */
 
-/* =========================
-   Base
-========================= */
 :root{
   --bg1:#0c1020;
   --bg2:#151a33;
@@ -12,14 +9,12 @@
   --muted:#a7accf;
   --accent:#6c8cff;
   --accent2:#a66cff;
-  --shadow1:0 10px 30px rgba(0,0,0,0.35);
   --shadow2:0 20px 50px rgba(0,0,0,0.45);
-  --header-h:70px;
 }
 
-*{
-  box-sizing:border-box;
-}
+*{ box-sizing:border-box; }
+
+html, body, #root{ height:100%; }
 
 body{
   margin:0;
@@ -31,200 +26,39 @@ body{
     linear-gradient(180deg,var(--bg1),var(--bg2));
 }
 
-/* =========================
-   Layout
-========================= */
-
+/* ===== Layout ===== */
 .appShell{
-  width:100%;
+  min-height:100vh;
   display:grid;
-  grid-template-columns:1fr; /* ← 通常は縦 */
+  grid-template-columns: minmax(0, 1fr);
   gap:16px;
   padding:16px;
-  justify-items:center;
+  justify-content:center;
 }
 
 .mainCol{
-  width:min(1100px,100%);
+  width:min(1100px, 100%);
+  min-width:0;
 }
 
-/* 画面が広い時だけ右にゲーム */
+.sideCol{
+  width:min(1100px, 100%);
+  min-width:0;
+}
+
 @media (min-width:980px){
   .appShell{
-    grid-template-columns:minmax(320px,1100px) 280px;
-    justify-content:center;
+    grid-template-columns: minmax(320px, 1100px) 340px;
     align-items:start;
   }
-}
-
-/* =========================
-   Game Side Panel
-========================= */
-
-.sideGame{
-  width:min(1100px,100%);
-  border-radius:18px;
-  border:1px solid var(--border);
-  background:var(--card);
-  backdrop-filter:blur(12px);
-  box-shadow:var(--shadow2);
-  overflow:hidden;
-
-  display:block; /* ← ここ重要。絶対消さない */
-  position:static;
-  height:320px;
-}
-
-@media (min-width:980px){
-  .sideGame{
-    width:280px;
+  .sideCol{
     position:sticky;
     top:16px;
     height:calc(100vh - 32px);
   }
 }
 
-.gamePanel{
-  padding:16px;
-}
-
-.gameTitle{
-  font-weight:700;
-  margin-bottom:12px;
-}
-
-.gameCard{
-  border:1px solid var(--border);
-  border-radius:14px;
-  padding:12px;
-  margin-top:10px;
-  background:rgba(255,255,255,0.04);
-}
-
-.gameScore{
-  font-size:28px;
-  font-weight:700;
-  margin:6px 0;
-}
-
-/* =========================
-   Page
-========================= */
-
-.page{
-  display:flex;
-  flex-direction:column;
-  gap:14px;
-}
-
-.header{
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-}
-
-.hgroup .title{
-  margin:0;
-  font-size:26px;
-}
-
-.subtitle{
-  margin:4px 0 0;
-  color:var(--muted);
-  font-size:14px;
-}
-
-/* =========================
-   Pills
-========================= */
-
-.pills{
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-}
-
-.pill{
-  border:1px solid var(--border);
-  padding:6px 10px;
-  border-radius:999px;
-  background:rgba(255,255,255,0.04);
-  font-size:13px;
-}
-
-/* =========================
-   SubTabs
-========================= */
-
-.subTabs{
-  display:flex;
-  gap:8px;
-}
-
-.subTab{
-  border:1px solid var(--border);
-  background:transparent;
-  color:var(--text);
-  padding:6px 12px;
-  border-radius:999px;
-  cursor:pointer;
-}
-
-.subTab.active{
-  background:linear-gradient(135deg,var(--accent),var(--accent2));
-  border:none;
-}
-
-/* =========================
-   Mode Tabs
-========================= */
-
-.modeWrap{
-  display:flex;
-  align-items:center;
-  gap:10px;
-}
-
-.modeLabel{
-  font-size:12px;
-  color:var(--muted);
-}
-
-.modeTabs{
-  display:flex;
-  gap:8px;
-}
-
-.modeTab{
-  border:1px solid var(--border);
-  background:transparent;
-  color:var(--text);
-  padding:6px 14px;
-  border-radius:999px;
-  cursor:pointer;
-}
-
-.modeTab.active{
-  background:linear-gradient(135deg,var(--accent),var(--accent2));
-  border:none;
-}
-
-/* =========================
-   Cards
-========================= */
-
-.contentGrid{
-  display:grid;
-  grid-template-columns:1fr;
-  gap:14px;
-}
-
-@media (min-width:720px){
-  .contentGrid{
-    grid-template-columns:1fr 1fr;
-  }
-}
-
+/* ===== Generic cards ===== */
 .card{
   border-radius:18px;
   border:1px solid var(--border);
@@ -234,30 +68,70 @@ body{
   padding:16px;
 }
 
-.cardTitle{
-  font-weight:700;
-  margin-bottom:10px;
+.cardTitle{ font-weight:700; margin-bottom:10px; }
+
+/* ===== Header / Page ===== */
+.page{ display:flex; flex-direction:column; gap:14px; }
+.header{ display:flex; flex-direction:column; gap:10px; }
+
+.hgroup .title{ margin:0; font-size:26px; }
+.subtitle{ margin:4px 0 0; color:var(--muted); font-size:14px; }
+
+/* ===== Pills ===== */
+.pills{ display:flex; flex-wrap:wrap; gap:8px; }
+.pill{
+  border:1px solid var(--border);
+  padding:6px 10px;
+  border-radius:999px;
+  background:rgba(255,255,255,0.04);
+  font-size:13px;
 }
 
-/* =========================
-   Condition
-========================= */
-
-.condGroup{
-  margin-bottom:12px;
+/* ===== Tabs ===== */
+.subTabs{ display:flex; gap:8px; }
+.subTab{
+  border:1px solid var(--border);
+  background:transparent;
+  color:var(--text);
+  padding:6px 12px;
+  border-radius:999px;
+  cursor:pointer;
+}
+.subTab.active{
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border:none;
 }
 
-.condTitle{
-  font-size:14px;
-  margin-bottom:6px;
-  color:var(--muted);
+.modeWrap{ display:flex; align-items:center; gap:10px; }
+.modeLabel{ font-size:12px; color:var(--muted); }
+.modeTabs{ display:flex; gap:8px; }
+.modeTab{
+  border:1px solid var(--border);
+  background:transparent;
+  color:var(--text);
+  padding:6px 14px;
+  border-radius:999px;
+  cursor:pointer;
+}
+.modeTab.active{
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border:none;
 }
 
-.condRow{
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
+/* ===== Content grid ===== */
+.contentGrid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:14px;
 }
+@media (min-width:720px){
+  .contentGrid{ grid-template-columns:1fr 1fr; }
+}
+
+/* ===== Conditions ===== */
+.condGroup{ margin-bottom:12px; }
+.condTitle{ font-size:14px; margin-bottom:6px; color:var(--muted); }
+.condRow{ display:flex; flex-wrap:wrap; gap:8px; }
 
 .chip{
   border:1px solid var(--border);
@@ -267,22 +141,13 @@ body{
   border-radius:999px;
   cursor:pointer;
 }
-
 .chip.active{
   background:linear-gradient(135deg,var(--accent),var(--accent2));
   border:none;
 }
 
-/* =========================
-   Buttons
-========================= */
-
-.actionsRow{
-  display:flex;
-  gap:8px;
-  margin-top:12px;
-}
-
+/* ===== Buttons ===== */
+.actionsRow{ display:flex; gap:8px; margin-top:12px; }
 .btnPrimary{
   background:linear-gradient(135deg,var(--accent),var(--accent2));
   border:none;
@@ -292,7 +157,6 @@ body{
   cursor:pointer;
   font-weight:600;
 }
-
 .btnGhost{
   border:1px solid var(--border);
   background:transparent;
@@ -301,27 +165,12 @@ body{
   border-radius:12px;
   cursor:pointer;
 }
+.btnGhost.active{ background:rgba(255,255,255,0.08); }
 
-.btnGhost.active{
-  background:rgba(255,255,255,0.08);
-}
-
-/* =========================
-   Lists
-========================= */
-
-.listWrap{
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-}
-
-.listHead{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-
+/* ===== Lists ===== */
+.listWrap{ display:flex; flex-direction:column; gap:8px; }
+.listHead{ display:flex; justify-content:space-between; align-items:center; }
+.list{ display:flex; flex-direction:column; gap:8px; }
 .listItem{
   width:100%;
   text-align:left;
@@ -331,13 +180,10 @@ body{
   padding:10px;
   cursor:pointer;
 }
+.listMain{ display:flex; flex-direction:column; gap:2px; }
+.listSub{ color:var(--muted); font-size:12px; margin-top:2px; }
 
-.favItem{
-  display:flex;
-  justify-content:space-between;
-  gap:10px;
-}
-
+.favItem{ display:flex; justify-content:space-between; gap:10px; }
 .favUse{
   flex:1;
   border:1px solid var(--border);
@@ -348,32 +194,18 @@ body{
   cursor:pointer;
 }
 
-/* =========================
-   Result
-========================= */
-
-.resultList{
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-  margin-top:12px;
-}
-
+/* ===== Result ===== */
+.resultList{ display:flex; flex-direction:column; gap:10px; margin-top:12px; }
 .resultItem{
   border:1px solid var(--border);
   border-radius:12px;
   padding:12px;
   background:rgba(255,255,255,0.04);
 }
+.resultTitle{ font-weight:700; }
+.resultMeta{ margin-top:6px; }
 
-.resultTitle{
-  font-weight:700;
-}
-
-/* =========================
-   Gate Overlay
-========================= */
-
+/* ===== Gate Overlay ===== */
 .gateOverlay{
   position:fixed;
   inset:0;
@@ -384,7 +216,6 @@ body{
   justify-content:center;
   z-index:1000;
 }
-
 .gateCard{
   width:280px;
   border-radius:18px;
@@ -393,46 +224,46 @@ body{
   padding:16px;
   text-align:center;
 }
-
-.gateTitle{
-  font-weight:700;
-  margin-bottom:8px;
-}
-
-.gateHint{
-  margin-top:10px;
-  font-size:12px;
-  color:var(--muted);
-}
-
-/* =========================
-   Text helpers
-========================= */
-
-.muted{
-  color:var(--muted);
-}
-
-.small{
-  font-size:12px;
-}
-
-.mono{
-  font-family:monospace;
-  margin-top:4px;
-}
+.gateTitle{ font-weight:700; margin-bottom:8px; }
 .gateText{ margin:10px 0; color:var(--muted); font-size:14px; }
 .gateButtons{ margin-top:10px; display:flex; justify-content:center; gap:10px; }
+.gateHint{ margin-top:10px; font-size:12px; color:var(--muted); }
 
-.list{ display:flex; flex-direction:column; gap:8px; }
-.listMain{ display:flex; flex-direction:column; gap:2px; }
-.listSub{ color:var(--muted); font-size:12px; margin-top:2px; }
+/* ===== Helpers ===== */
+.muted{ color:var(--muted); }
+.small{ font-size:12px; }
+.mono{ font-family:monospace; margin-top:4px; }
+.appHeader{
+  margin-bottom:12px;
+  border-radius:18px;
+  border:1px solid var(--border);
+  background:rgba(255,255,255,0.04);
+  backdrop-filter:blur(12px);
+  box-shadow:var(--shadow2);
+}
+.appHeaderInner{
+  display:grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  align-items:center;
+  padding:12px 14px;
+  gap:10px;
+}
+.appHeaderCenter{ text-align:center; }
+.appHeaderTitle{ font-weight:800; }
+.appHeaderSub{ color:var(--muted); font-size:12px; margin-top:2px; }
+.headerLink{ color:var(--text); text-decoration:none; opacity:0.9; }
+.headerLink:hover{ opacity:1; }
+.sideGame{
+  height:100%;
+  border-radius:18px;
+  border:1px solid var(--border);
+  background:var(--card);
+  backdrop-filter:blur(12px);
+  box-shadow:var(--shadow2);
+  overflow:hidden;
+  min-width:0;
+}
 
-.gameBody{ display:flex; flex-direction:column; gap:10px; }
-.gameCardTitle{ font-weight:700; }
-.gameBtns{ display:flex; gap:8px; margin-top:8px; }
-
-.resultMeta{ margin-top:6px; }
 .sideGameHead{
   display:flex;
   align-items:center;
@@ -445,7 +276,7 @@ body{
 .sideGameTitle{ font-weight:700; }
 .sideGameHint{ color:var(--muted); font-size:12px; }
 
-.sideGameCanvasWrap{ padding:10px; height:calc(100% - 54px); }
+.sideGameCanvasWrap{ padding:10px; height:calc(100% - 54px - 44px); }
 .sideGameCanvas{ width:100%; height:100%; display:block; border-radius:12px; }
 
 .btn{
@@ -461,12 +292,3 @@ body{
   padding:8px 14px 12px;
   color:var(--muted);
 }
-.appShell{
-  min-height:100vh;
-  display:grid;
-  grid-template-columns:minmax(0,1fr) 340px;
-  gap:16px;
-  padding:16px;
-}
-.mainCol{ min-width:0; }
-.sideGame{ min-width:0; }

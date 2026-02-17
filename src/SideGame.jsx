@@ -1,3 +1,4 @@
+// src/SideGame.jsx
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
 export default function SideGame() {
@@ -17,18 +18,16 @@ export default function SideGame() {
       playerH: 10,
       speed: 2.6,
       fallBase: 2.2,
-      spawnEvery: 28, // frames
+      spawnEvery: 28,
       maxDrops: 18,
     }),
     []
   );
 
-  // keep ref in sync
   useEffect(() => {
     runningRef.current = running;
   }, [running]);
 
-  // keyboard
   useEffect(() => {
     const onKeyDown = (e) => {
       if (e.key === "ArrowLeft" || e.key === "a") keysRef.current.left = true;
@@ -46,14 +45,12 @@ export default function SideGame() {
     };
   }, []);
 
-  // canvas fit + resize observer
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // make focusable for better key handling on Safari
     canvas.tabIndex = 0;
 
     const fit = () => {
@@ -70,13 +67,22 @@ export default function SideGame() {
     };
 
     fit();
-    const ro = new ResizeObserver(() => fit());
-    if (canvas.parentElement) ro.observe(canvas.parentElement);
 
-    return () => ro.disconnect();
+    // ResizeObserver が無い環境の保険
+    let ro = null;
+    if (typeof ResizeObserver !== "undefined") {
+      ro = new ResizeObserver(() => fit());
+      if (canvas.parentElement) ro.observe(canvas.parentElement);
+    } else {
+      window.addEventListener("resize", fit);
+    }
+
+    return () => {
+      if (ro) ro.disconnect();
+      window.removeEventListener("resize", fit);
+    };
   }, []);
 
-  // main game loop (mount once)
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -126,12 +132,10 @@ export default function SideGame() {
       const w = state.w();
       const h = state.h();
 
-      // bg
       ctx.clearRect(0, 0, w, h);
       ctx.fillStyle = "rgba(0,0,0,0.16)";
       ctx.fillRect(0, 0, w, h);
 
-      // grid lines
       ctx.strokeStyle = "rgba(255,255,255,0.06)";
       ctx.lineWidth = 1;
       for (let y = 20; y < h; y += 24) {
@@ -141,7 +145,6 @@ export default function SideGame() {
         ctx.stroke();
       }
 
-      // drops
       ctx.fillStyle = "rgba(255,255,255,0.80)";
       for (const d of state.drops) {
         ctx.beginPath();
@@ -149,7 +152,6 @@ export default function SideGame() {
         ctx.fill();
       }
 
-      // player
       const pw = cfg.playerW;
       const ph = cfg.playerH;
       const px = state.player.x - pw / 2;
@@ -158,14 +160,12 @@ export default function SideGame() {
       ctx.fillStyle = "rgba(78, 201, 255, 0.85)";
       ctx.fillRect(px, py, pw, ph);
 
-      // score (ref is the truth)
       ctx.fillStyle = "rgba(255,255,255,0.92)";
       ctx.font = "12px ui-sans-serif, system-ui, -apple-system";
       ctx.fillText(`SCORE ${scoreRef.current}`, 10, 16);
 
       if (!runningRef.current && !state.dead) {
         ctx.fillStyle = "rgba(255,255,255,0.82)";
-        ctx.font = "12px ui-sans-serif, system-ui, -apple-system";
         ctx.fillText("クリックで再開 / 開始", 10, 36);
         ctx.fillStyle = "rgba(255,255,255,0.65)";
         ctx.fillText("← → / A D で回避", 10, 52);
@@ -187,11 +187,9 @@ export default function SideGame() {
       const dt = Math.min(32, ts - t);
       t = ts;
 
-      // update only when running and alive
       if (runningRef.current && !state.dead) {
         frame++;
 
-        // input
         const k = keysRef.current;
         let dir = 0;
         if (k.left) dir -= 1;
@@ -200,18 +198,14 @@ export default function SideGame() {
         state.player.vx = dir * cfg.speed;
         state.player.x += state.player.vx * (dt / 16);
 
-        // clamp
         const w = state.w();
         state.player.x = Math.max(12, Math.min(w - 12, state.player.x));
 
-        // spawn
         if (frame % cfg.spawnEvery === 0) spawn();
 
-        // update drops
         const h = state.h();
         for (const d of state.drops) d.y += d.vy * (dt / 16);
 
-        // remove passed + score
         const before = state.drops.length;
         state.drops = state.drops.filter((d) => d.y < h + d.r + 4);
         const passed = before - state.drops.length;
@@ -220,7 +214,6 @@ export default function SideGame() {
           setScore(scoreRef.current);
         }
 
-        // collision
         const pw = cfg.playerW;
         const ph = cfg.playerH;
         const px = state.player.x - pw / 2;
@@ -240,12 +233,8 @@ export default function SideGame() {
       rafRef.current = requestAnimationFrame(step);
     };
 
-    // click behavior
     const onClick = () => {
-      // focus canvas for key controls stability
-      try {
-        canvas.focus();
-      } catch {}
+      try { canvas.focus(); } catch {}
 
       if (state.dead) {
         reset();
@@ -253,8 +242,6 @@ export default function SideGame() {
         setRunning(true);
         return;
       }
-
-      // toggle resume (if paused -> start; if running -> pause)
       runningRef.current = !runningRef.current;
       setRunning(runningRef.current);
     };
@@ -276,11 +263,7 @@ export default function SideGame() {
           <div className="sideGameTitle">余白で回避ゲーム</div>
           <div className="sideGameHint">← → / A D</div>
         </div>
-        <button
-          className="btn"
-          type="button"
-          onClick={() => setRunning((v) => !v)}
-        >
+        <button className="btn" type="button" onClick={() => setRunning((v) => !v)}>
           {running ? "一時停止" : "再開"}
         </button>
       </div>
