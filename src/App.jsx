@@ -9,6 +9,11 @@
 // ✅ 履歴（直近10件） localStorage
 // ✅ お気に入り（localStorage）
 // ✅ お気に入り欄から解除（★ボタン）
+//
+// ✅ NEW: PCでは「縦に伸びない」
+//   - card内スクロール（ページは固定気味）
+//   - ResultはPCで横3枚（A/B/C）
+//   - そのため Result内の divider 挿入を廃止（grid崩れ防止）
 
 import React, { useEffect, useMemo, useState } from "react";
 import "./App.css";
@@ -661,159 +666,162 @@ function SelectPage({
 
         <div className="divider" />
 
-        {tab === "main" ? (
-          <div className="grid">
-            <div className="panel">
-              <h2 className="panelTitle">条件を選ぶ</h2>
+        {/* ✅ PCで縦長になりすぎないための内側スクロール領域 */}
+        <div className="cardBody">
+          {tab === "main" ? (
+            <div className="grid">
+              <div className="panel">
+                <h2 className="panelTitle">条件を選ぶ</h2>
 
-              <p className="kicker">⏱️ 所要時間</p>
-              <div className="chipRow">
-                {options.time.map((o) => (
-                  <Chip
-                    key={o.value}
-                    label={o.label}
-                    selected={sel.time === o.value}
-                    onClick={() => setKey("time", o.value)}
-                  />
-                ))}
+                <p className="kicker">⏱️ 所要時間</p>
+                <div className="chipRow">
+                  {options.time.map((o) => (
+                    <Chip
+                      key={o.value}
+                      label={o.label}
+                      selected={sel.time === o.value}
+                      onClick={() => setKey("time", o.value)}
+                    />
+                  ))}
+                </div>
+
+                <div className="divider" />
+
+                <p className="kicker">📍 場所</p>
+                <div className="chipRow">
+                  {options.place.map((o) => (
+                    <Chip
+                      key={o.value}
+                      label={o.label}
+                      selected={sel.place === o.value}
+                      onClick={() => setKey("place", o.value)}
+                    />
+                  ))}
+                </div>
+
+                <div className="divider" />
+
+                <p className="kicker">💸 お金</p>
+                <div className="chipRow">
+                  {options.money.map((o) => (
+                    <Chip
+                      key={o.value}
+                      label={o.label}
+                      selected={sel.money === o.value}
+                      onClick={() => setKey("money", o.value)}
+                    />
+                  ))}
+                </div>
+
+                <div className="divider" />
+
+                <p className="kicker">🎯 目的</p>
+                <div className="chipRow">
+                  {options.goal.map((o) => (
+                    <Chip
+                      key={o.value}
+                      label={o.label}
+                      selected={sel.goal === o.value}
+                      onClick={() => setKey("goal", o.value)}
+                    />
+                  ))}
+                </div>
+
+                <div className="divider" />
+
+                <div className="actions">
+                  <button className="btn" type="button" onClick={onReset}>
+                    リセット
+                  </button>
+                  <button className="btn primary" type="button" onClick={onGenerate}>
+                    生成（結果を見る） →
+                  </button>
+                </div>
+
+                <div className="spacer" />
+                <p
+                  className="muted"
+                  style={{ margin: 0, fontSize: 12, lineHeight: 1.4, textAlign: "center" }}
+                >
+                  ※ URLに条件が反映されます（共有可能）。
+                  <br />
+                  <span style={{ opacity: 0.9 }}>
+                    #/result?mode=student&amp;time=30&amp;goal=recover&amp;place=home&amp;money=0
+                  </span>
+                </p>
               </div>
 
-              <div className="divider" />
-
-              <p className="kicker">📍 場所</p>
-              <div className="chipRow">
-                {options.place.map((o) => (
-                  <Chip
-                    key={o.value}
-                    label={o.label}
-                    selected={sel.place === o.value}
-                    onClick={() => setKey("place", o.value)}
-                  />
-                ))}
+              <div className="panel resultsPanel">
+                <h2 className="panelTitle">プレビュー（参考）</h2>
+                <p style={{ opacity: 0.75, marginTop: 0 }}>
+                  生成を押すと結果ページへ移動するよ。
+                </p>
               </div>
-
-              <div className="divider" />
-
-              <p className="kicker">💸 お金</p>
-              <div className="chipRow">
-                {options.money.map((o) => (
-                  <Chip
-                    key={o.value}
-                    label={o.label}
-                    selected={sel.money === o.value}
-                    onClick={() => setKey("money", o.value)}
-                  />
-                ))}
-              </div>
-
-              <div className="divider" />
-
-              <p className="kicker">🎯 目的</p>
-              <div className="chipRow">
-                {options.goal.map((o) => (
-                  <Chip
-                    key={o.value}
-                    label={o.label}
-                    selected={sel.goal === o.value}
-                    onClick={() => setKey("goal", o.value)}
-                  />
-                ))}
-              </div>
-
-              <div className="divider" />
-
-              <div className="actions">
-                <button className="btn" type="button" onClick={onReset}>
-                  リセット
-                </button>
-                <button className="btn primary" type="button" onClick={onGenerate}>
-                  生成（結果を見る） →
-                </button>
-              </div>
-
-              <div className="spacer" />
-              <p
-                className="muted"
-                style={{ margin: 0, fontSize: 12, lineHeight: 1.4, textAlign: "center" }}
-              >
-                ※ URLに条件が反映されます（共有可能）。
-                <br />
-                <span style={{ opacity: 0.9 }}>
-                  #/result?mode=student&amp;time=30&amp;goal=recover&amp;place=home&amp;money=0
-                </span>
-              </p>
             </div>
-
+          ) : tab === "history" ? (
             <div className="panel resultsPanel">
-              <h2 className="panelTitle">プレビュー（参考）</h2>
-              <p style={{ opacity: 0.75, marginTop: 0 }}>
-                生成を押すと結果ページへ移動するよ。
-              </p>
-            </div>
-          </div>
-        ) : tab === "history" ? (
-          <div className="panel resultsPanel">
-            <h2 className="panelTitle">履歴（直近{HISTORY_MAX}件）</h2>
-            {history.length === 0 ? (
-              <p style={{ opacity: 0.75, marginTop: 0 }}>まだ履歴がありません。</p>
-            ) : (
-              <div className="historyList">
-                {history.map((h) => (
-                  <div key={h.id} className="historyCard">
-                    <div className="historyTop">
-                      <div style={{ fontWeight: 800 }}>
-                        {h.createdAt ? h.createdAt.replace("T", " ").slice(0, 16) : "—"}
+              <h2 className="panelTitle">履歴（直近{HISTORY_MAX}件）</h2>
+              {history.length === 0 ? (
+                <p style={{ opacity: 0.75, marginTop: 0 }}>まだ履歴がありません。</p>
+              ) : (
+                <div className="historyList">
+                  {history.map((h) => (
+                    <div key={h.id} className="historyCard">
+                      <div className="historyTop">
+                        <div style={{ fontWeight: 800 }}>
+                          {h.createdAt ? h.createdAt.replace("T", " ").slice(0, 16) : "—"}
+                        </div>
+                        <button className="btn" type="button" onClick={() => onOpenHistory(h)}>
+                          開く →
+                        </button>
                       </div>
-                      <button className="btn" type="button" onClick={() => onOpenHistory(h)}>
-                        開く →
-                      </button>
+                      <div style={{ opacity: 0.8, fontSize: 13 }}>
+                        mode: <b>{h.mode}</b> / time:<b>{h.sel?.time}</b> goal:<b>{h.sel?.goal}</b>{" "}
+                        place:<b>{h.sel?.place}</b> money:<b>{h.sel?.money}</b>
+                      </div>
                     </div>
-                    <div style={{ opacity: 0.8, fontSize: 13 }}>
-                      mode: <b>{h.mode}</b> / time:<b>{h.sel?.time}</b> goal:<b>{h.sel?.goal}</b>{" "}
-                      place:<b>{h.sel?.place}</b> money:<b>{h.sel?.money}</b>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="panel resultsPanel">
-            <h2 className="panelTitle">お気に入り（{favActions.length}件）</h2>
-            {favActions.length === 0 ? (
-              <p style={{ opacity: 0.75, marginTop: 0 }}>まだお気に入りがありません。</p>
-            ) : (
-              <div className="favList">
-                {favActions.map((a) => (
-                  <div key={a.id} className="resultCard">
-                    <div className="resultTopRow">
-                      <p className="routeTitle" style={{ margin: 0 }}>
-                        ⭐ <span style={{ opacity: 0.9 }}>{a.title}</span>
-                      </p>
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="panel resultsPanel">
+              <h2 className="panelTitle">お気に入り（{favActions.length}件）</h2>
+              {favActions.length === 0 ? (
+                <p style={{ opacity: 0.75, marginTop: 0 }}>まだお気に入りがありません。</p>
+              ) : (
+                <div className="favList">
+                  {favActions.map((a) => (
+                    <div key={a.id} className="resultCard">
+                      <div className="resultTopRow">
+                        <p className="routeTitle" style={{ margin: 0 }}>
+                          ⭐ <span style={{ opacity: 0.9 }}>{a.title}</span>
+                        </p>
 
-                      <button
-                        type="button"
-                        className="starBtn on"
-                        onClick={() => onUnfavFromList(a.id)}
-                        title="お気に入り解除"
-                      >
-                        ★
-                      </button>
-                    </div>
+                        <button
+                          type="button"
+                          className="starBtn on"
+                          onClick={() => onUnfavFromList(a.id)}
+                          title="お気に入り解除"
+                        >
+                          ★
+                        </button>
+                      </div>
 
-                    {a.steps?.length ? (
-                      <ol className="routeSteps">
-                        {dedupeStepsWithTitle(a.title, a.steps).map((s, i) => (
-                          <li key={i}>{s}</li>
-                        ))}
-                      </ol>
-                    ) : null}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
+                      {a.steps?.length ? (
+                        <ol className="routeSteps">
+                          {dedupeStepsWithTitle(a.title, a.steps).map((s, i) => (
+                            <li key={i}>{s}</li>
+                          ))}
+                        </ol>
+                      ) : null}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -858,25 +866,27 @@ function ResultPage({
 
         <div className="divider" />
 
-        <div className="actions" style={{ justifyContent: "space-between" }}>
-          <button className="btn" type="button" onClick={onBack}>
-            ← 条件に戻る
-          </button>
-          <button className="btn primary" type="button" onClick={onReroll}>
-            もう一回生成 🎲
-          </button>
-        </div>
+        {/* ✅ PCで縦長になりすぎないための内側スクロール領域 */}
+        <div className="cardBody">
+          <div className="actions" style={{ justifyContent: "space-between", padding: "16px 16px 0" }}>
+            <button className="btn" type="button" onClick={onBack}>
+              ← 条件に戻る
+            </button>
+            <button className="btn primary" type="button" onClick={onReroll}>
+              もう一回生成 🎲
+            </button>
+          </div>
 
-        <div className="divider" />
+          <div className="divider" style={{ marginTop: 16 }} />
 
-        <div className="panel resultsPanel">
-          {actions.map((a, idx) => {
-            const steps = dedupeStepsWithTitle(a.title, a.steps);
-            const fav = isFav(a.id);
+          {/* ✅ resultGrid を付けて、PCで横3枚にする */}
+          <div className="panel resultsPanel resultGrid">
+            {actions.map((a, idx) => {
+              const steps = dedupeStepsWithTitle(a.title, a.steps);
+              const fav = isFav(a.id);
 
-            return (
-              <React.Fragment key={a.id}>
-                <div className="resultCard">
+              return (
+                <div className="resultCard" key={a.id}>
                   <div className="resultTopRow">
                     <p className="routeTitle" style={{ margin: 0 }}>
                       {idx === 0 ? "行動A（おすすめ）" : idx === 1 ? "行動B" : "行動C"}{" "}
@@ -903,16 +913,17 @@ function ResultPage({
 
                   <div className="smallNote">
                     <span style={{ opacity: 0.75 }}>
-                      一致: {a._mode === "strict" ? "厳密" : a._mode === "history" ? "履歴" : "近い候補から救済"} /
+                      一致:{" "}
+                      {a._mode === "strict" ? "厳密" : a._mode === "history" ? "履歴" : "近い候補から救済"} /
                       スコア {a._score ?? 0}
                     </span>
                   </div>
                 </div>
+              );
+            })}
+          </div>
 
-                {idx < actions.length - 1 ? <div className="divider" /> : null}
-              </React.Fragment>
-            );
-          })}
+          <div style={{ height: 10 }} />
         </div>
       </div>
     </div>
@@ -1080,9 +1091,7 @@ export default function App() {
 
     if ((path || "/") === "/result") {
       const nextIndex = buildIndex(ACTIONS, nextMode);
-      setGeneratedActions(
-        pick3ActionsIndexed(actionsById, nextIndex, nextSel, nextMode)
-      );
+      setGeneratedActions(pick3ActionsIndexed(actionsById, nextIndex, nextSel, nextMode));
     }
   };
 

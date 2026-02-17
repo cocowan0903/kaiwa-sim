@@ -92,6 +92,11 @@ body{
   .grid{ grid-template-columns: 1fr; }
 }
 
+/* ✅ NEW: card内スクロール領域（PCで縦長にしない） */
+.cardBody{
+  /* スマホでは普通に流す */
+}
+
 /* =========================
    Panels
    ========================= */
@@ -551,4 +556,57 @@ body{
   .grid{ padding: 14px; gap: 14px; }
   .panel{ padding: 14px; }
   .starBtn{ min-width: 118px; }
+}
+
+/* =========================
+   ✅ NEW: Desktop 横長化パック
+   - ページを縦に伸ばしにくく
+   - card内だけスクロール
+   - 結果は横3枚（A/B/C）
+   ========================= */
+
+@media (min-width: 920px){
+  .wrap{
+    min-height: 100vh;
+    padding: 18px 16px 18px;
+    display: grid;
+    align-items: start;
+  }
+
+  .card{
+    max-height: calc(100vh - 36px);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .cardBody{
+    flex: 1 1 auto;
+    min-height: 0;     /* これがないと overflow が効きづらい */
+    overflow: auto;    /* ✅ 内側スクロール */
+  }
+
+  /* grid/panel も shrink できるように */
+  .grid{ min-height: 0; }
+  .panel{ min-height: 0; }
+
+  /* “結果3枚”だけ横並びにしたいので resultGrid を使う */
+  .resultGrid{
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    align-items: start;
+  }
+}
+
+/* スマホは縦並びでOK（resultGrid指定してもここで解除） */
+@media (max-width: 919px){
+  .resultGrid{
+    display: block;
+  }
+  .resultGrid .resultCard{
+    margin-bottom: 12px;
+  }
+  .resultGrid .resultCard:last-child{
+    margin-bottom: 0;
+  }
 }
