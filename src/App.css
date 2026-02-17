@@ -1,326 +1,205 @@
-* {
-  box-sizing: border-box;
-}
+/* =========================
+   Favorites UI polish
+   App.css の末尾に追記
+   ========================= */
 
-html,
-body {
-  height: 100%;
-}
-
-body {
-  margin: 0;
-  min-height: 100vh;
-  min-height: 100dvh; /* Safari対策 */
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background: linear-gradient(135deg, #0f172a, #0b2c3d);
-  color: #f8fafc;
-}
-
-/* ===== Layout ===== */
-
-.wrap {
-  min-height: 100vh;
-  min-height: 100dvh; /* Safari対策 */
-  display: flex;
-  justify-content: center;
-  padding: 40px 20px;
-}
-
-.card {
-  width: 100%;
-  max-width: 1100px;
-  background: rgba(15, 23, 42, 0.78);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-radius: 16px;
-  padding: 28px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
-}
-
-/* ===== Header ===== */
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  align-items: flex-start;
-  flex-wrap: wrap;
-}
-
-.hgroup {
-  min-width: 260px;
-}
-
-.title {
-  margin: 0 0 8px 0;
-  font-size: 32px;
-}
-
-.subtitle {
-  margin: 0;
-  opacity: 0.7;
-}
-
-/* pills */
-.pills {
+/* --- Sub tabs (条件/履歴/お気に入り) --- */
+.subTabs {
   display: flex;
   gap: 10px;
+  margin-top: 12px;
   flex-wrap: wrap;
-  justify-content: flex-end;
 }
 
-.pill {
-  background: rgba(255, 255, 255, 0.08);
-  padding: 8px 10px;
+.subTab {
+  padding: 10px 14px;
   border-radius: 999px;
-  font-size: 13px;
-}
-
-/* ===== Divider ===== */
-
-.divider {
-  height: 1px;
-  background: rgba(255, 255, 255, 0.12);
-  margin: 18px 0;
-}
-
-/* ===== Grid ===== */
-
-.grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 28px;
-}
-
-@media (max-width: 900px) {
-  .grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* ===== Panels ===== */
-
-.panel {
-  background: rgba(30, 41, 59, 0.7);
-  padding: 20px;
-  border-radius: 12px;
-}
-
-.panelTitle {
-  margin: 0 0 12px 0;
-  font-size: 18px;
-}
-
-.kicker {
-  margin: 10px 0 8px;
-  opacity: 0.9;
-}
-
-/* ===== Chips ===== */
-
-.chipRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.chip {
-  padding: 9px 14px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.18);
   background: rgba(255, 255, 255, 0.06);
-  color: #f8fafc;
-  transition: 0.2s ease;
-}
-
-.chip:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.chip[data-selected="true"] {
-  background: #38bdf8;
-  border-color: #38bdf8;
-  color: #0f172a;
-  font-weight: 700;
-}
-
-/* ===== Buttons ===== */
-
-.actions {
-  display: flex;
-  gap: 10px;
-  justify-content: flex-end;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.btn {
-  padding: 10px 16px;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: inherit;
   cursor: pointer;
-  background: rgba(255, 255, 255, 0.08);
-  color: #f8fafc;
-  transition: 0.2s ease;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  transition: transform 0.05s ease, background 0.15s ease, border-color 0.15s ease;
 }
 
-.btn.primary {
-  background: #38bdf8;
-  border-color: #38bdf8;
-  color: #0f172a;
+.subTab:hover {
+  background: rgba(255, 255, 255, 0.10);
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+.subTab:active {
+  transform: translateY(1px);
+}
+
+.subTab.active {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.36);
+}
+
+/* --- Result card top row (タイトル + お気に入りボタン) --- */
+.resultTopRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* --- お気に入りボタン（結果ページの☆/★） --- */
+.starBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  min-width: 132px; /* 「お気に入り」ラベルが入る幅 */
+  height: 38px;
+  padding: 0 12px;
+
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.07);
+
+  color: inherit;
+  cursor: pointer;
+
+  font-size: 13px;
   font-weight: 800;
+  letter-spacing: 0.02em;
+
+  transition: transform 0.06s ease, background 0.15s ease, border-color 0.15s ease;
+  user-select: none;
+}
+
+.starBtn:hover {
+  background: rgba(255, 255, 255, 0.11);
+  border-color: rgba(255, 255, 255, 0.34);
+}
+
+.starBtn:active {
+  transform: translateY(1px);
+}
+
+/* ON状態（★）は押した感＆重要感を上げる */
+.starBtn.on {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.42);
+}
+
+/* ☆/★の見た目を大きく */
+.starBtn::before {
+  content: "☆";
+  font-size: 18px;
+  line-height: 1;
+  transform: translateY(-0.5px);
+  opacity: 0.95;
+}
+
+.starBtn.on::before {
+  content: "★";
+}
+
+/* ラベルをCSS側で固定（JSを触らず「分かりやすく」する） */
+.starBtn::after {
+  content: "お気に入り";
+  font-size: 12px;
+  opacity: 0.95;
+}
+
+.starBtn.on::after {
+  content: "お気に入り中";
+  opacity: 0.90;
+}
+
+/* --- お気に入り欄の「解除」ボタン（★）を目立たせる --- */
+/* SelectPageで starBtn on を使ってるので、favList内だけ「解除」にする */
+.favList .starBtn::after,
+.resultsPanel .favList .starBtn::after {
+  content: "解除";
+  opacity: 0.95;
+}
+
+/* お気に入り欄の解除ボタンは “危険操作” っぽくしたいので視認性を上げる */
+.favList .starBtn,
+.resultsPanel .favList .starBtn {
+  min-width: 96px;
+  background: rgba(255, 255, 255, 0.10);
+  border-color: rgba(255, 255, 255, 0.30);
+}
+
+.favList .starBtn:hover,
+.resultsPanel .favList .starBtn:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.44);
+}
+
+/* --- 履歴カードを少し押せる感じに --- */
+.historyList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.historyCard {
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.historyTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+/* --- ボタン全般の「押せる感」補助（既存btnが薄い場合の上書き） --- */
+.btn {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.07);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  transition: transform 0.06s ease, background 0.15s ease, border-color 0.15s ease;
 }
 
 .btn:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.11);
+  border-color: rgba(255, 255, 255, 0.30);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+/* primaryの視認性を上げる（背景が薄くて迷子になる対策） */
+.btn.primary {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.40);
 }
 
 .btn.primary:hover {
-  filter: brightness(1.03);
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.52);
 }
 
-.btn:disabled {
-  opacity: 0.5;
+/* disabledの見え方を明確に */
+.btn:disabled,
+.starBtn:disabled {
+  opacity: 0.45;
   cursor: not-allowed;
+  transform: none;
 }
 
-/* ===== Result ===== */
-
-.resultCard {
-  padding: 10px 0;
-}
-
-.routeTitle {
-  margin: 0 0 8px 0;
-  font-weight: 800;
-}
-
-.routeSteps {
-  margin: 0 0 10px 18px;
-}
-
-.smallNote {
-  font-size: 12px;
-  opacity: 0.75;
-}
-
-.muted {
-  opacity: 0.75;
-}
-
-.spacer {
-  height: 14px;
-}
-
-/* ✅ 追加：手順が消えた時の表示 */
-.oneLineStep {
-  margin: 0;
-  opacity: 0.7;
-  font-size: 13px;
-}
-
-/* ===== 学生編 / 一般編 タブ ===== */
-.modeTabs {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 12px;
-  flex-wrap: wrap;
-  align-items: center;
-}
-
-.modeTab {
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(255, 255, 255, 0.06);
-  color: inherit;
-  padding: 10px 12px;
-  border-radius: 999px;
-  cursor: pointer;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  transition: 0.2s ease;
-}
-
-.modeTab:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.modeTab.active {
-  background: rgba(255, 255, 255, 0.14);
-  border-color: rgba(255, 255, 255, 0.3);
-}
-
-.modeTab:focus-visible {
-  outline: 2px solid rgba(56, 189, 248, 0.9);
-  outline-offset: 2px;
-}
-
-/* ===== Gate（モーダル）補強 ===== */
-@media (max-width: 720px) {
-  .card {
-    padding: 20px;
+/* --- モバイルでボタン幅が邪魔になりがちなので少し縮める --- */
+@media (max-width: 420px) {
+  .starBtn {
+    min-width: 112px;
+    height: 36px;
   }
-}
-/* --- sub tabs --- */
-.subTabs{
-  display:flex;
-  gap:8px;
-  margin-top:12px;
-  flex-wrap:wrap;
-}
-.subTab{
-  padding:8px 12px;
-  border-radius:999px;
-  border:1px solid rgba(255,255,255,0.14);
-  background:rgba(255,255,255,0.04);
-  color:inherit;
-  cursor:pointer;
-  font-size:13px;
-}
-.subTab.active{
-  border-color:rgba(255,255,255,0.28);
-  background:rgba(255,255,255,0.10);
-}
-
-/* --- result star --- */
-.resultTopRow{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-}
-.starBtn{
-  width:42px;
-  height:34px;
-  border-radius:10px;
-  border:1px solid rgba(255,255,255,0.16);
-  background:rgba(255,255,255,0.04);
-  color:inherit;
-  cursor:pointer;
-  font-size:18px;
-  line-height:1;
-}
-.starBtn.on{
-  border-color:rgba(255,255,255,0.32);
-  background:rgba(255,255,255,0.12);
-}
-
-/* --- history --- */
-.historyList{
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-}
-.historyCard{
-  padding:12px;
-  border-radius:14px;
-  border:1px solid rgba(255,255,255,0.10);
-  background:rgba(255,255,255,0.04);
-}
-.historyTop{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-  margin-bottom:6px;
+  .subTab {
+    padding: 9px 12px;
+  }
 }

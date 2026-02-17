@@ -1,17 +1,8 @@
-// src/App.js（このファイルを“まるごと”置き換えてコピペ）
+// src/App.jsx（このファイルを“まるごと”置き換えてコピペ）
 //
-// ✅ 追加：履歴 + お気に入り（localStorage）
-// - 履歴：直近10件（生成の3件セットを保存）
-// - お気に入り：行動単体を保存（⭐）
-// - Resultで⭐、Selectで「履歴/お気に入り」閲覧＋再表示
-//
-// ✅ 既存仕様は維持
-// - Gate：URLを新しく開き直すたびに必ず表示
-// - 条件選択（#/） / 結果（#/result?...）
-// - URL共有可能（mode/time/goal/place/moneyのみ）
-// - actions.json が汚れてても落ちにくい
-// - DoS対策上限、重複steps除去
-// - console.log は開発時のみ
+// ✅ 追加：お気に入り欄から解除（★ボタン）
+// ✅ 履歴（直近10件） + お気に入り（localStorage）
+// ✅ Gate / hash routing / URL共有 / actions耐性 / フリーズ耐性 / 重複steps除去 も維持
 
 import React, { useEffect, useMemo, useState } from "react";
 import "./App.css";
@@ -37,6 +28,7 @@ const LS_KEYS = {
   favs: "dr:v1:favs",
   history: "dr:v1:history",
 };
+
 const HISTORY_MAX = 10;
 const FAVS_MAX = 200;
 
@@ -310,7 +302,7 @@ function pickNRandomUnique(arr, n) {
 }
 
 /** =========================
- * インデックス（大量対応）
+ * インデックス
  * ========================= */
 function buildIndex(actions, mode) {
   const idx = {
@@ -433,15 +425,12 @@ function maxPossiblePercentFast(index, actionsById, sel, mode) {
 }
 
 /** =========================
- * お気に入り / 履歴
+ * favs / history
  * ========================= */
 function loadFavs() {
   const data = lsReadJSON(LS_KEYS.favs, []);
-  // [{id, createdAt}]
   if (!Array.isArray(data)) return [];
-  return data
-    .filter((x) => x && typeof x.id === "string")
-    .slice(0, FAVS_MAX);
+  return data.filter((x) => x && typeof x.id === "string").slice(0, FAVS_MAX);
 }
 
 function saveFavs(favs) {
@@ -450,7 +439,6 @@ function saveFavs(favs) {
 
 function loadHistory() {
   const data = lsReadJSON(LS_KEYS.history, []);
-  // [{id, mode, sel, actionIds:[...], createdAt}]
   if (!Array.isArray(data)) return [];
   return data
     .filter(
@@ -609,6 +597,7 @@ function Gate({ action, checked, onToggle, onProceed }) {
               type="button"
               onClick={onProceed}
               disabled={!checked}
+              title={!checked ? "チェックしてから進める" : "進む"}
             >
               次へ →
             </button>
@@ -648,6 +637,7 @@ function SelectPage({
   history,
   favActions,
   onOpenHistory,
+  onUnfavFromList, // ★解除（お気に入り欄）
 }) {
   return (
     <div className="wrap">
@@ -751,6 +741,23 @@ function SelectPage({
                   生成（結果を見る） →
                 </button>
               </div>
+
+              <div className="spacer" />
+              <p
+                className="muted"
+                style={{
+                  margin: 0,
+                  fontSize: 12,
+                  lineHeight: 1.4,
+                  textAlign: "center",
+                }}
+              >
+                ※ URLに条件が反映されます（共有可能）。
+                <br />
+                <span style={{ opacity: 0.9 }}>
+                  #/result?mode=student&amp;time=30&amp;goal=recover&amp;place=home&amp;money=0
+                </span>
+              </p>
             </div>
 
             <div className="panel resultsPanel">
@@ -795,9 +802,22 @@ function SelectPage({
               <div className="favList">
                 {favActions.map((a) => (
                   <div key={a.id} className="resultCard">
-                    <p className="routeTitle">
-                      ⭐ <span style={{ opacity: 0.9 }}>{a.title}</span>
-                    </p>
+                    <div className="resultTopRow">
+                      <p className="routeTitle" style={{ margin: 0 }}>
+                        ⭐ <span style={{ opacity: 0.9 }}>{a.title}</span>
+                      </p>
+
+                      {/* ✅ ここが追加：お気に入り欄から解除 */}
+                      <button
+                        type="button"
+                        className="starBtn on"
+                        onClick={() => onUnfavFromList(a.id)}
+                        title="お気に入り解除"
+                      >
+                        ★
+                      </button>
+                    </div>
+
                     {a.steps?.length ? (
                       <ol className="routeSteps">
                         {dedupeStepsWithTitle(a.title, a.steps).map((s, i) => (
@@ -902,7 +922,7 @@ function ResultPage({
 
                   <div className="smallNote">
                     <span style={{ opacity: 0.75 }}>
-                      一致: {a._mode === "strict" ? "厳密" : "近い候補から救済"} /
+                      一致: {a._mode === "strict" ? "厳密" : a._mode === "history" ? "履歴" : "近い候補から救済"} /
                       スコア {a._score ?? 0}
                     </span>
                   </div>
@@ -929,7 +949,6 @@ export default function App() {
     return sliced.map((a, i) => normalizeAction(a, `a_${i}`));
   }, []);
 
-  // index
   const actionsById = useMemo(() => {
     const m = new Map();
     for (const a of ACTIONS) m.set(a.id, a);
@@ -954,10 +973,7 @@ export default function App() {
 
   // mode + selection
   const [mode, setMode] = useState(() => readModeFromSP(sp));
-  const options = useMemo(
-    () => OPTIONS_BY_MODE[mode] ?? OPTIONS_BY_MODE.student,
-    [mode]
-  );
+  const options = useMemo(() => OPTIONS_BY_MODE[mode] ?? OPTIONS_BY_MODE.student, [mode]);
   const [sel, setSel] = useState(() => readSelFromSP(sp, mode));
 
   // ルート変更に追従（URL→state）
@@ -975,7 +991,7 @@ export default function App() {
     pick3ActionsIndexed(actionsById, index, sel, mode)
   );
 
-  // 履歴 / お気に入り（永続）
+  // 履歴 / お気に入り
   const [history, setHistory] = useState(() => loadHistory());
   const [favs, setFavs] = useState(() => loadFavs()); // [{id, createdAt}]
 
@@ -995,11 +1011,11 @@ export default function App() {
     });
   };
 
+  // ✅ お気に入り欄からの解除（結果と同じトグルでOK）
+  const onUnfavFromList = (id) => toggleFav(id);
+
   const favActions = useMemo(() => {
-    // actions.json が変わっても、存在するものだけ表示
-    return favs
-      .map((f) => actionsById.get(f.id))
-      .filter(Boolean);
+    return favs.map((f) => actionsById.get(f.id)).filter(Boolean);
   }, [favs, actionsById]);
 
   // ✅ Gate
@@ -1033,7 +1049,7 @@ export default function App() {
     console.log("ACTIONS length =", ACTIONS.length);
   }, [ACTIONS.length]);
 
-  // UIタブ（Select側）
+  // Select側タブ
   const [tab, setTab] = useState("main"); // main | history | favs
 
   const pills = useMemo(
@@ -1098,7 +1114,6 @@ export default function App() {
     const picked = pick3ActionsIndexed(actionsById, index, sel, mode);
     setGeneratedActions(picked);
 
-    // 履歴に保存（同一条件で連打しても複製が溜まりすぎないよう、先頭同条件は潰す）
     setHistory((prev) => {
       const entry = makeHistoryEntry(mode, sel, picked);
       const filtered = prev.filter(
@@ -1119,15 +1134,14 @@ export default function App() {
   };
 
   const onBack = () => go("/", mode, sel);
+
   const onReroll = () => {
     const picked = pick3ActionsIndexed(actionsById, index, sel, mode);
     setGeneratedActions(picked);
 
-    // rerollも履歴に保存
     setHistory((prev) => {
       const entry = makeHistoryEntry(mode, sel, picked);
-      const filtered = prev.filter((h) => h.id !== entry.id);
-      const next = [entry, ...filtered].slice(0, HISTORY_MAX);
+      const next = [entry, ...prev].slice(0, HISTORY_MAX);
       saveHistory(next);
       return next;
     });
@@ -1140,14 +1154,12 @@ export default function App() {
 
   const isResult = (path || "/") === "/result";
 
-  // 履歴から開く（その時の条件に戻して、結果を再構成）
   const onOpenHistory = (h) => {
     const nextMode = h.mode === "general" ? "general" : "student";
     const nextSel = h.sel && typeof h.sel === "object" ? h.sel : DEFAULTS_BY_MODE[nextMode];
     setMode(nextMode);
     setSel(nextSel);
 
-    // actionIdsから復元（存在しないのは弾く）
     const restored = (h.actionIds || [])
       .map((id) => actionsById.get(id))
       .filter(Boolean)
@@ -1158,7 +1170,6 @@ export default function App() {
         _score: scoreAction(a, nextSel, nextMode),
       }));
 
-    // 3つ揃わないなら埋める
     const nextIndex = buildIndex(ACTIONS, nextMode);
     const fill =
       restored.length === 3
@@ -1171,7 +1182,7 @@ export default function App() {
           ].slice(0, 3);
 
     setGeneratedActions(fill);
-    setTab("main"); // UIは条件に戻す（履歴タブのままだと混乱しがち）
+    setTab("main");
     go("/result", nextMode, nextSel);
   };
 
@@ -1214,6 +1225,7 @@ export default function App() {
           history={history}
           favActions={favActions}
           onOpenHistory={onOpenHistory}
+          onUnfavFromList={onUnfavFromList}
         />
       )}
     </>
