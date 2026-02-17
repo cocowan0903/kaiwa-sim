@@ -1,35 +1,42 @@
-// App.js（このファイルを“まるごと”置き換えてコピペ）
-// ✅ あなたの actions.json（title/tags/modesのみ・steps無し）でも落ちない版
-// ✅ 「生成（結果を見る）」で必ず #/result に遷移する版（hashchange待ちしない）
-// ✅ Gate は「10歩歩く」で固定
-// ✅ Gate は「URLを開き直すたび（ページ読み込みごと）」に毎回出る（localStorage不使用）
-// ✅ student/general モード対応（actions.json の modes でちゃんと絞る）
+// src/App.js（このファイルを“まるごと”置き換えてコピペ）
+//
+// ✅ 改善点（セキュリティ/堅牢性）
+// - ルーティング二重管理を解消（hashが単一ソース・二重発火を抑制）
+// - URLに載せるキーをホワイトリスト化（将来の個人情報混入に強い）
+// - actions.json が汚れてても落ちにくい（型チェック/欠損耐性）
+// - steps/title の長さ・件数上限を導入（DoS/フリーズ耐性）
+// - strict候補の探索を「索引 + 集合の積」で高速化（大量ACTIONSでも耐える）
+// - console.log は開発時のみ（漏洩/恥のスクショ事故防止）
+// - Gateは毎回表示（localStorage不使用）
 //
 // 使い方：src/App.js をこれで全置換 → 保存 → npm run dev / npm start
 
 import React, { useEffect, useMemo, useState } from "react";
 import "./App.css";
-import ACTIONS from "./actions.json";
+import RAW_ACTIONS from "./actions.json";
 
-/**
- * Decision Router
- * ✅ 仕様
- * - 条件選択ページ（#/）
- * - 結果ページ（#/result?...）
- * - 生成ボタンで「結果ページへ遷移」
- * - Vercel 404回避のため hash routing（#/...）を採用
- * - URL共有可能（modeも含める）
- *
- * ✅ 追加仕様（学生編 / 一般編）
- * - 条件より上にタブ設置
- * - 学生編: placeに「学校(school)」を含む（旧campusはschool扱い）
- * - 一般編: placeから「学校(school)」を除外
- *
- * ✅ Gate仕様（ここが変更点）
- * - 「URLを開き直すたび（=ページ読み込みごと）」に毎回出す
- * - localStorage による“1日1回”は使わない
- */
+/** =========================
+ * 設定（漏洩・DoS対策）
+ * ========================= */
 
+// URLに載せるキーを固定（将来、個人情報っぽいものを追加してもURLに出ない）
+const URL_ALLOWED_KEYS = new Set(["mode", "time", "goal", "place", "money"]);
+
+// テキスト/配列の上限（DoS/フリーズ対策）
+const LIMITS = {
+  titleMax: 80,
+  stepMaxCount: 10,
+  stepMaxLen: 120,
+  noteMax: 160,
+  actionsMax: 5000, // 想定より増えたら切り捨て（保険）
+};
+
+// 開発時のみログ
+const __DEV__ = typeof process !== "undefined" && process.env?.NODE_ENV !== "production";
+
+/** =========================
+ * Options
+ * ========================= */
 const OPTIONS_BY_MODE = {
   student: {
     time: [
@@ -91,8 +98,22 @@ const DEFAULTS_BY_MODE = {
 
 const KEYS = ["time", "goal", "place", "money"];
 
+/** =========================
+ * utils
+ * ========================= */
 function clamp(n, min, max) {
   return Math.max(min, Math.min(max, n));
+}
+
+function safeStr(x, maxLen = 120) {
+  const s = typeof x === "string" ? x : x == null ? "" : String(x);
+  const trimmed = s.replace(/\s+/g, " ").trim();
+  return trimmed.length > maxLen ? trimmed.slice(0, maxLen - 1) + "…" : trimmed;
+}
+
+function safeArray(x, maxCount = 50) {
+  if (!Array.isArray(x)) return [];
+  return x.slice(0, maxCount);
 }
 
 function validOption(options, key, value) {
@@ -104,18 +125,28 @@ function labelFor(options, key, value) {
 }
 
 /** =========================
- * Hash Router helpers
+ * Hash router (単一ソース)
  * ========================= */
-function parseHash() {
-  const raw = window.location.hash || "#/";
+function getHashString() {
+  return window.location.hash || "#/";
+}
+
+function parseHashString(hashString) {
+  const raw = hashString || "#/";
   const withoutHash = raw.startsWith("#") ? raw.slice(1) : raw; // "/result?..."
   const [pathPart, queryPart = ""] = withoutHash.split("?");
   const path = pathPart || "/";
   const sp = new URLSearchParams(queryPart);
+
+  // URLに許可してないキーは落とす（将来、個人情報が混ざってもURLでは保持されない）
+  for (const key of Array.from(sp.keys())) {
+    if (!URL_ALLOWED_KEYS.has(key)) sp.delete(key);
+  }
+
   return { path, sp };
 }
 
-// URL互換: 旧campusが来た時の変換（URL側）
+// URL互換: campus -> school/outside
 function normalizePlaceFromUrl(place, mode) {
   if (place === "campus") return mode === "student" ? "school" : "outside";
   return place;
@@ -144,7 +175,7 @@ function readSelFromSP(sp, mode) {
   };
 }
 
-function buildHash(path, mode, sel) {
+function buildHashString(path, mode, sel) {
   const sp = new URLSearchParams();
   sp.set("mode", mode);
   if (sel) {
@@ -153,39 +184,61 @@ function buildHash(path, mode, sel) {
     sp.set("place", sel.place);
     sp.set("money", sel.money);
   }
+  // ホワイトリスト外キーはそもそも生成しない
+  for (const k of Array.from(sp.keys())) {
+    if (!URL_ALLOWED_KEYS.has(k)) sp.delete(k);
+  }
   const q = sp.toString();
   return q ? `#${path}?${q}` : `#${path}`;
 }
 
 /** =========================
- * Matching / Scoring（campus互換 + modes対応 + steps無しでも落ちない）
+ * Action normalization & matching (安全化)
  * ========================= */
 function normalizePlaceForMatch(value, mode) {
   if (value === "campus") return mode === "student" ? "school" : "outside";
   return value;
 }
 
-function ensureSteps(action) {
-  if (Array.isArray(action.steps) && action.steps.length) return action;
-  return { ...action, steps: [action.title] };
+function inMode(action, mode) {
+  const modes = safeArray(action?.modes, 10).map((m) => safeStr(m, 20));
+  if (modes.length === 0) return true;
+  return modes.includes(mode);
 }
 
-function inMode(action, mode) {
-  if (!Array.isArray(action.modes) || action.modes.length === 0) return true;
-  return action.modes.includes(mode);
+function normalizeAction(raw, fallbackId) {
+  const id = safeStr(raw?.id ?? fallbackId, 60);
+  const title = safeStr(raw?.title ?? "（無題）", LIMITS.titleMax);
+
+  // stepsが無い/壊れてるときも落ちない + 上限をかける
+  const rawSteps = Array.isArray(raw?.steps) ? raw.steps : [];
+  const steps = (rawSteps.length ? rawSteps : [title])
+    .map((s) => safeStr(s, LIMITS.stepMaxLen))
+    .slice(0, LIMITS.stepMaxCount);
+
+  const note = raw?.note ? safeStr(raw.note, LIMITS.noteMax) : "";
+
+  // tagsの正規化（配列であることを保証、文字列化）
+  const tags = raw?.tags && typeof raw.tags === "object" ? raw.tags : {};
+  const safeTags = {};
+  for (const k of KEYS) {
+    safeTags[k] = safeArray(tags?.[k], 20).map((t) => safeStr(t, 30));
+  }
+
+  const modes = safeArray(raw?.modes, 10).map((m) => safeStr(m, 20));
+
+  return { ...raw, id, title, steps, note, tags: safeTags, modes };
 }
 
 function actionHasTag(action, key, value, mode) {
-  const tags = action.tags?.[key] ?? [];
+  const tags = action?.tags?.[key] ?? [];
+  if (!Array.isArray(tags)) return false;
+
   if (key !== "place") return tags.includes(value);
 
   const normalizedTags = tags.map((t) => normalizePlaceForMatch(t, mode));
   const normalizedValue = normalizePlaceForMatch(value, mode);
   return normalizedTags.includes(normalizedValue);
-}
-
-function matchesAllAction(action, sel, mode) {
-  return KEYS.every((k) => actionHasTag(action, k, sel[k], mode));
 }
 
 function scoreAction(action, sel, mode) {
@@ -199,10 +252,10 @@ function scoreAction(action, sel, mode) {
 
 function maxScoreForAction(action) {
   let m = 0;
-  if (action.tags?.time?.length) m += 3;
-  if (action.tags?.goal?.length) m += 4;
-  if (action.tags?.place?.length) m += 3;
-  if (action.tags?.money?.length) m += 3;
+  if (action?.tags?.time?.length) m += 3;
+  if (action?.tags?.goal?.length) m += 4;
+  if (action?.tags?.place?.length) m += 3;
+  if (action?.tags?.money?.length) m += 3;
   return m || 1;
 }
 
@@ -215,11 +268,65 @@ function pickNRandomUnique(arr, n) {
   return copy.slice(0, Math.min(n, copy.length));
 }
 
-function pick3Actions(sel, mode) {
-  const base = ACTIONS.filter((a) => inMode(a, mode)).map(ensureSteps);
+/** =========================
+ * インデックス（DoS/大量対応）
+ * - key:value -> Set(actionIndex)
+ * ========================= */
+function buildIndex(actions, mode) {
+  const idx = {
+    byKey: {
+      time: new Map(),
+      goal: new Map(),
+      place: new Map(),
+      money: new Map(),
+    },
+    list: [],
+  };
 
-  const strict = base.filter((a) => matchesAllAction(a, sel, mode));
-  const pickedStrict = pickNRandomUnique(strict, 3).map((a) => ({
+  for (let i = 0; i < actions.length; i++) {
+    const a = actions[i];
+    if (!inMode(a, mode)) continue;
+
+    idx.list.push(a);
+
+    for (const k of KEYS) {
+      const values = a?.tags?.[k] ?? [];
+      for (const v0 of values) {
+        const v = k === "place" ? normalizePlaceForMatch(v0, mode) : v0;
+        if (!idx.byKey[k].has(v)) idx.byKey[k].set(v, new Set());
+        idx.byKey[k].get(v).add(a.id);
+      }
+    }
+  }
+  return idx;
+}
+
+function intersectSets(sets) {
+  const filtered = sets.filter(Boolean).sort((a, b) => a.size - b.size);
+  if (filtered.length === 0) return new Set();
+  let res = new Set(filtered[0]);
+  for (let i = 1; i < filtered.length; i++) {
+    const next = filtered[i];
+    res = new Set([...res].filter((x) => next.has(x)));
+    if (res.size === 0) break;
+  }
+  return res;
+}
+
+function pick3ActionsIndexed(actionsById, index, sel, mode) {
+  // strict: 4条件の積集合
+  const strictSet = intersectSets([
+    index.byKey.time.get(sel.time),
+    index.byKey.goal.get(sel.goal),
+    index.byKey.place.get(normalizePlaceForMatch(sel.place, mode)),
+    index.byKey.money.get(sel.money),
+  ]);
+
+  const strictActions = [...strictSet]
+    .map((id) => actionsById.get(id))
+    .filter(Boolean);
+
+  const pickedStrict = pickNRandomUnique(strictActions, 3).map((a) => ({
     ...a,
     _mode: "strict",
     _score: scoreAction(a, sel, mode),
@@ -227,14 +334,27 @@ function pick3Actions(sel, mode) {
 
   if (pickedStrict.length === 3) return pickedStrict;
 
-  const rest = base
+  // fallback: 近い候補（候補集合を union → score順）
+  const union = new Set();
+  const pushAll = (s) => s && [...s].forEach((x) => union.add(x));
+  pushAll(index.byKey.time.get(sel.time));
+  pushAll(index.byKey.goal.get(sel.goal));
+  pushAll(index.byKey.place.get(normalizePlaceForMatch(sel.place, mode)));
+  pushAll(index.byKey.money.get(sel.money));
+
+  // unionが空なら全体から
+  const poolIds = union.size ? [...union] : index.list.map((a) => a.id);
+
+  const scored = poolIds
+    .map((id) => actionsById.get(id))
+    .filter(Boolean)
     .filter((a) => !pickedStrict.some((p) => p.id === a.id))
     .map((a) => ({ ...a, _score: scoreAction(a, sel, mode) }))
     .sort((a, b) => b._score - a._score);
 
-  const top = rest[0]?._score ?? 0;
-  const band = rest.filter((a) => a._score >= top - 2);
-  const pool = band.length ? band : rest;
+  const top = scored[0]?._score ?? 0;
+  const band = scored.filter((a) => a._score >= top - 2);
+  const pool = band.length ? band : scored;
 
   const fill = pickNRandomUnique(pool, 3 - pickedStrict.length).map((a) => ({
     ...a,
@@ -245,11 +365,30 @@ function pick3Actions(sel, mode) {
   return [...pickedStrict, ...fill];
 }
 
-function maxPossiblePercent(sel, mode) {
+function maxPossiblePercentFast(index, actionsById, sel, mode) {
+  // 厳密100%の可能性があれば即100（strictSetが非空）
+  const strictSet = intersectSets([
+    index.byKey.time.get(sel.time),
+    index.byKey.goal.get(sel.goal),
+    index.byKey.place.get(normalizePlaceForMatch(sel.place, mode)),
+    index.byKey.money.get(sel.money),
+  ]);
+  if (strictSet.size > 0) return 100;
+
+  // 近い候補から、最大スコア率を推定（unionを対象にする）
+  const union = new Set();
+  const pushAll = (s) => s && [...s].forEach((x) => union.add(x));
+  pushAll(index.byKey.time.get(sel.time));
+  pushAll(index.byKey.goal.get(sel.goal));
+  pushAll(index.byKey.place.get(normalizePlaceForMatch(sel.place, mode)));
+  pushAll(index.byKey.money.get(sel.money));
+
+  const poolIds = union.size ? [...union] : index.list.map((a) => a.id);
+
   let best = 0;
-  for (const rawAction of ACTIONS) {
-    if (!inMode(rawAction, mode)) continue;
-    const a = ensureSteps(rawAction);
+  for (const id of poolIds) {
+    const a = actionsById.get(id);
+    if (!a) continue;
     const raw = scoreAction(a, sel, mode);
     const max = maxScoreForAction(a);
     const pct = Math.round((raw / max) * 100);
@@ -296,7 +435,7 @@ function ModeTabs({ mode, onChange }) {
   );
 }
 
-// ✅ Gate固定行動：10歩歩く
+// Gate固定行動：10歩歩く
 const FIXED_GATE_ACTION = {
   id: "gate_fixed_10steps",
   title: "10歩歩く",
@@ -613,39 +752,65 @@ function ResultPage({ mode, setMode, options, sel, actions, onBack, onReroll }) 
  * App
  * ========================= */
 export default function App() {
+  // actions を安全化（件数上限、型・欠損耐性）
+  const ACTIONS = useMemo(() => {
+    const arr = Array.isArray(RAW_ACTIONS) ? RAW_ACTIONS : [];
+    const sliced = arr.slice(0, LIMITS.actionsMax);
+    return sliced.map((a, i) => normalizeAction(a, `a_${i}`));
+  }, []);
+
+  // 開発ログ（本番では出さない）
   useEffect(() => {
+    if (!__DEV__) return;
     console.log("✅ App loaded");
     console.log("ACTIONS length =", ACTIONS.length);
     console.log("last id =", ACTIONS[ACTIONS.length - 1]?.id);
-  }, []);
+  }, [ACTIONS.length]);
 
-  // hash state
-  const [{ path, sp }, setRoute] = useState(() => parseHash());
+  // hash router: 単一ソース（hash文字列だけをstateに持つ）
+  const [hashStr, setHashStr] = useState(() => getHashString());
 
   useEffect(() => {
-    const onHash = () => setRoute(parseHash());
+    const onHash = () => {
+      const next = getHashString();
+      setHashStr((prev) => (prev === next ? prev : next));
+    };
     window.addEventListener("hashchange", onHash);
     return () => window.removeEventListener("hashchange", onHash);
   }, []);
+
+  const route = useMemo(() => parseHashString(hashStr), [hashStr]);
+  const path = route.path;
+  const sp = route.sp;
 
   // mode + selection
   const [mode, setMode] = useState(() => readModeFromSP(sp));
   const options = useMemo(() => OPTIONS_BY_MODE[mode], [mode]);
   const [sel, setSel] = useState(() => readSelFromSP(sp, mode));
 
-  // ✅ ルート変更に追従
+  // ルート変更に追従（URL→state）
   useEffect(() => {
     const nextMode = readModeFromSP(sp);
+    const nextSel = readSelFromSP(sp, nextMode);
     setMode(nextMode);
-    setSel(readSelFromSP(sp, nextMode));
+    setSel(nextSel);
   }, [path, sp.toString()]);
 
-  // ✅ 生成結果（resultページで固定）
+  // mode別インデックス（高速/DoS耐性）
+  const actionsById = useMemo(() => {
+    const m = new Map();
+    for (const a of ACTIONS) m.set(a.id, a);
+    return m;
+  }, [ACTIONS]);
+
+  const index = useMemo(() => buildIndex(ACTIONS, mode), [ACTIONS, mode]);
+
+  // 生成結果（resultページで固定）
   const [generatedActions, setGeneratedActions] = useState(() =>
-    pick3Actions(readSelFromSP(sp, readModeFromSP(sp)), readModeFromSP(sp))
+    pick3ActionsIndexed(actionsById, index, sel, mode)
   );
 
-  // ✅ Gate（ページ読み込みごとに毎回出す）
+  // Gate（ページ読み込みごとに毎回出す）
   const [gateOpen, setGateOpen] = useState(true);
   const [gateChecked, setGateChecked] = useState(false);
 
@@ -659,15 +824,21 @@ export default function App() {
     [options, sel]
   );
 
-  const fitScore = useMemo(() => maxPossiblePercent(sel, mode), [sel, mode]);
+  const fitScore = useMemo(
+    () => maxPossiblePercentFast(index, actionsById, sel, mode),
+    [index, actionsById, sel, mode]
+  );
 
-  // ✅ 遷移を“確実に”反映（hashchange待ちしない）
+  // 遷移（hashのみ更新。stateはhashchange/ガードで追従）
   const go = (nextPath, nextMode, nextSel) => {
-    window.location.hash = buildHash(nextPath, nextMode, nextSel);
-    setRoute(parseHash()); // 即同期（「生成押しても開かない」対策）
+    const nextHash = buildHashString(nextPath, nextMode, nextSel);
+    if (getHashString() === nextHash) return;
+    window.location.hash = nextHash;
+    // 即時反映（ただし hashchange と二重でもガードが効く）
+    setHashStr((prev) => (prev === nextHash ? prev : nextHash));
   };
 
-  // ✅ モード切替
+  // モード切替
   const changeMode = (nextMode) => {
     const nextOptions = OPTIONS_BY_MODE[nextMode];
     const nextDefaults = DEFAULTS_BY_MODE[nextMode];
@@ -683,12 +854,13 @@ export default function App() {
     setSel(nextSel);
     go(path || "/", nextMode, nextSel);
 
-    if (path === "/result") {
-      setGeneratedActions(pick3Actions(nextSel, nextMode));
+    if ((path || "/") === "/result") {
+      const nextIndex = buildIndex(ACTIONS, nextMode);
+      setGeneratedActions(pick3ActionsIndexed(actionsById, nextIndex, nextSel, nextMode));
     }
   };
 
-  // ✅ チップ更新 + URL更新
+  // チップ更新 + URL更新
   const setKey = (key, value) => {
     const next = { ...sel, [key]: value };
     setSel(next);
@@ -702,19 +874,19 @@ export default function App() {
   };
 
   const onGenerate = () => {
-    setGeneratedActions(pick3Actions(sel, mode));
+    setGeneratedActions(pick3ActionsIndexed(actionsById, index, sel, mode));
     go("/result", mode, sel);
   };
 
   const onBack = () => go("/", mode, sel);
 
-  const onReroll = () => setGeneratedActions(pick3Actions(sel, mode));
+  const onReroll = () => setGeneratedActions(pick3ActionsIndexed(actionsById, index, sel, mode));
 
   const proceedGate = () => {
     setGateOpen(false);
   };
 
-  const isResult = path === "/result";
+  const isResult = (path || "/") === "/result";
 
   return (
     <>
