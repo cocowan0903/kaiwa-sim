@@ -1,279 +1,352 @@
 // src/SideGame.jsx
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import "./SideGame.css";
+
+const LS_KEY = "dr_math_game_v1";
+
+function todayKey() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+function safeGet() {
+  try {
+    const raw = window.localStorage.getItem(LS_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+function safeSet(v) {
+  try {
+    window.localStorage.setItem(LS_KEY, JSON.stringify(v));
+  } catch {
+    // ignore
+  }
+}
+
+function randInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+/**
+ * 割り算は割り切れる形だけ作る
+ * 例: a ÷ b = q → a = b*q
+ */
+function makeProblem(level) {
+  const ops = ["+", "-", "×", "÷"];
+  const op = ops[randInt(0, ops.length - 1)];
+
+  const max = [0, 10, 20, 50, 100, 200][Math.max(1, Math.min(5, level))];
+  const min = 0;
+
+  if (op === "+") {
+    const a = randInt(min, max);
+    const b = randInt(min, max);
+    return { op, ans: a + b, text: `${a} + ${b}` };
+  }
+
+  if (op === "-") {
+    const a = randInt(min, max);
+    const b = randInt(min, max);
+    const x = Math.max(a, b);
+    const y = Math.min(a, b);
+    return { op, ans: x - y, text: `${x} - ${y}` };
+  }
+
+  if (op === "×") {
+    const a = randInt(0, Math.ceil(max / 10));
+    const b = randInt(0, Math.ceil(max / 10));
+    return { op, ans: a * b, text: `${a} × ${b}` };
+  }
+
+  // ÷（必ず割り切れる）
+  const b = randInt(1, Math.max(2, Math.ceil(max / 20)));
+  const q = randInt(0, Math.max(3, Math.ceil(max / 10)));
+  const a = b * q;
+  return { op, ans: q, text: `${a} ÷ ${b}` };
+}
 
 export default function SideGame() {
-  const canvasRef = useRef(null);
-  const rafRef = useRef(0);
+  const inputRef = useRef(null);
+  const timerRef = useRef(null);
 
-  const keysRef = useRef({ left: false, right: false });
-  const runningRef = useRef(false);
-  const scoreRef = useRef(0);
+  const [level, setLevel] = useState(2); // 1..5
+  const [timed, setTimed] = useState(true);
+  const [seconds, setSeconds] = useState(15);
 
   const [running, setRunning] = useState(false);
-  const [score, setScore] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(15);
 
-  const cfg = useMemo(
-    () => ({
-      playerW: 22,
-      playerH: 10,
-      speed: 2.6,
-      fallBase: 2.2,
-      spawnEvery: 28,
-      maxDrops: 18,
-    }),
-    []
-  );
+  const [state, setState] = useState(() => {
+    const saved = safeGet();
+    const t = todayKey();
+    if (!saved) return { day: t, today: 0, best: 0, streak: 0 };
+    if (saved.day !== t) return { ...saved, day: t, today: 0, streak: 0 };
+    return saved;
+  });
 
+  // ✅ stale対策：常に最新stateを参照できるref
+  const stateRef = useRef(state);
   useEffect(() => {
-    runningRef.current = running;
-  }, [running]);
+    stateRef.current = state;
+  }, [state]);
 
+  const [problem, setProblem] = useState(() => makeProblem(level));
+  const problemRef = useRef(problem);
   useEffect(() => {
-    const onKeyDown = (e) => {
-      if (e.key === "ArrowLeft" || e.key === "a") keysRef.current.left = true;
-      if (e.key === "ArrowRight" || e.key === "d") keysRef.current.right = true;
-    };
-    const onKeyUp = (e) => {
-      if (e.key === "ArrowLeft" || e.key === "a") keysRef.current.left = false;
-      if (e.key === "ArrowRight" || e.key === "d") keysRef.current.right = false;
-    };
-    window.addEventListener("keydown", onKeyDown);
-    window.addEventListener("keyup", onKeyUp);
-    return () => {
-      window.removeEventListener("keydown", onKeyDown);
-      window.removeEventListener("keyup", onKeyUp);
-    };
+    problemRef.current = problem;
+  }, [problem]);
+
+  const [value, setValue] = useState("");
+  const [msg, setMsg] = useState({ type: "hint", text: "スタートで開始" });
+
+  const bestLabel = useMemo(() => state.best, [state.best]);
+
+  function persist(next) {
+    setState(next);
+    safeSet(next);
+  }
+
+  function focusInput() {
+    queueMicrotask(() => {
+      try {
+        inputRef.current?.focus();
+      } catch {}
+    });
+  }
+
+  function nextProblem(nextLevel = level) {
+    setProblem(makeProblem(nextLevel));
+    setValue("");
+    focusInput();
+  }
+
+  function stopTimer() {
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = null;
+  }
+
+  function startTimer() {
+    stopTimer();
+    setTimeLeft(seconds);
+    timerRef.current = setInterval(() => {
+      setTimeLeft((t) => t - 1);
+    }, 1000);
+  }
+
+  // ✅ 秒数変更に追随（停止中だけ）
+  useEffect(() => {
+    if (!running) setTimeLeft(seconds);
+  }, [seconds, running]);
+
+  // ✅ 日付が変わったらリセット（開きっぱなし対策）
+  useEffect(() => {
+    const id = setInterval(() => {
+      const t = todayKey();
+      setState((s) => {
+        if (s.day === t) return s;
+        const next = { ...s, day: t, today: 0, streak: 0 };
+        safeSet(next);
+        return next;
+      });
+    }, 30_000);
+    return () => clearInterval(id);
   }, []);
 
+  // ✅ running/timed/seconds にだけ反応してタイマー制御
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    if (!running) {
+      stopTimer();
+      return;
+    }
+    if (timed) startTimer();
+    else stopTimer();
 
-    canvas.tabIndex = 0;
+    return () => stopTimer();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [running, timed, seconds]);
 
-    const fit = () => {
-      const parent = canvas.parentElement;
-      const w = Math.max(220, parent?.clientWidth ?? 240);
-      const h = Math.max(260, parent?.clientHeight ?? 360);
+  // ✅ タイムアップ処理（refで最新state/problemを見る）
+  useEffect(() => {
+    if (!running || !timed) return;
+    if (timeLeft > 0) return;
 
-      const dpr = window.devicePixelRatio || 1;
-      canvas.width = Math.floor(w * dpr);
-      canvas.height = Math.floor(h * dpr);
-      canvas.style.width = `${w}px`;
-      canvas.style.height = `${h}px`;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    stopTimer();
+    setRunning(false);
+
+    const s = stateRef.current;
+    const p = problemRef.current;
+
+    const next = {
+      ...s,
+      today: Math.max(0, s.today - 1),
+      streak: 0,
     };
+    persist(next);
+    setMsg({ type: "bad", text: `⏰ タイムアップ（答え: ${p.ans}）` });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timeLeft, running, timed]);
 
-    fit();
+  function start() {
+    setMsg({ type: "hint", text: "いくよ" });
+    setRunning(true);
+    nextProblem(level);
+  }
 
-    // ResizeObserver が無い環境の保険
-    let ro = null;
-    if (typeof ResizeObserver !== "undefined") {
-      ro = new ResizeObserver(() => fit());
-      if (canvas.parentElement) ro.observe(canvas.parentElement);
-    } else {
-      window.addEventListener("resize", fit);
+  function pause() {
+    setRunning(false);
+    stopTimer();
+    setMsg({ type: "hint", text: "一時停止" });
+  }
+
+  function resetToday() {
+    const t = todayKey();
+    const s = stateRef.current;
+    const next = { ...s, day: t, today: 0, streak: 0 };
+    persist(next);
+    setMsg({ type: "hint", text: "今日スコアをリセット" });
+  }
+
+  function submit() {
+    if (!running) return;
+
+    const n = Number(value);
+    if (!Number.isFinite(n)) {
+      setMsg({ type: "bad", text: "数字を入れてね" });
+      return;
     }
 
-    return () => {
-      if (ro) ro.disconnect();
-      window.removeEventListener("resize", fit);
-    };
-  }, []);
+    const p = problemRef.current;
+    const s = stateRef.current;
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    const correct = n === p.ans;
 
-    let t = 0;
-    let frame = 0;
+    if (correct) {
+      const nextToday = s.today + 1;
+      const nextStreak = s.streak + 1;
+      const nextBest = Math.max(s.best, nextToday);
 
-    const state = {
-      w: () => canvas.clientWidth,
-      h: () => canvas.clientHeight,
-      player: { x: 0, y: 0, vx: 0 },
-      drops: [],
-      dead: false,
-    };
+      persist({ ...s, today: nextToday, best: nextBest, streak: nextStreak });
+      setMsg({ type: "good", text: `✅ 正解！ 連続${nextStreak}` });
 
-    const reset = () => {
-      state.dead = false;
-      state.drops = [];
-      state.player.x = state.w() / 2;
-      state.player.y = state.h() - 26;
-      state.player.vx = 0;
-      frame = 0;
+      if (timed) setTimeLeft((t) => Math.min(seconds, t + 2));
+      nextProblem(level);
+      return;
+    }
 
-      scoreRef.current = 0;
-      setScore(0);
-    };
+    // wrong
+    persist({ ...s, today: Math.max(0, s.today - 1), streak: 0 });
+    setMsg({ type: "bad", text: `❌ ${p.text} = ${p.ans}` });
+    nextProblem(level);
+  }
 
-    const spawn = () => {
-      if (state.drops.length >= cfg.maxDrops) return;
-      const x = 10 + Math.random() * (state.w() - 20);
-      const r = 6 + Math.random() * 10;
-      const vy = cfg.fallBase + Math.random() * 2.8;
-      state.drops.push({ x, y: -r, r, vy });
-    };
+  function onKeyDown(e) {
+    if (e.key === "Enter") submit();
+  }
 
-    const hitCircleRect = (cx, cy, r, rx, ry, rw, rh) => {
-      const closestX = Math.max(rx, Math.min(cx, rx + rw));
-      const closestY = Math.max(ry, Math.min(cy, ry + rh));
-      const dx = cx - closestX;
-      const dy = cy - closestY;
-      return dx * dx + dy * dy <= r * r;
-    };
-
-    const draw = () => {
-      const w = state.w();
-      const h = state.h();
-
-      ctx.clearRect(0, 0, w, h);
-      ctx.fillStyle = "rgba(0,0,0,0.16)";
-      ctx.fillRect(0, 0, w, h);
-
-      ctx.strokeStyle = "rgba(255,255,255,0.06)";
-      ctx.lineWidth = 1;
-      for (let y = 20; y < h; y += 24) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(w, y);
-        ctx.stroke();
-      }
-
-      ctx.fillStyle = "rgba(255,255,255,0.80)";
-      for (const d of state.drops) {
-        ctx.beginPath();
-        ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      const pw = cfg.playerW;
-      const ph = cfg.playerH;
-      const px = state.player.x - pw / 2;
-      const py = state.player.y - ph / 2;
-
-      ctx.fillStyle = "rgba(78, 201, 255, 0.85)";
-      ctx.fillRect(px, py, pw, ph);
-
-      ctx.fillStyle = "rgba(255,255,255,0.92)";
-      ctx.font = "12px ui-sans-serif, system-ui, -apple-system";
-      ctx.fillText(`SCORE ${scoreRef.current}`, 10, 16);
-
-      if (!runningRef.current && !state.dead) {
-        ctx.fillStyle = "rgba(255,255,255,0.82)";
-        ctx.fillText("クリックで再開 / 開始", 10, 36);
-        ctx.fillStyle = "rgba(255,255,255,0.65)";
-        ctx.fillText("← → / A D で回避", 10, 52);
-      }
-
-      if (state.dead) {
-        ctx.fillStyle = "rgba(0,0,0,0.55)";
-        ctx.fillRect(0, 0, w, h);
-        ctx.fillStyle = "rgba(255,255,255,0.92)";
-        ctx.font = "14px ui-sans-serif, system-ui, -apple-system";
-        ctx.fillText("GAME OVER", 10, 34);
-        ctx.font = "12px ui-sans-serif, system-ui, -apple-system";
-        ctx.fillText("クリックでリトライ", 10, 54);
-      }
-    };
-
-    const step = (ts) => {
-      if (!t) t = ts;
-      const dt = Math.min(32, ts - t);
-      t = ts;
-
-      if (runningRef.current && !state.dead) {
-        frame++;
-
-        const k = keysRef.current;
-        let dir = 0;
-        if (k.left) dir -= 1;
-        if (k.right) dir += 1;
-
-        state.player.vx = dir * cfg.speed;
-        state.player.x += state.player.vx * (dt / 16);
-
-        const w = state.w();
-        state.player.x = Math.max(12, Math.min(w - 12, state.player.x));
-
-        if (frame % cfg.spawnEvery === 0) spawn();
-
-        const h = state.h();
-        for (const d of state.drops) d.y += d.vy * (dt / 16);
-
-        const before = state.drops.length;
-        state.drops = state.drops.filter((d) => d.y < h + d.r + 4);
-        const passed = before - state.drops.length;
-        if (passed > 0) {
-          scoreRef.current += passed;
-          setScore(scoreRef.current);
-        }
-
-        const pw = cfg.playerW;
-        const ph = cfg.playerH;
-        const px = state.player.x - pw / 2;
-        const py = state.player.y - ph / 2;
-
-        for (const d of state.drops) {
-          if (hitCircleRect(d.x, d.y, d.r, px, py, pw, ph)) {
-            state.dead = true;
-            runningRef.current = false;
-            setRunning(false);
-            break;
-          }
-        }
-      }
-
-      draw();
-      rafRef.current = requestAnimationFrame(step);
-    };
-
-    const onClick = () => {
-      try { canvas.focus(); } catch {}
-
-      if (state.dead) {
-        reset();
-        runningRef.current = true;
-        setRunning(true);
-        return;
-      }
-      runningRef.current = !runningRef.current;
-      setRunning(runningRef.current);
-    };
-
-    reset();
-    rafRef.current = requestAnimationFrame(step);
-    canvas.addEventListener("pointerdown", onClick);
-
-    return () => {
-      canvas.removeEventListener("pointerdown", onClick);
-      cancelAnimationFrame(rafRef.current);
-    };
-  }, [cfg]);
+  // ✅ レベル変えたら「次の問題」から反映（押してる最中に問題が変わらない）
+  function onChangeLevel(v) {
+    const nextLevel = Number(v);
+    setLevel(nextLevel);
+    if (!running) {
+      setProblem(makeProblem(nextLevel));
+      setValue("");
+    }
+  }
 
   return (
     <aside className="sideGame" aria-label="Mini game">
       <div className="sideGameHead">
         <div>
-          <div className="sideGameTitle">余白で回避ゲーム</div>
-          <div className="sideGameHint">← → / A D</div>
+          <div className="sideGameTitle">ランダム四則演算</div>
+          <div className="sideGameHint">
+            今日: <b>{state.today}</b> / ベスト: <b>{bestLabel}</b> / 連続: <b>{state.streak}</b>
+          </div>
         </div>
-        <button className="btn" type="button" onClick={() => setRunning((v) => !v)}>
-          {running ? "一時停止" : "再開"}
+
+        <button className="btn" type="button" onClick={() => (running ? pause() : start())}>
+          {running ? "一時停止" : "スタート"}
         </button>
       </div>
 
-      <div className="sideGameCanvasWrap">
-        <canvas ref={canvasRef} className="sideGameCanvas" />
-      </div>
+      <div className="sideGameBody">
+        <div className="sgControls">
+          <label className="muted small sgControl">
+            難易度
+            <select value={level} onChange={(e) => onChangeLevel(e.target.value)}>
+              <option value={1}>1（やさしい）</option>
+              <option value={2}>2</option>
+              <option value={3}>3</option>
+              <option value={4}>4</option>
+              <option value={5}>5（きつい）</option>
+            </select>
+          </label>
 
-      <div className="sideGameFoot">
-        <div className="muted small">Score: {score}</div>
+          <label className="muted small sgCheck">
+            <input type="checkbox" checked={timed} onChange={(e) => setTimed(e.target.checked)} />
+            タイムアタック
+          </label>
+
+          {timed && (
+            <label className="muted small sgControl">
+              制限
+              <select value={seconds} onChange={(e) => setSeconds(Number(e.target.value))}>
+                <option value={10}>10秒</option>
+                <option value={15}>15秒</option>
+                <option value={20}>20秒</option>
+                <option value={30}>30秒</option>
+              </select>
+            </label>
+          )}
+        </div>
+
+        <div className="sgCard">
+          <div className="muted small sgTopLine">
+            <span>{running ? "解いてください" : "停止中"}</span>
+            {timed && (
+              <span>
+                ⏳ <b>{Math.max(0, timeLeft)}</b>
+              </span>
+            )}
+          </div>
+
+          <div className="sgProblem">{problem.text} = ?</div>
+
+          <div className="sgAnswerRow">
+            <input
+              ref={inputRef}
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              onKeyDown={onKeyDown}
+              inputMode="numeric"
+              placeholder="答え"
+              className="sgInput"
+              disabled={!running}
+            />
+            <button className="btnPrimary" type="button" onClick={submit} disabled={!running}>
+              送信
+            </button>
+          </div>
+
+          <div className={`small sgMsg ${msg.type === "good" ? "good" : msg.type === "bad" ? "bad" : ""}`}>
+            {msg.text}
+          </div>
+
+          <div className="sgBtns">
+            <button className="btnGhost" type="button" onClick={() => nextProblem(level)}>
+              問題だけ更新
+            </button>
+            <button className="btnGhost" type="button" onClick={resetToday}>
+              今日スコアリセット
+            </button>
+          </div>
+        </div>
+
+        <div className="muted small sgHint">ヒント：Enterで送信。割り算は割り切れる問題だけ出る。</div>
       </div>
     </aside>
   );

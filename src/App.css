@@ -1,5 +1,6 @@
 /* src/App.css */
 
+/* ===== Design Tokens ===== */
 :root{
   --bg1:#0c1020;
   --bg2:#151a33;
@@ -10,6 +11,10 @@
   --accent:#6c8cff;
   --accent2:#a66cff;
   --shadow2:0 20px 50px rgba(0,0,0,0.45);
+
+  /* add: focus ring & subtle */
+  --ring: rgba(108,140,255,0.22);
+  --soft: rgba(255,255,255,0.04);
 }
 
 *{ box-sizing:border-box; }
@@ -24,6 +29,13 @@ body{
     radial-gradient(circle at 20% 20%, #1a2148 0%, transparent 40%),
     radial-gradient(circle at 80% 70%, #2a1b4d 0%, transparent 45%),
     linear-gradient(180deg,var(--bg1),var(--bg2));
+}
+
+/* ===== Accessible focus ===== */
+:where(button, a, input, select, textarea):focus-visible{
+  outline: none;
+  box-shadow: 0 0 0 3px var(--ring);
+  border-color: rgba(108,140,255,0.55);
 }
 
 /* ===== Layout ===== */
@@ -41,7 +53,7 @@ body{
   min-width:0;
 }
 
-/* 右カラム（SideGame） */
+/* 右カラムはレイアウトだけApp側で管理（見た目はSideGame.cssへ） */
 @media (min-width:980px){
   .appShell{
     grid-template-columns: minmax(320px, 1100px) 340px;
@@ -59,7 +71,10 @@ body{
   padding:16px;
 }
 
-.cardTitle{ font-weight:700; margin-bottom:10px; }
+.cardTitle{
+  font-weight:700;
+  margin-bottom:10px;
+}
 
 /* ===== Header / Page ===== */
 .page{ display:flex; flex-direction:column; gap:14px; }
@@ -74,7 +89,7 @@ body{
   border:1px solid var(--border);
   padding:6px 10px;
   border-radius:999px;
-  background:rgba(255,255,255,0.04);
+  background:var(--soft);
   font-size:13px;
 }
 
@@ -131,7 +146,10 @@ body{
   padding:6px 12px;
   border-radius:999px;
   cursor:pointer;
+  transition: background 120ms ease, transform 120ms ease, opacity 120ms ease;
 }
+.chip:hover{ background: rgba(255,255,255,0.06); }
+.chip:active{ transform: translateY(1px); }
 .chip.active{
   background:linear-gradient(135deg,var(--accent),var(--accent2));
   border:none;
@@ -139,6 +157,7 @@ body{
 
 /* ===== Buttons ===== */
 .actionsRow{ display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
+
 .btnPrimary{
   background:linear-gradient(135deg,var(--accent),var(--accent2));
   border:none;
@@ -147,7 +166,11 @@ body{
   border-radius:12px;
   cursor:pointer;
   font-weight:600;
+  transition: transform 120ms ease, opacity 120ms ease;
 }
+.btnPrimary:hover{ opacity:0.95; }
+.btnPrimary:active{ transform: translateY(1px); }
+
 .btnGhost{
   border:1px solid var(--border);
   background:transparent;
@@ -155,8 +178,18 @@ body{
   padding:10px 14px;
   border-radius:12px;
   cursor:pointer;
+  transition: background 120ms ease, transform 120ms ease, opacity 120ms ease;
 }
+.btnGhost:hover{ background: rgba(255,255,255,0.06); }
+.btnGhost:active{ transform: translateY(1px); }
 .btnGhost.active{ background:rgba(255,255,255,0.08); }
+
+.btnPrimary:disabled,
+.btnGhost:disabled{
+  opacity:0.55;
+  cursor:not-allowed;
+  transform:none;
+}
 
 /* ===== Lists ===== */
 .listWrap{ display:flex; flex-direction:column; gap:8px; }
@@ -168,10 +201,13 @@ body{
   text-align:left;
   border:1px solid var(--border);
   border-radius:12px;
-  background:rgba(255,255,255,0.04);
+  background:var(--soft);
   padding:10px;
   cursor:pointer;
+  transition: background 120ms ease, transform 120ms ease;
 }
+.listItem:hover{ background: rgba(255,255,255,0.06); }
+.listItem:active{ transform: translateY(1px); }
 
 .listMain{ display:flex; flex-direction:column; gap:2px; }
 .listSub{ color:var(--muted); font-size:12px; margin-top:2px; }
@@ -181,11 +217,14 @@ body{
   flex:1;
   border:1px solid var(--border);
   border-radius:12px;
-  background:rgba(255,255,255,0.04);
+  background:var(--soft);
   padding:10px;
   text-align:left;
   cursor:pointer;
+  transition: background 120ms ease, transform 120ms ease;
 }
+.favUse:hover{ background: rgba(255,255,255,0.06); }
+.favUse:active{ transform: translateY(1px); }
 
 /* ===== Result ===== */
 .resultList{ display:flex; flex-direction:column; gap:10px; margin-top:12px; }
@@ -193,7 +232,7 @@ body{
   border:1px solid var(--border);
   border-radius:12px;
   padding:12px;
-  background:rgba(255,255,255,0.04);
+  background:var(--soft);
 }
 .resultTitle{ font-weight:700; }
 .resultMeta{ margin-top:6px; }
@@ -225,14 +264,14 @@ body{
 /* ===== Helpers ===== */
 .muted{ color:var(--muted); }
 .small{ font-size:12px; }
-.mono{ font-family:monospace; margin-top:4px; }
+.mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; margin-top:4px; }
 
 /* ===== App Header (optional) ===== */
 .appHeader{
   margin-bottom:12px;
   border-radius:18px;
   border:1px solid var(--border);
-  background:rgba(255,255,255,0.04);
+  background:var(--soft);
   backdrop-filter:blur(12px);
   box-shadow:var(--shadow2);
 }
@@ -248,59 +287,3 @@ body{
 .appHeaderSub{ color:var(--muted); font-size:12px; margin-top:2px; }
 .headerLink{ color:var(--text); text-decoration:none; opacity:0.9; }
 .headerLink:hover{ opacity:1; }
-
-/* ===== SideGame ===== */
-.sideGame{
-  border-radius:18px;
-  border:1px solid var(--border);
-  background:var(--card);
-  backdrop-filter:blur(12px);
-  box-shadow:var(--shadow2);
-  overflow:hidden;
-  min-width:0;
-}
-
-@media (min-width:980px){
-  .sideGame{
-    position: sticky;
-    top:16px;
-    height: calc(100vh - 32px);
-  }
-}
-
-.sideGameHead{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  padding:12px 14px;
-  border-bottom:1px solid var(--border);
-}
-
-.sideGameTitle{ font-weight:700; }
-.sideGameHint{ color:var(--muted); font-size:12px; }
-
-.sideGameCanvasWrap{
-  padding:10px;
-  height:calc(100% - 54px - 44px);
-}
-.sideGameCanvas{
-  width:100%;
-  height:100%;
-  display:block;
-  border-radius:12px;
-}
-
-.btn{
-  border:1px solid var(--border);
-  background:transparent;
-  color:var(--text);
-  padding:8px 10px;
-  border-radius:12px;
-  cursor:pointer;
-}
-
-.sideGameFoot{
-  padding:8px 14px 12px;
-  color:var(--muted);
-}
