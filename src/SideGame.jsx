@@ -3,7 +3,11 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 export default function SideGame() {
   const canvasRef = useRef(null);
   const rafRef = useRef(0);
+
   const keysRef = useRef({ left: false, right: false });
+  const runningRef = useRef(false);
+  const scoreRef = useRef(0);
+
   const [running, setRunning] = useState(false);
   const [score, setScore] = useState(0);
 
@@ -19,6 +23,12 @@ export default function SideGame() {
     []
   );
 
+  // keep ref in sync
+  useEffect(() => {
+    runningRef.current = running;
+  }, [running]);
+
+  // keyboard
   useEffect(() => {
     const onKeyDown = (e) => {
       if (e.key === "ArrowLeft" || e.key === "a") keysRef.current.left = true;
@@ -36,34 +46,42 @@ export default function SideGame() {
     };
   }, []);
 
+  // canvas fit + resize observer
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
+    if (!ctx) return;
 
-    // canvasを親のサイズにフィット
+    // make focusable for better key handling on Safari
+    canvas.tabIndex = 0;
+
     const fit = () => {
       const parent = canvas.parentElement;
       const w = Math.max(220, parent?.clientWidth ?? 240);
       const h = Math.max(260, parent?.clientHeight ?? 360);
-      canvas.width = Math.floor(w * devicePixelRatio);
-      canvas.height = Math.floor(h * devicePixelRatio);
+
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = Math.floor(w * dpr);
+      canvas.height = Math.floor(h * dpr);
       canvas.style.width = `${w}px`;
       canvas.style.height = `${h}px`;
-      ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
 
     fit();
     const ro = new ResizeObserver(() => fit());
-    ro.observe(canvas.parentElement);
+    if (canvas.parentElement) ro.observe(canvas.parentElement);
 
     return () => ro.disconnect();
   }, []);
 
+  // main game loop (mount once)
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
+    if (!ctx) return;
 
     let t = 0;
     let frame = 0;
@@ -83,6 +101,8 @@ export default function SideGame() {
       state.player.y = state.h() - 26;
       state.player.vx = 0;
       frame = 0;
+
+      scoreRef.current = 0;
       setScore(0);
     };
 
@@ -138,17 +158,17 @@ export default function SideGame() {
       ctx.fillStyle = "rgba(78, 201, 255, 0.85)";
       ctx.fillRect(px, py, pw, ph);
 
-      // score
+      // score (ref is the truth)
       ctx.fillStyle = "rgba(255,255,255,0.92)";
       ctx.font = "12px ui-sans-serif, system-ui, -apple-system";
-      ctx.fillText(`SCORE ${score}`, 10, 16);
+      ctx.fillText(`SCORE ${scoreRef.current}`, 10, 16);
 
-      if (!running) {
+      if (!runningRef.current && !state.dead) {
         ctx.fillStyle = "rgba(255,255,255,0.82)";
         ctx.font = "12px ui-sans-serif, system-ui, -apple-system";
-        ctx.fillText("クリックで開始", 10, 36);
+        ctx.fillText("クリックで再開 / 開始", 10, 36);
         ctx.fillStyle = "rgba(255,255,255,0.65)";
-        ctx.fillText("← → で回避", 10, 52);
+        ctx.fillText("← → / A D で回避", 10, 52);
       }
 
       if (state.dead) {
@@ -167,7 +187,8 @@ export default function SideGame() {
       const dt = Math.min(32, ts - t);
       t = ts;
 
-      if (running && !state.dead) {
+      // update only when running and alive
+      if (runningRef.current && !state.dead) {
         frame++;
 
         // input
@@ -190,20 +211,25 @@ export default function SideGame() {
         const h = state.h();
         for (const d of state.drops) d.y += d.vy * (dt / 16);
 
-        // remove passed
+        // remove passed + score
         const before = state.drops.length;
         state.drops = state.drops.filter((d) => d.y < h + d.r + 4);
         const passed = before - state.drops.length;
-        if (passed > 0) setScore((s) => s + passed);
+        if (passed > 0) {
+          scoreRef.current += passed;
+          setScore(scoreRef.current);
+        }
 
         // collision
         const pw = cfg.playerW;
         const ph = cfg.playerH;
         const px = state.player.x - pw / 2;
         const py = state.player.y - ph / 2;
+
         for (const d of state.drops) {
           if (hitCircleRect(d.x, d.y, d.r, px, py, pw, ph)) {
             state.dead = true;
+            runningRef.current = false;
             setRunning(false);
             break;
           }
@@ -214,27 +240,34 @@ export default function SideGame() {
       rafRef.current = requestAnimationFrame(step);
     };
 
-    // start loop
-    reset();
-    rafRef.current = requestAnimationFrame(step);
-
+    // click behavior
     const onClick = () => {
+      // focus canvas for key controls stability
+      try {
+        canvas.focus();
+      } catch {}
+
       if (state.dead) {
         reset();
+        runningRef.current = true;
         setRunning(true);
         return;
       }
-      setRunning(true);
+
+      // toggle resume (if paused -> start; if running -> pause)
+      runningRef.current = !runningRef.current;
+      setRunning(runningRef.current);
     };
 
+    reset();
+    rafRef.current = requestAnimationFrame(step);
     canvas.addEventListener("pointerdown", onClick);
 
     return () => {
       canvas.removeEventListener("pointerdown", onClick);
       cancelAnimationFrame(rafRef.current);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [running]);
+  }, [cfg]);
 
   return (
     <aside className="sideGame" aria-label="Mini game">
@@ -243,13 +276,21 @@ export default function SideGame() {
           <div className="sideGameTitle">余白で回避ゲーム</div>
           <div className="sideGameHint">← → / A D</div>
         </div>
-        <button className="btn" type="button" onClick={() => setRunning((v) => !v)}>
-          {running ? "停止" : "開始"}
+        <button
+          className="btn"
+          type="button"
+          onClick={() => setRunning((v) => !v)}
+        >
+          {running ? "一時停止" : "再開"}
         </button>
       </div>
 
       <div className="sideGameCanvasWrap">
         <canvas ref={canvasRef} className="sideGameCanvas" />
+      </div>
+
+      <div className="sideGameFoot">
+        <div className="muted small">Score: {score}</div>
       </div>
     </aside>
   );

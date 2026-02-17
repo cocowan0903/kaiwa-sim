@@ -1,513 +1,212 @@
-// src/App.jsx（全置換コピペ）
-//
-// ✅ Gate（開くたびに必ず表示）
-// ✅ hash routing（#/ / #/result?...）
-// ✅ URL共有（mode/time/goal/place/moneyのみ）
-// ✅ actions.json 耐性（型チェック/欠損耐性/上限）
-// ✅ steps内の title 重複除去（表示用）
-// ✅ 履歴（直近10件） localStorage
-// ✅ お気に入り（localStorage）
-// ✅ お気に入り欄から解除（★ボタン）
-//
-// ✅ FIX: タブごとにスクロール位置保存/復元（PC/スマホ）
-// ✅ FIX: 履歴から結果を開いたら「戻る」で履歴タブ＋元のスクロール位置に戻る
-// ✅ Header（sticky）
-// ✅ 右余白ミニゲーム（広い画面だけ表示）
-
-import React, { useEffect, useMemo, useRef, useState } from "react";
+// src/App.jsx
+import React, { useEffect, useMemo, useState } from "react";
 import "./App.css";
 import RAW_ACTIONS from "./actions.json";
-import Header from "./Header";
-import SideGame from "./SideGame";
 
-/** =========================
- * 設定
- * ========================= */
-const __DEV__ =
-  typeof import.meta !== "undefined" && import.meta.env ? import.meta.env.DEV : false;
+/**
+ * Decision Router (hash routing)
+ * - 条件選択：#/
+ * - 結果：#/result?mode=student&time=30&goal=recover&place=home&money=0
+ * - 履歴/お気に入り：localStorage
+ * - Gate（今の行動）：1日1回（localStorage）
+ * - 右側ゲーム欄：.appShell + .sideGame（CSSで右/下切替）
+ *
+ * ✅ 追加で堅牢化した点
+ * - actions.json が配列/ {actions:[...]} どちらでも動く
+ * - hash の揺れ (#/ , #, /result 等) を吸収
+ * - 履歴の重複を抑制（同条件連打で肥大化しにくい）
+ * - お気に入りの表示情報を充実
+ * - ミニゲームを最低限実装（クリック連打ゲーム）
+ */
 
-const URL_ALLOWED_KEYS = new Set(["mode", "time", "goal", "place", "money"]);
-
-const LIMITS = {
-  titleMax: 80,
-  stepMaxCount: 10,
-  stepMaxLen: 120,
-  noteMax: 220,
-  actionsMax: 5000,
+const LS = {
+  gateKey: "dr_gate_done_day",
+  history: "dr_history_v1",
+  favs: "dr_favs_v1",
+  game: "dr_game_v1",
 };
 
-const LS_KEYS = {
-  favs: "dr:v1:favs",
-  history: "dr:v1:history",
+const OPTIONS = {
+  time: [
+    { value: "10", label: "10分" },
+    { value: "30", label: "30分" },
+    { value: "60", label: "1時間" },
+    { value: "180", label: "半日" },
+  ],
+  goal: [
+    { value: "recover", label: "回復" },
+    { value: "growth", label: "成長" },
+    { value: "life", label: "生活" },
+    { value: "fun", label: "遊び" },
+  ],
+  place: [
+    { value: "home", label: "家" },
+    { value: "school", label: "学校" },
+    { value: "out", label: "外" },
+    { value: "online", label: "オンライン" },
+  ],
+  money: [
+    { value: "0", label: "0円" },
+    { value: "500", label: "少し（〜500円）" },
+    { value: "2000", label: "まあまあ（〜2000円）" },
+    { value: "any", label: "気にしない" },
+  ],
 };
 
-const HISTORY_MAX = 10;
-const FAVS_MAX = 200;
-
-const OPTIONS_BY_MODE = {
-  student: {
-    time: [
-      { value: "10", label: "10分" },
-      { value: "30", label: "30分" },
-      { value: "60", label: "1時間" },
-      { value: "180", label: "半日" },
-    ],
-    goal: [
-      { value: "recover", label: "回復" },
-      { value: "growth", label: "成長" },
-      { value: "life", label: "生活" },
-      { value: "fun", label: "遊び" },
-    ],
-    place: [
-      { value: "home", label: "家" },
-      { value: "school", label: "学校" },
-      { value: "outside", label: "外" },
-      { value: "online", label: "オンライン" },
-    ],
-    money: [
-      { value: "0", label: "0円" },
-      { value: "low", label: "少し（〜500円）" },
-      { value: "mid", label: "まあまあ（〜2000円）" },
-      { value: "high", label: "気にしない" },
-    ],
-  },
-  general: {
-    time: [
-      { value: "10", label: "10分" },
-      { value: "30", label: "30分" },
-      { value: "60", label: "1時間" },
-      { value: "180", label: "半日" },
-    ],
-    goal: [
-      { value: "recover", label: "回復" },
-      { value: "growth", label: "成長" },
-      { value: "life", label: "生活" },
-      { value: "fun", label: "遊び" },
-    ],
-    place: [
-      { value: "home", label: "家" },
-      { value: "outside", label: "外" },
-      { value: "online", label: "オンライン" },
-    ],
-    money: [
-      { value: "0", label: "0円" },
-      { value: "low", label: "少し（〜500円）" },
-      { value: "mid", label: "まあまあ（〜2000円）" },
-      { value: "high", label: "気にしない" },
-    ],
-  },
+const DEFAULTS = {
+  mode: "student",
+  time: "30",
+  goal: "recover",
+  place: "home",
+  money: "0",
 };
 
-const DEFAULTS_BY_MODE = {
-  student: { time: "30", goal: "recover", place: "home", money: "0" },
-  general: { time: "30", goal: "recover", place: "home", money: "0" },
-};
-
-const KEYS = ["time", "goal", "place", "money"];
-
-/** =========================
- * utils
- * ========================= */
-function clamp(n, min, max) {
-  return Math.max(min, Math.min(max, n));
+function todayKey() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
 }
 
-function safeStr(x, maxLen = 120) {
-  const s = typeof x === "string" ? x : x == null ? "" : String(x);
-  const trimmed = s.replace(/\s+/g, " ").trim();
-  return trimmed.length > maxLen ? trimmed.slice(0, maxLen - 1) + "…" : trimmed;
-}
-
-function safeArray(x, maxCount = 50) {
-  if (!Array.isArray(x)) return [];
-  return x.slice(0, maxCount);
-}
-
-function normalizeForCompare(s) {
-  return safeStr(s, 500).replace(/\s+/g, "").toLowerCase();
-}
-
-function validOption(options, key, value) {
-  const list = options?.[key];
-  if (!Array.isArray(list)) return false;
-  return list.some((o) => o.value === value);
-}
-
-function labelFor(options, key, value) {
-  const list = options?.[key];
-  if (!Array.isArray(list)) return value;
-  return list.find((o) => o.value === value)?.label ?? value;
-}
-
-function nowIso() {
+function safeJsonParse(str, fallback) {
   try {
-    return new Date().toISOString();
-  } catch {
-    return "";
-  }
-}
-
-/** =========================
- * localStorage（安全読み書き）
- * ========================= */
-function lsReadJSON(key, fallback) {
-  try {
-    const raw = localStorage.getItem(key);
-    if (!raw) return fallback;
-    return JSON.parse(raw);
+    if (!str) return fallback;
+    return JSON.parse(str);
   } catch {
     return fallback;
   }
 }
 
-function lsWriteJSON(key, value) {
-  try {
-    localStorage.setItem(key, JSON.stringify(value));
-  } catch {
-    // storage full / private mode etc.
-  }
+function readLS(key, fallback) {
+  return safeJsonParse(localStorage.getItem(key), fallback);
+}
+function writeLS(key, value) {
+  localStorage.setItem(key, JSON.stringify(value));
 }
 
-/** =========================
- * Hash router
- * ========================= */
-function getHashString() {
-  return window.location.hash || "#/";
+function normalizeActions(raw) {
+  if (Array.isArray(raw)) return raw;
+  if (raw && Array.isArray(raw.actions)) return raw.actions;
+  return [];
 }
 
-function parseHashString(hashString) {
-  const raw = hashString || "#/";
+function parseHash() {
+  // Accept: "#/result?x=1", "#result?x=1", "#/?x=1", "#", ""
+  const raw = window.location.hash || "#/";
   const withoutHash = raw.startsWith("#") ? raw.slice(1) : raw;
-  const [pathPart, queryPart = ""] = withoutHash.split("?");
-  const path = pathPart || "/";
-  const sp = new URLSearchParams(queryPart);
 
-  for (const key of Array.from(sp.keys())) {
-    if (!URL_ALLOWED_KEYS.has(key)) sp.delete(key);
-  }
-  return { path, sp };
+  // If it's like "result?x=1", make it "/result?x=1"
+  const normalized = withoutHash.startsWith("/") ? withoutHash : `/${withoutHash}`; // "/result?...”
+  const [pathPart, queryPart] = normalized.split("?");
+  const path = pathPart === "/" || pathPart === "" ? "/" : pathPart; // "/result" etc.
+
+  const params = new URLSearchParams(queryPart || "");
+  const obj = {};
+  params.forEach((v, k) => (obj[k] = v));
+  return { path, query: obj };
 }
 
-function normalizePlaceFromUrl(place, mode) {
-  if (place === "campus") return mode === "student" ? "school" : "outside";
-  return place;
+function toQueryString(obj) {
+  const p = new URLSearchParams();
+  Object.entries(obj).forEach(([k, v]) => {
+    if (v !== undefined && v !== null && String(v).length > 0) p.set(k, String(v));
+  });
+  const s = p.toString();
+  return s ? `?${s}` : "";
 }
 
-function readModeFromSP(sp) {
-  const m = sp.get("mode");
-  return m === "general" ? "general" : "student";
+function navigateHash(path, queryObj) {
+  const p = path.startsWith("/") ? path : `/${path}`;
+  const q = queryObj ? toQueryString(queryObj) : "";
+  window.location.hash = `#${p}${q}`;
 }
 
-function readSelFromSP(sp, mode) {
-  const options = OPTIONS_BY_MODE[mode] ?? OPTIONS_BY_MODE.student;
-  const defaults = DEFAULTS_BY_MODE[mode] ?? DEFAULTS_BY_MODE.student;
-
-  const time = sp.get("time") ?? defaults.time;
-  const goal = sp.get("goal") ?? defaults.goal;
-  const rawPlace = sp.get("place") ?? defaults.place;
-  const place = normalizePlaceFromUrl(rawPlace, mode);
-  const money = sp.get("money") ?? defaults.money;
-
-  return {
-    time: validOption(options, "time", time) ? time : defaults.time,
-    goal: validOption(options, "goal", goal) ? goal : defaults.goal,
-    place: validOption(options, "place", place) ? place : defaults.place,
-    money: validOption(options, "money", money) ? money : defaults.money,
-  };
-}
-
-function buildHashString(path, mode, sel) {
-  const sp = new URLSearchParams();
-  sp.set("mode", mode);
-  if (sel) {
-    sp.set("time", sel.time);
-    sp.set("goal", sel.goal);
-    sp.set("place", sel.place);
-    sp.set("money", sel.money);
-  }
-  for (const k of Array.from(sp.keys())) {
-    if (!URL_ALLOWED_KEYS.has(k)) sp.delete(k);
-  }
-  const q = sp.toString();
-  return q ? `#${path}?${q}` : `#${path}`;
-}
-
-/** =========================
- * Action normalization & matching
- * ========================= */
-function normalizePlaceForMatch(value, mode) {
-  if (value === "campus") return mode === "student" ? "school" : "outside";
-  return value;
-}
-
-function inMode(action, mode) {
-  const modes = safeArray(action?.modes, 10).map((m) => safeStr(m, 20));
-  if (modes.length === 0) return true;
-  return modes.includes(mode);
-}
-
-function dedupeStepsWithTitle(title, steps) {
-  const t0 = normalizeForCompare(title);
-  const arr = Array.isArray(steps) ? steps : [];
-  if (!arr.length) return [];
-  return arr.filter((st) => normalizeForCompare(st) !== t0);
-}
-
-function normalizeAction(raw, fallbackId) {
-  const id = safeStr(raw?.id ?? fallbackId, 60);
-  const title = safeStr(raw?.title ?? "（無題）", LIMITS.titleMax);
-
-  const rawSteps = Array.isArray(raw?.steps) ? raw.steps : [];
-  const steps = rawSteps
-    .map((s) => safeStr(s, LIMITS.stepMaxLen))
-    .filter((s) => s.length > 0)
-    .slice(0, LIMITS.stepMaxCount);
-
-  const note = raw?.note ? safeStr(raw.note, LIMITS.noteMax) : "";
-
-  const tags = raw?.tags && typeof raw.tags === "object" ? raw.tags : {};
-  const safeTags = {};
-  for (const k of KEYS) {
-    safeTags[k] = safeArray(tags?.[k], 20).map((t) => safeStr(t, 30));
-  }
-
-  const modes = safeArray(raw?.modes, 10).map((m) => safeStr(m, 20));
-  return { ...raw, id, title, steps, note, tags: safeTags, modes };
-}
-
-function actionHasTag(action, key, value, mode) {
-  const tags = action?.tags?.[key] ?? [];
-  if (!Array.isArray(tags)) return false;
-
-  if (key !== "place") return tags.includes(value);
-
-  const normalizedTags = tags.map((t) => normalizePlaceForMatch(t, mode));
-  const normalizedValue = normalizePlaceForMatch(value, mode);
-  return normalizedTags.includes(normalizedValue);
-}
-
-function scoreAction(action, sel, mode) {
-  let s = 0;
-  if (actionHasTag(action, "time", sel.time, mode)) s += 3;
-  if (actionHasTag(action, "goal", sel.goal, mode)) s += 4;
-  if (actionHasTag(action, "place", sel.place, mode)) s += 3;
-  if (actionHasTag(action, "money", sel.money, mode)) s += 3;
-  return s;
-}
-
-function maxScoreForAction(action) {
-  let m = 0;
-  if (action?.tags?.time?.length) m += 3;
-  if (action?.tags?.goal?.length) m += 4;
-  if (action?.tags?.place?.length) m += 3;
-  if (action?.tags?.money?.length) m += 3;
-  return m || 1;
-}
-
-function pickNRandomUnique(arr, n) {
-  const copy = [...arr];
-  for (let i = copy.length - 1; i > 0; i--) {
+function pickRandom(arr, n) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [copy[i], copy[j]] = [copy[j], copy[i]];
+    [a[i], a[j]] = [a[j], a[i]];
   }
-  return copy.slice(0, Math.min(n, copy.length));
+  return a.slice(0, Math.min(n, a.length));
 }
 
-/** =========================
- * インデックス
- * ========================= */
-function buildIndex(actions, mode) {
-  const idx = {
-    byKey: {
-      time: new Map(),
-      goal: new Map(),
-      place: new Map(),
-      money: new Map(),
-    },
-    list: [],
-  };
-
-  for (let i = 0; i < actions.length; i++) {
-    const a = actions[i];
-    if (!inMode(a, mode)) continue;
-    idx.list.push(a);
-
-    for (const k of KEYS) {
-      const values = a?.tags?.[k] ?? [];
-      for (const v0 of values) {
-        const v = k === "place" ? normalizePlaceForMatch(v0, mode) : v0;
-        if (!idx.byKey[k].has(v)) idx.byKey[k].set(v, new Set());
-        idx.byKey[k].get(v).add(a.id);
-      }
-    }
-  }
-  return idx;
+function labelOf(list, value) {
+  return list.find((x) => x.value === String(value))?.label ?? String(value);
 }
 
-function intersectSets(sets) {
-  const filtered = sets.filter(Boolean).sort((a, b) => a.size - b.size);
-  if (filtered.length === 0) return new Set();
-  let res = new Set(filtered[0]);
-  for (let i = 1; i < filtered.length; i++) {
-    const next = filtered[i];
-    res = new Set([...res].filter((x) => next.has(x)));
-    if (res.size === 0) break;
-  }
-  return res;
+function makeCondKey(mode, cond) {
+  return `${mode}|${cond.time}|${cond.goal}|${cond.place}|${cond.money}`;
 }
 
-function pick3ActionsIndexed(actionsById, index, sel, mode) {
-  const strictSet = intersectSets([
-    index.byKey.time.get(sel.time),
-    index.byKey.goal.get(sel.goal),
-    index.byKey.place.get(normalizePlaceForMatch(sel.place, mode)),
-    index.byKey.money.get(sel.money),
-  ]);
-
-  const strictActions = [...strictSet]
-    .map((id) => actionsById.get(id))
-    .filter(Boolean);
-
-  const pickedStrict = pickNRandomUnique(strictActions, 3).map((a) => ({
-    ...a,
-    _mode: "strict",
-    _score: scoreAction(a, sel, mode),
-  }));
-
-  if (pickedStrict.length === 3) return pickedStrict;
-
-  const union = new Set();
-  const pushAll = (s) => s && [...s].forEach((x) => union.add(x));
-  pushAll(index.byKey.time.get(sel.time));
-  pushAll(index.byKey.goal.get(sel.goal));
-  pushAll(index.byKey.place.get(normalizePlaceForMatch(sel.place, mode)));
-  pushAll(index.byKey.money.get(sel.money));
-
-  const poolIds = union.size ? [...union] : index.list.map((a) => a.id);
-
-  const scored = poolIds
-    .map((id) => actionsById.get(id))
-    .filter(Boolean)
-    .filter((a) => !pickedStrict.some((p) => p.id === a.id))
-    .map((a) => ({ ...a, _score: scoreAction(a, sel, mode) }))
-    .sort((a, b) => b._score - a._score);
-
-  const top = scored[0]?._score ?? 0;
-  const band = scored.filter((a) => a._score >= top - 2);
-  const pool = band.length ? band : scored;
-
-  const fill = pickNRandomUnique(pool, 3 - pickedStrict.length).map((a) => ({
-    ...a,
-    _mode: "fallback",
-    _score: a._score ?? scoreAction(a, sel, mode),
-  }));
-
-  return [...pickedStrict, ...fill];
+function calcFitScore(action, cond) {
+  // tags の一致数で 0-100 を雑に出す（テキトーだけど直感的）
+  const tags = action?.tags ?? [];
+  const want = [
+    `time:${cond.time}`,
+    `goal:${cond.goal}`,
+    `place:${cond.place}`,
+    `money:${cond.money}`,
+    cond.goal,
+    cond.place,
+  ];
+  const hit = want.filter((w) => tags.includes(w)).length;
+  const denom = Math.max(1, want.length);
+  return Math.round((hit / denom) * 100);
 }
 
-function maxPossiblePercentFast(index, actionsById, sel, mode) {
-  const strictSet = intersectSets([
-    index.byKey.time.get(sel.time),
-    index.byKey.goal.get(sel.goal),
-    index.byKey.place.get(normalizePlaceForMatch(sel.place, mode)),
-    index.byKey.money.get(sel.money),
-  ]);
-  if (strictSet.size > 0) return 100;
-
-  const union = new Set();
-  const pushAll = (s) => s && [...s].forEach((x) => union.add(x));
-  pushAll(index.byKey.time.get(sel.time));
-  pushAll(index.byKey.goal.get(sel.goal));
-  pushAll(index.byKey.place.get(normalizePlaceForMatch(sel.place, mode)));
-  pushAll(index.byKey.money.get(sel.money));
-
-  const poolIds = union.size ? [...union] : index.list.map((a) => a.id);
-
-  let best = 0;
-  for (const id of poolIds) {
-    const a = actionsById.get(id);
-    if (!a) continue;
-    const raw = scoreAction(a, sel, mode);
-    const max = maxScoreForAction(a);
-    const pct = Math.round((raw / max) * 100);
-    if (pct > best) best = pct;
-    if (best === 100) break;
-  }
-  return clamp(best, 0, 100);
+function filterActionsByMode(actions, mode) {
+  // actions.json: { title, tags, modes } を想定
+  return (actions || []).filter((a) => {
+    const modes = a?.modes;
+    if (!modes) return true;
+    if (Array.isArray(modes)) return modes.includes(mode);
+    if (typeof modes === "string") return modes === mode;
+    return true;
+  });
 }
 
-/** =========================
- * favs / history
- * ========================= */
-function loadFavs() {
-  const data = lsReadJSON(LS_KEYS.favs, []);
-  if (!Array.isArray(data)) return [];
-  return data.filter((x) => x && typeof x.id === "string").slice(0, FAVS_MAX);
+function filterActionsByConditions(actions, cond) {
+  // tags でざっくり絞る（無ければ落とさない）
+  const mustTags = [
+    `goal:${cond.goal}`,
+    `place:${cond.place}`,
+    `money:${cond.money}`,
+    `time:${cond.time}`,
+  ];
+
+  const filtered = (actions || []).filter((a) => {
+    const tags = a?.tags ?? [];
+    const hasAny = mustTags.some((t) => tags.includes(t));
+    return hasAny || tags.length === 0;
+  });
+
+  // 0件対策：全部通す
+  return filtered.length ? filtered : (actions || []);
 }
 
-function saveFavs(favs) {
-  lsWriteJSON(LS_KEYS.favs, favs.slice(0, FAVS_MAX));
-}
+/* =========================
+   UI Parts
+========================= */
 
-function loadHistory() {
-  const data = lsReadJSON(LS_KEYS.history, []);
-  if (!Array.isArray(data)) return [];
-  return data
-    .filter(
-      (x) =>
-        x &&
-        typeof x.id === "string" &&
-        typeof x.mode === "string" &&
-        x.sel &&
-        Array.isArray(x.actionIds)
-    )
-    .slice(0, HISTORY_MAX);
-}
-
-function saveHistory(history) {
-  lsWriteJSON(LS_KEYS.history, history.slice(0, HISTORY_MAX));
-}
-
-function makeHistoryEntry(mode, sel, actions) {
-  const actionIds = (actions || []).map((a) => a.id).filter(Boolean);
-  const createdAt = nowIso();
-  const id = `h_${createdAt}_${Math.random().toString(36).slice(2, 8)}`;
-  return { id, mode, sel, actionIds, createdAt };
-}
-
-/** =========================
- * UI bits
- * ========================= */
-function Chip({ label, selected, onClick }) {
+function GateOverlay({ isOpen, onDone }) {
+  if (!isOpen) return null;
   return (
-    <button
-      type="button"
-      className="chip"
-      data-selected={selected ? "true" : "false"}
-      onClick={onClick}
-    >
-      {label}
-    </button>
-  );
-}
-
-function ModeTabs({ mode, onChange }) {
-  return (
-    <div className="modeTabs">
-      <button
-        type="button"
-        className={`modeTab ${mode === "student" ? "active" : ""}`}
-        onClick={() => onChange("student")}
-      >
-        学生編
-      </button>
-      <button
-        type="button"
-        className={`modeTab ${mode === "general" ? "active" : ""}`}
-        onClick={() => onChange("general")}
-      >
-        一般編
-      </button>
+    <div className="gateOverlay">
+      <div className="gateCard">
+        <div className="gateTitle">まずは「今の行動」</div>
+        <div className="gateText">
+          今日はこれを1回だけクリアしたら先へ進めるよ。
+          <br />
+          <b>10歩あるく</b>
+        </div>
+        <div className="gateButtons">
+          <button className="btnPrimary" onClick={onDone}>
+            ✅ できた
+          </button>
+        </div>
+        <div className="gateHint">※ 1日1回だけ表示（localStorage）</div>
+      </div>
     </div>
   );
 }
@@ -515,787 +214,546 @@ function ModeTabs({ mode, onChange }) {
 function SubTabs({ tab, setTab }) {
   return (
     <div className="subTabs">
-      <button
-        type="button"
-        className={`subTab ${tab === "main" ? "active" : ""}`}
-        onClick={() => setTab("main")}
-      >
+      <button className={`subTab ${tab === "conditions" ? "active" : ""}`} onClick={() => setTab("conditions")}>
         条件
       </button>
-      <button
-        type="button"
-        className={`subTab ${tab === "history" ? "active" : ""}`}
-        onClick={() => setTab("history")}
-      >
+      <button className={`subTab ${tab === "history" ? "active" : ""}`} onClick={() => setTab("history")}>
         履歴
       </button>
-      <button
-        type="button"
-        className={`subTab ${tab === "favs" ? "active" : ""}`}
-        onClick={() => setTab("favs")}
-      >
+      <button className={`subTab ${tab === "favorites" ? "active" : ""}`} onClick={() => setTab("favorites")}>
         お気に入り
       </button>
     </div>
   );
 }
 
-// Gate固定行動：10歩歩く
-const FIXED_GATE_ACTION = {
-  id: "gate_fixed_10steps",
-  title: "10歩歩く",
-  steps: ["立つ", "部屋の中で10歩だけ歩く", "席に戻る"],
-  note: "行動あるのみ！！",
-};
-
-function Gate({ action, checked, onToggle, onProceed }) {
+function ModeTabs({ mode, onChange }) {
   return (
-    <div className="gateOverlay">
-      <div className="gateCard">
-        <div className="gateHeader">
-          <div className="hgroup">
-            <h1 className="title" style={{ marginBottom: 6 }}>
-              まずはやってみよう ✅
-            </h1>
-            <p className="subtitle" style={{ margin: 0 }}>
-              終わったらチェックして次へ👇
-            </p>
-          </div>
+    <div className="modeWrap">
+      <div className="modeLabel">モード</div>
+      <div className="modeTabs">
+        <button type="button" className={`modeTab ${mode === "student" ? "active" : ""}`} onClick={() => onChange("student")}>
+          学生編
+        </button>
+        <button type="button" className={`modeTab ${mode === "general" ? "active" : ""}`} onClick={() => onChange("general")}>
+          一般編
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function ConditionGroup({ title, options, value, onChange }) {
+  return (
+    <div className="condGroup">
+      <div className="condTitle">{title}</div>
+      <div className="condRow">
+        {options.map((o) => (
+          <button
+            key={o.value}
+            type="button"
+            className={`chip ${String(value) === String(o.value) ? "active" : ""}`}
+            onClick={() => onChange(String(o.value))}
+          >
+            {o.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function HistoryList({ items, onPick, onClear }) {
+  return (
+    <div className="listWrap">
+      <div className="listHead">
+        <div className="listTitle">履歴</div>
+        <button className="btnGhost" onClick={onClear}>
+          クリア
+        </button>
+      </div>
+
+      {items.length === 0 ? (
+        <div className="muted">まだ履歴はないよ。</div>
+      ) : (
+        <div className="list">
+          {items.map((h, idx) => (
+            <button key={h.id || idx} className="listItem" onClick={() => onPick(h)}>
+              <div className="listMain">
+                <div className="listLine">
+                  ⏱️ {labelOf(OPTIONS.time, h.time)} / 🎯 {labelOf(OPTIONS.goal, h.goal)} / 📍 {labelOf(OPTIONS.place, h.place)} / 💸{" "}
+                  {labelOf(OPTIONS.money, h.money)} / <b>{h.mode === "general" ? "一般編" : "学生編"}</b>
+                </div>
+                <div className="listSub">{new Date(h.at).toLocaleString()}</div>
+              </div>
+            </button>
+          ))}
         </div>
+      )}
+    </div>
+  );
+}
 
-        <div className="divider" />
+function FavoritesList({ items, onRemove, onUse }) {
+  return (
+    <div className="listWrap">
+      <div className="listHead">
+        <div className="listTitle">お気に入り</div>
+      </div>
 
-        <div className="gateBody">
-          <p style={{ marginTop: 0 }}>
-            <b>{action?.title ?? "（行動が見つからない）"}</b>
-          </p>
-
-          <ol className="routeSteps" style={{ marginTop: 8 }}>
-            {(action?.steps?.length ? action.steps : []).map((s, i) => (
-              <li key={i}>{s}</li>
-            ))}
-          </ol>
-
-          {action?.note ? <p className="gateNote">メモ: {action.note}</p> : null}
-
-          <div className="divider" style={{ margin: "16px 0" }} />
-
-          <div className="gateHint">
-            <b>安心ポイント</b>
-            <div style={{ marginTop: 6 }}>
-              このアプリは入力フォームやアカウント機能がなく、外部への送信を前提にしていません。
-              URL共有も条件のみを扱う設計です。
+      {items.length === 0 ? (
+        <div className="muted">お気に入りはまだ空っぽ。</div>
+      ) : (
+        <div className="list">
+          {items.map((f, idx) => (
+            <div key={f.key || idx} className="favItem">
+              <button className="favUse" onClick={() => onUse(f)}>
+                <div className="listLine">
+                  ⏱️ {labelOf(OPTIONS.time, f.time)} / 🎯 {labelOf(OPTIONS.goal, f.goal)} / 📍 {labelOf(OPTIONS.place, f.place)} / 💸{" "}
+                  {labelOf(OPTIONS.money, f.money)} / <b>{f.mode === "general" ? "一般編" : "学生編"}</b>
+                </div>
+                <div className="listSub">保存：{new Date(f.at).toLocaleString()}</div>
+              </button>
+              <button className="btnGhost" onClick={() => onRemove(idx)}>
+                削除
+              </button>
             </div>
-          </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
-          <div className="divider" style={{ margin: "16px 0" }} />
+/* =========================
+   Mini Game (Simple Clicker)
+========================= */
+function GamePanel() {
+  const [game, setGame] = useState(() => readLS(LS.game, { best: 0, today: 0, day: todayKey() }));
 
-          <label className="gateCheckRow">
-            <input type="checkbox" checked={checked} onChange={onToggle} />
-            <span>できた</span>
-          </label>
+  useEffect(() => {
+    const t = todayKey();
+    if (game.day !== t) {
+      const next = { ...game, today: 0, day: t };
+      setGame(next);
+      writeLS(LS.game, next);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-          <div className="actions" style={{ marginTop: 16, justifyContent: "center" }}>
-            <button
-              className="btn primary"
-              type="button"
-              onClick={onProceed}
-              disabled={!checked}
-              title={!checked ? "チェックしてから進める" : "進む"}
-            >
-              次へ →
+  function addPoint() {
+    const nextToday = game.today + 1;
+    const nextBest = Math.max(game.best, nextToday);
+    const next = { ...game, today: nextToday, best: nextBest };
+    setGame(next);
+    writeLS(LS.game, next);
+  }
+
+  function resetToday() {
+    const next = { ...game, today: 0 };
+    setGame(next);
+    writeLS(LS.game, next);
+  }
+
+  return (
+    <div className="gamePanel">
+      <div className="gameTitle">ゲーム</div>
+      <div className="gameBody">
+        <div className="muted small">クリックでスコアが増えるだけの、最小ミニゲーム。</div>
+
+        <div className="gameCard">
+          <div className="gameCardTitle">本日のスコア</div>
+          <div className="gameScore">{game.today}</div>
+
+          <div className="gameBtns">
+            <button className="btnPrimary" onClick={addPoint}>
+              ＋1
+            </button>
+            <button className="btnGhost" onClick={resetToday}>
+              リセット
             </button>
           </div>
 
-          <p className="gateFootnote">※ URLを開き直すたびに表示</p>
+          <div className="muted small">自己ベスト：{game.best}</div>
         </div>
       </div>
     </div>
   );
 }
 
-/** =========================
- * Pages
- * ========================= */
+/* =========================
+   Pages
+========================= */
 function SelectPage({
   mode,
   setMode,
-  options,
-  sel,
-  setKey,
-  onReset,
-  onGenerate,
-  pills,
-  fitScore,
+  cond,
+  setCond,
   tab,
   setTab,
+  fitScore,
   history,
-  favActions,
-  onOpenHistory,
-  onUnfavFromList,
-  bodyRef,
+  favs,
+  onGenerate,
+  onReset,
+  onPickHistory,
+  onClearHistory,
+  onUseFav,
+  onRemoveFav,
 }) {
+  const pills = useMemo(() => {
+    return {
+      time: labelOf(OPTIONS.time, cond.time),
+      goal: labelOf(OPTIONS.goal, cond.goal),
+      place: labelOf(OPTIONS.place, cond.place),
+      money: labelOf(OPTIONS.money, cond.money),
+    };
+  }, [cond]);
+
   return (
-    <div className="wrap">
-      <div className="card">
-        <div className="header">
-          <ModeTabs mode={mode} onChange={setMode} />
-          <div className="hgroup">
-            <h1 className="title">Decision Router</h1>
-            <p className="subtitle">条件選択 → 生成で「結果ページ」に移動。</p>
-          </div>
-
-          <div className="pills">
-            <div className="pill">
-              ⏱️ <b>{pills.time}</b>
-            </div>
-            <div className="pill">
-              🎯 <b>{pills.goal}</b>
-            </div>
-            <div className="pill">
-              📍 <b>{pills.place}</b>
-            </div>
-            <div className="pill">
-              💸 <b>{pills.money}</b>
-            </div>
-            <div className="pill">
-              適合 <b>{fitScore}</b>
-            </div>
-          </div>
-
-          <SubTabs tab={tab} setTab={setTab} />
+    <div className="page">
+      <div className="header">
+        <div className="hgroup">
+          <h1 className="title">Decision Router</h1>
+          <p className="subtitle">条件選択 → 生成で「結果ページ」に移動。</p>
         </div>
 
-        <div className="divider" />
+        <div className="pills">
+          <div className="pill">
+            ⏱️ <b>{pills.time}</b>
+          </div>
+          <div className="pill">
+            🎯 <b>{pills.goal}</b>
+          </div>
+          <div className="pill">
+            📍 <b>{pills.place}</b>
+          </div>
+          <div className="pill">
+            💸 <b>{pills.money}</b>
+          </div>
+          <div className="pill">
+            適合 <b>{fitScore}</b>
+          </div>
+        </div>
 
-        <div className="cardBody" ref={bodyRef}>
-          {tab === "main" ? (
-            <div className="grid">
-              <div className="panel">
-                <h2 className="panelTitle">条件を選ぶ</h2>
+        <SubTabs tab={tab} setTab={setTab} />
+        <ModeTabs mode={mode} onChange={setMode} />
+      </div>
 
-                <p className="kicker">⏱️ 所要時間</p>
-                <div className="chipRow">
-                  {options.time.map((o) => (
-                    <Chip
-                      key={o.value}
-                      label={o.label}
-                      selected={sel.time === o.value}
-                      onClick={() => setKey("time", o.value)}
-                    />
-                  ))}
-                </div>
+      <div className="contentGrid">
+        <div className="card">
+          {tab === "conditions" && (
+            <>
+              <div className="cardTitle">条件を選ぶ</div>
 
-                <div className="divider" />
+              <ConditionGroup title="⏱️ 所要時間" options={OPTIONS.time} value={cond.time} onChange={(v) => setCond((c) => ({ ...c, time: v }))} />
+              <ConditionGroup title="📍 場所" options={OPTIONS.place} value={cond.place} onChange={(v) => setCond((c) => ({ ...c, place: v }))} />
+              <ConditionGroup title="💸 お金" options={OPTIONS.money} value={cond.money} onChange={(v) => setCond((c) => ({ ...c, money: v }))} />
+              <ConditionGroup title="🎯 目的" options={OPTIONS.goal} value={cond.goal} onChange={(v) => setCond((c) => ({ ...c, goal: v }))} />
 
-                <p className="kicker">📍 場所</p>
-                <div className="chipRow">
-                  {options.place.map((o) => (
-                    <Chip
-                      key={o.value}
-                      label={o.label}
-                      selected={sel.place === o.value}
-                      onClick={() => setKey("place", o.value)}
-                    />
-                  ))}
-                </div>
-
-                <div className="divider" />
-
-                <p className="kicker">💸 お金</p>
-                <div className="chipRow">
-                  {options.money.map((o) => (
-                    <Chip
-                      key={o.value}
-                      label={o.label}
-                      selected={sel.money === o.value}
-                      onClick={() => setKey("money", o.value)}
-                    />
-                  ))}
-                </div>
-
-                <div className="divider" />
-
-                <p className="kicker">🎯 目的</p>
-                <div className="chipRow">
-                  {options.goal.map((o) => (
-                    <Chip
-                      key={o.value}
-                      label={o.label}
-                      selected={sel.goal === o.value}
-                      onClick={() => setKey("goal", o.value)}
-                    />
-                  ))}
-                </div>
-
-                <div className="divider" />
-
-                <div className="actions">
-                  <button className="btn" type="button" onClick={onReset}>
-                    リセット
-                  </button>
-                  <button className="btn primary" type="button" onClick={onGenerate}>
-                    生成（結果を見る） →
-                  </button>
-                </div>
-
-                <div className="spacer" />
-                <p
-                  className="muted"
-                  style={{ margin: 0, fontSize: 12, lineHeight: 1.4, textAlign: "center" }}
-                >
-                  ※ URLに条件が反映されます（共有可能）。
-                  <br />
-                  <span style={{ opacity: 0.9 }}>
-                    #/result?mode=student&amp;time=30&amp;goal=recover&amp;place=home&amp;money=0
-                  </span>
-                </p>
+              <div className="actionsRow">
+                <button className="btnGhost" onClick={onReset}>
+                  リセット
+                </button>
+                <button className="btnPrimary" onClick={onGenerate}>
+                  生成（結果を見る） →
+                </button>
               </div>
 
-              <div className="panel resultsPanel">
-                <h2 className="panelTitle">プレビュー（参考）</h2>
-                <p style={{ opacity: 0.75, marginTop: 0 }}>
-                  生成を押すと結果ページへ移動するよ。
-                </p>
+              <div className="muted small">
+                ※ URLに条件が反映されます（共有可能）。
+                <div className="mono">
+                  #/result{toQueryString({ mode, time: cond.time, goal: cond.goal, place: cond.place, money: cond.money })}
+                </div>
               </div>
-            </div>
-          ) : tab === "history" ? (
-            <div className="panel resultsPanel">
-              <h2 className="panelTitle">履歴（直近{HISTORY_MAX}件）</h2>
-              {history.length === 0 ? (
-                <p style={{ opacity: 0.75, marginTop: 0 }}>まだ履歴がありません。</p>
-              ) : (
-                <div className="historyList">
-                  {history.map((h) => (
-                    <div key={h.id} className="historyCard">
-                      <div className="historyTop">
-                        <div style={{ fontWeight: 800 }}>
-                          {h.createdAt ? h.createdAt.replace("T", " ").slice(0, 16) : "—"}
-                        </div>
-                        <button className="btn" type="button" onClick={() => onOpenHistory(h)}>
-                          開く →
-                        </button>
-                      </div>
-                      <div style={{ opacity: 0.8, fontSize: 13 }}>
-                        mode: <b>{h.mode}</b> / time:<b>{h.sel?.time}</b> goal:<b>{h.sel?.goal}</b>{" "}
-                        place:<b>{h.sel?.place}</b> money:<b>{h.sel?.money}</b>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="panel resultsPanel">
-              <h2 className="panelTitle">お気に入り（{favActions.length}件）</h2>
-              {favActions.length === 0 ? (
-                <p style={{ opacity: 0.75, marginTop: 0 }}>まだお気に入りがありません。</p>
-              ) : (
-                <div className="favList">
-                  {favActions.map((a) => (
-                    <div key={a.id} className="resultCard">
-                      <div className="resultTopRow">
-                        <p className="routeTitle" style={{ margin: 0 }}>
-                          ⭐ <span style={{ opacity: 0.9 }}>{a.title}</span>
-                        </p>
-
-                        <button
-                          type="button"
-                          className="starBtn on"
-                          onClick={() => onUnfavFromList(a.id)}
-                          title="お気に入り解除"
-                        >
-                          ★
-                        </button>
-                      </div>
-
-                      {a.steps?.length ? (
-                        <ol className="routeSteps">
-                          {dedupeStepsWithTitle(a.title, a.steps).map((s, i) => (
-                            <li key={i}>{s}</li>
-                          ))}
-                        </ol>
-                      ) : null}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            </>
           )}
 
-          <div style={{ height: 10 }} />
+          {tab === "history" && <HistoryList items={history} onPick={onPickHistory} onClear={onClearHistory} />}
+
+          {tab === "favorites" && <FavoritesList items={favs} onRemove={onRemoveFav} onUse={onUseFav} />}
+        </div>
+
+        <div className="card">
+          <div className="cardTitle">プレビュー（参考）</div>
+          <div className="muted">生成を押すと結果ページへ移動するよ。</div>
         </div>
       </div>
     </div>
   );
 }
 
-function ResultPage({
-  mode,
-  setMode,
-  options,
-  sel,
-  actions,
-  onBack,
-  onReroll,
-  isFav,
-  toggleFav,
-  bodyRef,
-  backLabel,
-}) {
-  const list = Array.isArray(actions) ? actions : [];
+function ResultPage({ mode, setMode, cond, results, onBack, onRegenerate, onAddFav, isFav }) {
+  const pills = useMemo(() => {
+    return {
+      time: labelOf(OPTIONS.time, cond.time),
+      goal: labelOf(OPTIONS.goal, cond.goal),
+      place: labelOf(OPTIONS.place, cond.place),
+      money: labelOf(OPTIONS.money, cond.money),
+    };
+  }, [cond]);
 
   return (
-    <div className="wrap">
-      <div className="card">
-        <div className="header">
-          <ModeTabs mode={mode} onChange={setMode} />
-          <div className="hgroup">
-            <h1 className="title">結果</h1>
-            <p className="subtitle">今日の行動（ランダム3つ）</p>
-          </div>
+    <div className="page">
+      <div className="header">
+        <div className="hgroup">
+          <h1 className="title">結果</h1>
+          <p className="subtitle">今日の行動（ランダム3つ）</p>
+        </div>
 
-          <div className="pills">
-            <div className="pill">
-              ⏱️ <b>{labelFor(options, "time", sel.time)}</b>
-            </div>
-            <div className="pill">
-              🎯 <b>{labelFor(options, "goal", sel.goal)}</b>
-            </div>
-            <div className="pill">
-              📍 <b>{labelFor(options, "place", sel.place)}</b>
-            </div>
-            <div className="pill">
-              💸 <b>{labelFor(options, "money", sel.money)}</b>
-            </div>
+        <div className="pills">
+          <div className="pill">
+            ⏱️ <b>{pills.time}</b>
+          </div>
+          <div className="pill">
+            🎯 <b>{pills.goal}</b>
+          </div>
+          <div className="pill">
+            📍 <b>{pills.place}</b>
+          </div>
+          <div className="pill">
+            💸 <b>{pills.money}</b>
           </div>
         </div>
 
-        <div className="divider" />
+        <ModeTabs mode={mode} onChange={setMode} />
+      </div>
 
-        <div className="cardBody" ref={bodyRef}>
-          <div className="actions" style={{ justifyContent: "space-between", padding: "16px 16px 0" }}>
-            <button className="btn" type="button" onClick={onBack}>
-              ← {backLabel}
-            </button>
-            <button className="btn primary" type="button" onClick={onReroll}>
-              もう一回生成 🎲
-            </button>
-          </div>
+      <div className="card">
+        <div className="actionsRow">
+          <button className="btnGhost" onClick={onBack}>
+            ← 条件に戻る
+          </button>
+          <button className="btnPrimary" onClick={onRegenerate}>
+            もう一回生成
+          </button>
+          <button className={`btnGhost ${isFav ? "active" : ""}`} onClick={onAddFav}>
+            {isFav ? "★ お気に入り済み" : "☆ お気に入りに追加"}
+          </button>
+        </div>
 
-          <div className="divider" style={{ marginTop: 16 }} />
-
-          <div className="panel resultsPanel resultGrid">
-            {list.map((a, idx) => {
-              const steps = dedupeStepsWithTitle(a.title, a.steps);
-              const fav = isFav(a.id);
-
-              return (
-                <div className="resultCard" key={a.id}>
-                  <div className="resultTopRow">
-                    <p className="routeTitle" style={{ margin: 0 }}>
-                      {idx === 0 ? "行動A（おすすめ）" : idx === 1 ? "行動B" : "行動C"}{" "}
-                      <span style={{ opacity: 0.8, fontWeight: 400 }}>· {a.title}</span>
-                    </p>
-
-                    <button
-                      type="button"
-                      className={`starBtn ${fav ? "on" : ""}`}
-                      onClick={() => toggleFav(a.id)}
-                      title={fav ? "お気に入り解除" : "お気に入り"}
-                    >
-                      {fav ? "★" : "☆"}
-                    </button>
-                  </div>
-
-                  {steps.length > 0 ? (
-                    <ol className="routeSteps">
-                      {steps.map((s, i) => (
-                        <li key={i}>{s}</li>
-                      ))}
-                    </ol>
-                  ) : null}
-
-                  <div className="smallNote">
-                    <span style={{ opacity: 0.75 }}>
-                      一致:{" "}
-                      {a._mode === "strict" ? "厳密" : a._mode === "history" ? "履歴" : "近い候補から救済"} /
-                      スコア {a._score ?? 0}
-                    </span>
-                  </div>
+        <div className="resultList">
+          {results.length === 0 ? (
+            <div className="muted">候補が見つからなかった。条件を変えてみて。</div>
+          ) : (
+            results.map((r, idx) => (
+              <div key={`${r.title}-${idx}`} className="resultItem">
+                <div className="resultTitle">{r.title}</div>
+                <div className="resultMeta muted small">
+                  適合 {r.fit} / tags: {(r.tags || []).slice(0, 6).join(", ")}
                 </div>
-              );
-            })}
-          </div>
-
-          <div style={{ height: 10 }} />
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>
   );
 }
 
-/** =========================
- * App
- * ========================= */
+/* =========================
+   App
+========================= */
 export default function App() {
-  // actions を安全化
-  const ACTIONS = useMemo(() => {
-    const arr = Array.isArray(RAW_ACTIONS) ? RAW_ACTIONS : [];
-    const sliced = arr.slice(0, LIMITS.actionsMax);
-    return sliced.map((a, i) => normalizeAction(a, `a_${i}`));
-  }, []);
+  const [{ path, query }, setRoute] = useState(() => parseHash());
 
-  const actionsById = useMemo(() => {
-    const m = new Map();
-    for (const a of ACTIONS) m.set(a.id, a);
-    return m;
-  }, [ACTIONS]);
+  const ACTIONS = useMemo(() => normalizeActions(RAW_ACTIONS), []);
 
-  // hash router
-  const [hashStr, setHashStr] = useState(() => getHashString());
+  const [mode, setMode] = useState(query.mode || DEFAULTS.mode);
+  const [cond, setCond] = useState({
+    time: query.time || DEFAULTS.time,
+    goal: query.goal || DEFAULTS.goal,
+    place: query.place || DEFAULTS.place,
+    money: query.money || DEFAULTS.money,
+  });
 
+  const [tab, setTab] = useState("conditions");
+  const [history, setHistory] = useState(() => readLS(LS.history, []));
+  const [favs, setFavs] = useState(() => readLS(LS.favs, []));
+  const [gateOpen, setGateOpen] = useState(false);
+
+  // hash listener
   useEffect(() => {
-    const onHash = () => {
-      const next = getHashString();
-      setHashStr((prev) => (prev === next ? prev : next));
-    };
+    const onHash = () => setRoute(parseHash());
     window.addEventListener("hashchange", onHash);
     return () => window.removeEventListener("hashchange", onHash);
   }, []);
 
-  const route = useMemo(() => parseHashString(hashStr), [hashStr]);
-  const path = route.path;
-  const sp = route.sp;
-
-  // mode + selection
-  const [mode, setMode] = useState(() => readModeFromSP(sp));
-  const options = useMemo(() => OPTIONS_BY_MODE[mode] ?? OPTIONS_BY_MODE.student, [mode]);
-  const [sel, setSel] = useState(() => readSelFromSP(sp, mode));
-
-  // URL→state 追従
+  // route -> state sync
   useEffect(() => {
-    const nextMode = readModeFromSP(sp);
-    const nextSel = readSelFromSP(sp, nextMode);
-    setMode(nextMode);
-    setSel(nextSel);
-  }, [path, sp.toString()]);
+    const q = query || {};
+    if (q.mode && q.mode !== mode) setMode(q.mode);
 
-  // index
-  const index = useMemo(() => buildIndex(ACTIONS, mode), [ACTIONS, mode]);
+    const next = {
+      time: q.time || cond.time,
+      goal: q.goal || cond.goal,
+      place: q.place || cond.place,
+      money: q.money || cond.money,
+    };
+    const changed =
+      next.time !== cond.time || next.goal !== cond.goal || next.place !== cond.place || next.money !== cond.money;
 
-  // 生成結果
-  const [generatedActions, setGeneratedActions] = useState([]);
-
-  // 初回だけ（空なら）埋める：選択を変えても勝手に上書きしない
-  useEffect(() => {
-    if (generatedActions.length) return;
-    const picked = pick3ActionsIndexed(actionsById, index, sel, mode);
-    setGeneratedActions(picked);
+    if (changed) setCond(next);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [actionsById, index, mode, sel]);
+  }, [path, JSON.stringify(query)]);
 
-  // 履歴 / お気に入り
-  const [history, setHistory] = useState(() => loadHistory());
-  const [favs, setFavs] = useState(() => loadFavs()); // [{id, createdAt}]
-
-  const favIdSet = useMemo(() => new Set(favs.map((f) => f.id)), [favs]);
-  const isFav = (id) => favIdSet.has(id);
-
-  const toggleFav = (id) => {
-    setFavs((prev) => {
-      const exists = prev.some((f) => f.id === id);
-      const next = exists ? prev.filter((f) => f.id !== id) : [{ id, createdAt: nowIso() }, ...prev];
-      const clipped = next.slice(0, FAVS_MAX);
-      saveFavs(clipped);
-      return clipped;
-    });
-  };
-
-  const onUnfavFromList = (id) => toggleFav(id);
-
-  const favActions = useMemo(
-    () => favs.map((f) => actionsById.get(f.id)).filter(Boolean),
-    [favs, actionsById]
-  );
-
-  // ✅ Gate（開き直しで必ず出す）
-  const [gateOpen, setGateOpen] = useState(false);
-  const [gateChecked, setGateChecked] = useState(false);
-
+  // gate (1/day)
   useEffect(() => {
-    const openGate = () => {
-      setGateOpen(true);
-      setGateChecked(false);
-    };
-
-    openGate();
-
-    const onPageShow = () => openGate();
-    const onVisibility = () => {
-      if (document.visibilityState === "visible") openGate();
-    };
-
-    window.addEventListener("pageshow", onPageShow);
-    document.addEventListener("visibilitychange", onVisibility);
-    return () => {
-      window.removeEventListener("pageshow", onPageShow);
-      document.removeEventListener("visibilitychange", onVisibility);
-    };
+    const doneDay = localStorage.getItem(LS.gateKey);
+    const t = todayKey();
+    if (doneDay !== t) setGateOpen(true);
   }, []);
 
-  const proceedGate = () => {
-    setGateOpen(false);
-    setGateChecked(false);
-  };
+  const allActions = useMemo(() => filterActionsByMode(ACTIONS, mode), [ACTIONS, mode]);
+  const narrowed = useMemo(() => filterActionsByConditions(allActions, cond), [allActions, cond]);
 
-  // 開発ログ
-  useEffect(() => {
-    if (!__DEV__) return;
-    // eslint-disable-next-line no-console
-    console.log("✅ App loaded");
-    // eslint-disable-next-line no-console
-    console.log("ACTIONS length =", ACTIONS.length);
-  }, [ACTIONS.length]);
+  const fitScore = useMemo(() => {
+    const scored = narrowed.map((a) => calcFitScore(a, cond));
+    return scored.length ? Math.max(...scored) : 0;
+  }, [narrowed, cond]);
 
-  // Select側タブ
-  const [tab, setTab] = useState("main"); // main | history | favs
+  const results = useMemo(() => {
+    if (path !== "/result") return [];
+    const scored = narrowed
+      .map((a) => ({ ...a, fit: calcFitScore(a, cond) }))
+      .sort((a, b) => b.fit - a.fit);
 
-  // ✅ cardBodyのスクロールを制御するためのref（Select/Resultで共用）
-  const cardBodyRef = useRef(null);
+    const top = scored.slice(0, Math.min(15, scored.length));
+    return pickRandom(top, 3);
+  }, [path, narrowed, cond]);
 
-  // ✅ タブごとのスクロール位置
-  const [tabScroll, setTabScroll] = useState({ main: 0, history: 0, favs: 0 });
+  const favKey = useMemo(() => makeCondKey(mode, cond), [mode, cond]);
+  const isFav = useMemo(() => favs.some((f) => f.key === favKey), [favs, favKey]);
 
-  const saveCurrentScroll = (tabName) => {
-    const el = cardBodyRef.current;
-    const top = el ? el.scrollTop : 0;
-    setTabScroll((prev) => ({ ...prev, [tabName]: top }));
-  };
+  function pushHistory(currentCond) {
+    const now = Date.now();
+    const item = { ...currentCond, mode, at: now, id: `${now}-${Math.random().toString(16).slice(2)}` };
 
-  const restoreScroll = (tabName, top) => {
-    const el = cardBodyRef.current;
-    if (!el) return;
-    el.scrollTop = typeof top === "number" ? top : 0;
-  };
+    // 同じ条件が直前にあるなら「追加」じゃなく「更新」
+    const head = history[0];
+    const headKey = head ? makeCondKey(head.mode || mode, head) : "";
+    const newKey = makeCondKey(mode, currentCond);
 
-  // ✅ 履歴から結果へ行った時、戻り先（タブ＋スクロール）を覚えておく
-  const [returnCtx, setReturnCtx] = useState(null);
-  // returnCtx例: { tab: "history", scrollTop: 420 }
-
-  // ✅ タブ切替：いまのスクロール保存 → 次のタブに切り替え → そのタブのスクロール復元
-  const setTabSmart = (nextTab) => {
-    saveCurrentScroll(tab);
-    setTab(nextTab);
-
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        restoreScroll(nextTab, tabScroll[nextTab] ?? 0);
-      });
-    });
-  };
-
-  // pills
-  const pills = useMemo(
-    () => ({
-      time: labelFor(options, "time", sel.time),
-      goal: labelFor(options, "goal", sel.goal),
-      place: labelFor(options, "place", sel.place),
-      money: labelFor(options, "money", sel.money),
-    }),
-    [options, sel]
-  );
-
-  const fitScore = useMemo(
-    () => maxPossiblePercentFast(index, actionsById, sel, mode),
-    [index, actionsById, sel, mode]
-  );
-
-  // 遷移
-  const go = (nextPath, nextMode, nextSel) => {
-    const nextHash = buildHashString(nextPath, nextMode, nextSel);
-    if (getHashString() === nextHash) return;
-    window.location.hash = nextHash;
-    setHashStr((prev) => (prev === nextHash ? prev : nextHash));
-  };
-
-  // モード切替
-  const changeMode = (nextMode) => {
-    const nextOptions = OPTIONS_BY_MODE[nextMode] ?? OPTIONS_BY_MODE.student;
-    const nextDefaults = DEFAULTS_BY_MODE[nextMode] ?? DEFAULTS_BY_MODE.student;
-
-    const nextSel = {
-      ...sel,
-      place: validOption(nextOptions, "place", sel.place) ? sel.place : nextDefaults.place,
-    };
-
-    setMode(nextMode);
-    setSel(nextSel);
-    go(path || "/", nextMode, nextSel);
-
-    if ((path || "/") === "/result") {
-      const nextIndex = buildIndex(ACTIONS, nextMode);
-      setGeneratedActions(pick3ActionsIndexed(actionsById, nextIndex, nextSel, nextMode));
-    }
-  };
-
-  // チップ更新
-  const setKey = (key, value) => {
-    const next = { ...sel, [key]: value };
-    setSel(next);
-    go(path || "/", mode, next);
-  };
-
-  const onReset = () => {
-    const next = { ...DEFAULTS_BY_MODE[mode] };
-    setSel(next);
-    go("/", mode, next);
-
-    setReturnCtx(null);
-    setTab("main");
-    requestAnimationFrame(() => restoreScroll("main", 0));
-  };
-
-  // 生成（履歴保存）
-  const onGenerate = () => {
-    const picked = pick3ActionsIndexed(actionsById, index, sel, mode);
-    setGeneratedActions(picked);
-
-    setHistory((prev) => {
-      const entry = makeHistoryEntry(mode, sel, picked);
-      const next = [entry, ...prev].slice(0, HISTORY_MAX);
-      saveHistory(next);
-      return next;
-    });
-
-    setReturnCtx(null);
-    go("/result", mode, sel);
-  };
-
-  // ✅ 戻る: returnCtxがあれば、そのタブへ戻す（履歴の「下」まで復元）
-  const onBack = () => {
-    go("/", mode, sel);
-
-    if (returnCtx?.tab) {
-      const t = returnCtx.tab;
-      const scrollTop = returnCtx.scrollTop ?? 0;
-      setReturnCtx(null);
-      setTab(t);
-
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          restoreScroll(t, scrollTop);
-        });
-      });
+    let next;
+    if (head && headKey === newKey) {
+      next = [{ ...head, at: now }, ...history.slice(1)];
     } else {
-      setTab("main");
-      requestAnimationFrame(() => restoreScroll("main", tabScroll.main ?? 0));
+      next = [item, ...history].slice(0, 50);
     }
-  };
 
-  const onReroll = () => {
-    const picked = pick3ActionsIndexed(actionsById, index, sel, mode);
-    setGeneratedActions(picked);
+    setHistory(next);
+    writeLS(LS.history, next);
+  }
 
-    setHistory((prev) => {
-      const entry = makeHistoryEntry(mode, sel, picked);
-      const next = [entry, ...prev].slice(0, HISTORY_MAX);
-      saveHistory(next);
-      return next;
+  function handleGenerate() {
+    const q = { mode, time: cond.time, goal: cond.goal, place: cond.place, money: cond.money };
+    pushHistory(q);
+    navigateHash("/result", q);
+  }
+
+  function handleReset() {
+    setCond({ time: DEFAULTS.time, goal: DEFAULTS.goal, place: DEFAULTS.place, money: DEFAULTS.money });
+    setMode(DEFAULTS.mode);
+    setTab("conditions");
+  }
+
+  function handleGateDone() {
+    localStorage.setItem(LS.gateKey, todayKey());
+    setGateOpen(false);
+  }
+
+  function handleClearHistory() {
+    setHistory([]);
+    writeLS(LS.history, []);
+  }
+
+  function handlePickHistory(h) {
+    setMode(h.mode || DEFAULTS.mode);
+    setCond({
+      time: String(h.time || DEFAULTS.time),
+      goal: String(h.goal || DEFAULTS.goal),
+      place: String(h.place || DEFAULTS.place),
+      money: String(h.money || DEFAULTS.money),
     });
-  };
+    setTab("conditions");
+  }
 
-  const isResult = (path || "/") === "/result";
+  function handleAddFav() {
+    const key = favKey;
+    if (favs.some((f) => f.key === key)) return;
 
-  const onOpenHistory = (h) => {
-    // ✅ いま「履歴タブ」を見てるスクロール位置を覚える
-    const currentTop = cardBodyRef.current ? cardBodyRef.current.scrollTop : 0;
-    setReturnCtx({ tab: "history", scrollTop: currentTop });
+    const item = { key, mode, ...cond, at: Date.now() };
+    const next = [item, ...favs].slice(0, 80);
+    setFavs(next);
+    writeLS(LS.favs, next);
+  }
 
-    const nextMode = h.mode === "general" ? "general" : "student";
-    const nextSel =
-      h.sel && typeof h.sel === "object" ? h.sel : DEFAULTS_BY_MODE[nextMode];
+  function handleRemoveFav(index) {
+    const next = favs.filter((_, i) => i !== index);
+    setFavs(next);
+    writeLS(LS.favs, next);
+  }
 
-    setMode(nextMode);
-    setSel(nextSel);
+  function handleUseFav(f) {
+    setMode(f.mode || DEFAULTS.mode);
+    setCond({
+      time: String(f.time || DEFAULTS.time),
+      goal: String(f.goal || DEFAULTS.goal),
+      place: String(f.place || DEFAULTS.place),
+      money: String(f.money || DEFAULTS.money),
+    });
+    setTab("conditions");
+  }
 
-    const restored = (h.actionIds || [])
-      .map((id) => actionsById.get(id))
-      .filter(Boolean)
-      .slice(0, 3)
-      .map((a) => ({ ...a, _mode: "history", _score: scoreAction(a, nextSel, nextMode) }));
+  function handleBack() {
+    navigateHash("/", { mode, time: cond.time, goal: cond.goal, place: cond.place, money: cond.money });
+  }
 
-    const nextIndex = buildIndex(ACTIONS, nextMode);
-    const fill =
-      restored.length === 3
-        ? restored
-        : [
-            ...restored,
-            ...pick3ActionsIndexed(actionsById, nextIndex, nextSel, nextMode).filter(
-              (a) => !restored.some((r) => r.id === a.id)
-            ),
-          ].slice(0, 3);
-
-    setGeneratedActions(fill);
-    go("/result", nextMode, nextSel);
-  };
-
-  const favActionsMemo = favActions;
-  const backLabel = returnCtx?.tab === "history" ? "履歴に戻る" : "条件に戻る";
+  function handleRegenerate() {
+    handleGenerate();
+  }
 
   return (
-    <>
-      <Header />
+    <div className="appShell">
+      <GateOverlay isOpen={gateOpen} onDone={handleGateDone} />
 
-      <div className="appShell">
-        <div>
-          {gateOpen ? (
-            <Gate
-              action={FIXED_GATE_ACTION}
-              checked={gateChecked}
-              onToggle={() => setGateChecked((v) => !v)}
-              onProceed={proceedGate}
-            />
-          ) : null}
+      <main className="mainCol">
+        {path === "/result" ? (
+          <ResultPage
+            mode={mode}
+            setMode={setMode}
+            cond={cond}
+            results={results}
+            onBack={handleBack}
+            onRegenerate={handleRegenerate}
+            onAddFav={handleAddFav}
+            isFav={isFav}
+          />
+        ) : (
+          <SelectPage
+            mode={mode}
+            setMode={setMode}
+            cond={cond}
+            setCond={setCond}
+            tab={tab}
+            setTab={setTab}
+            fitScore={fitScore}
+            history={history}
+            favs={favs}
+            onGenerate={handleGenerate}
+            onReset={handleReset}
+            onPickHistory={handlePickHistory}
+            onClearHistory={handleClearHistory}
+            onUseFav={handleUseFav}
+            onRemoveFav={handleRemoveFav}
+          />
+        )}
+      </main>
 
-          {isResult ? (
-            <ResultPage
-              mode={mode}
-              setMode={changeMode}
-              options={options}
-              sel={sel}
-              actions={generatedActions}
-              onBack={onBack}
-              onReroll={onReroll}
-              isFav={isFav}
-              toggleFav={toggleFav}
-              bodyRef={cardBodyRef}
-              backLabel={backLabel}
-            />
-          ) : (
-            <SelectPage
-              mode={mode}
-              setMode={changeMode}
-              options={options}
-              sel={sel}
-              setKey={setKey}
-              onReset={onReset}
-              onGenerate={onGenerate}
-              pills={pills}
-              fitScore={fitScore}
-              tab={tab}
-              setTab={setTabSmart}
-              history={history}
-              favActions={favActionsMemo}
-              onOpenHistory={onOpenHistory}
-              onUnfavFromList={onUnfavFromList}
-              bodyRef={cardBodyRef}
-            />
-          )}
-        </div>
-
-        <SideGame />
-      </div>
-    </>
+      {/* 右側（or 画面狭いと下） */}
+      <aside className="sideGame">
+        <GamePanel />
+      </aside>
+    </div>
   );
 }

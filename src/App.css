@@ -1,819 +1,463 @@
+/* src/App.css */
+
 /* =========================
-   Decision Router - Pro-ish Layout Pack
-   + Header (sticky) 統合版
-   + 右余白ミニゲーム領域
-   App.css 全置換
-   ========================= */
-
-/* ✅ ここだけが :root（重複禁止） */
+   Base
+========================= */
 :root{
-  --bg0: #0b1020;
-  --bg1: rgba(255,255,255,0.06);
-  --bg2: rgba(255,255,255,0.09);
-  --line1: rgba(255,255,255,0.12);
-  --line2: rgba(255,255,255,0.20);
-  --text: rgba(255,255,255,0.92);
-  --muted: rgba(255,255,255,0.70);
-  --shadow: 0 16px 60px rgba(0,0,0,0.42);
-  --shadow2: 0 10px 26px rgba(0,0,0,0.28);
-  --r-xl: 22px;
-  --r-lg: 16px;
-  --r-md: 12px;
-  --pad: 18px;
-
-  /* ✅ Header */
-  --header-h: 64px;
+  --bg1:#0c1020;
+  --bg2:#151a33;
+  --card:rgba(255,255,255,0.06);
+  --border:rgba(255,255,255,0.10);
+  --text:#f4f6ff;
+  --muted:#a7accf;
+  --accent:#6c8cff;
+  --accent2:#a66cff;
+  --shadow1:0 10px 30px rgba(0,0,0,0.35);
+  --shadow2:0 20px 50px rgba(0,0,0,0.45);
+  --header-h:70px;
 }
 
-*{ box-sizing: border-box; }
-
-html, body{
-  height: 100%;
+*{
+  box-sizing:border-box;
 }
 
 body{
-  margin: 0;
-  color: var(--text);
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans JP", "Apple Color Emoji","Segoe UI Emoji";
-  line-height: 1.55;
-
-  /* ✅ iPhoneのノッチ/ステータスバー領域対策 */
-  padding-top: env(safe-area-inset-top);
-  padding-bottom: env(safe-area-inset-bottom);
-
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:var(--text);
   background:
-    radial-gradient(1000px 700px at 20% 0%, rgba(120,110,255,0.18), transparent 55%),
-    radial-gradient(900px 680px at 90% 15%, rgba(0,220,255,0.12), transparent 52%),
-    radial-gradient(700px 520px at 40% 95%, rgba(255,80,160,0.10), transparent 55%),
-    linear-gradient(180deg, #070a14 0%, #0b1020 55%, #070a14 100%);
+    radial-gradient(circle at 20% 20%, #1a2148 0%, transparent 40%),
+    radial-gradient(circle at 80% 70%, #2a1b4d 0%, transparent 45%),
+    linear-gradient(180deg,var(--bg1),var(--bg2));
 }
 
 /* =========================
-   ✅ Header（sticky）
-   使うclass: appHeader / appHeaderInner / appHeaderLeft / appHeaderCenter / appHeaderRight
-   ========================= */
-
-.appHeader{
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  height: var(--header-h);
-  display: flex;
-  align-items: center;
-
-  background: rgba(8, 16, 32, 0.62);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-}
-
-.appHeaderInner{
-  width: 100%;
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 0 14px;
-
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  column-gap: 10px;
-}
-
-.appHeaderLeft{
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-}
-
-.appHeaderCenter{
-  text-align: center;
-  line-height: 1.1;
-}
-
-.appHeaderTitle{
-  font-size: 15px;
-  font-weight: 900;
-  letter-spacing: 0.2px;
-}
-
-.appHeaderSub{
-  margin-top: 4px;
-  font-size: 11px;
-  opacity: 0.75;
-}
-
-.appHeaderRight{
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-}
-
-.headerLink{
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 30px;
-  padding: 0 12px;
-  border-radius: 10px;
-  text-decoration: none;
-  color: rgba(255,255,255,0.92);
-  background: rgba(78, 201, 255, 0.18);
-  border: 1px solid rgba(78, 201, 255, 0.28);
-  font-size: 12px;
-  font-weight: 900;
-  letter-spacing: 0.02em;
-}
-.headerLink:hover{
-  filter: brightness(1.08);
-}
-
-@media (max-width: 520px){
-  .appHeaderInner{
-    grid-template-columns: auto 1fr auto;
-  }
-  .appHeaderSub{
-    display: none;
-  }
-}
-
-/* =========================
-   ✅ App Shell（右余白ミニゲーム含む）
-   ========================= */
+   Layout
+========================= */
 
 .appShell{
-  width: 100%;
-  display: grid;
-  justify-content: center;
+  width:100%;
+  display:grid;
+  grid-template-columns:1fr; /* ← 通常は縦 */
+  gap:16px;
+  padding:16px;
+  justify-items:center;
 }
 
-/* 画面が広い時だけ、右にゲームレーンを作る */
-@media (min-width: 1100px){
+.mainCol{
+  width:min(1100px,100%);
+}
+
+/* 画面が広い時だけ右にゲーム */
+@media (min-width:980px){
   .appShell{
-    grid-template-columns: minmax(900px, 1100px) 260px;
-    gap: 16px;
-    align-items: start;
-    padding: 0 16px 16px;
+    grid-template-columns:minmax(320px,1100px) 280px;
+    justify-content:center;
+    align-items:start;
   }
 }
 
 /* =========================
-   Layout containers
-   ========================= */
+   Game Side Panel
+========================= */
 
-.wrap{
-  max-width: 1100px;
-  margin: 0 auto;
+.sideGame{
+  width:min(1100px,100%);
+  border-radius:18px;
+  border:1px solid var(--border);
+  background:var(--card);
+  backdrop-filter:blur(12px);
+  box-shadow:var(--shadow2);
+  overflow:hidden;
 
-  /* ✅ FIX: ヘッダー分を確実に確保（上見切れ防止の要） */
-  padding: calc(14px + var(--header-h)) 16px calc(28px + env(safe-area-inset-bottom));
+  display:block; /* ← ここ重要。絶対消さない */
+  position:static;
+  height:320px;
 }
 
-.card{
-  border-radius: var(--r-xl);
-  border: 1px solid var(--line1);
-  background: rgba(255,255,255,0.06);
-  box-shadow: var(--shadow);
-  overflow: hidden;
-  backdrop-filter: blur(10px);
+@media (min-width:980px){
+  .sideGame{
+    width:280px;
+    position:sticky;
+    top:16px;
+    height:calc(100vh - 32px);
+  }
+}
+
+.gamePanel{
+  padding:16px;
+}
+
+.gameTitle{
+  font-weight:700;
+  margin-bottom:12px;
+}
+
+.gameCard{
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:12px;
+  margin-top:10px;
+  background:rgba(255,255,255,0.04);
+}
+
+.gameScore{
+  font-size:28px;
+  font-weight:700;
+  margin:6px 0;
+}
+
+/* =========================
+   Page
+========================= */
+
+.page{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
 }
 
 .header{
-  padding: 18px 18px 10px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
 }
 
 .hgroup .title{
-  margin: 10px 0 6px;
-  font-size: 22px;
-  letter-spacing: 0.01em;
+  margin:0;
+  font-size:26px;
 }
 
 .subtitle{
-  margin: 0;
-  color: var(--muted);
-  font-size: 13px;
-}
-
-.divider{
-  height: 1px;
-  background: var(--line1);
-  width: 100%;
-}
-
-.grid{
-  display: grid;
-  gap: 16px;
-  padding: 16px;
-  grid-template-columns: 1.2fr 0.8fr;
-  align-items: start;
-}
-
-@media (max-width: 920px){
-  .grid{ grid-template-columns: 1fr; }
-}
-
-/* =========================
-   ✅ card body
-   ========================= */
-
-.cardBody{
-  padding: 16px;
-}
-
-/* =========================
-   Panels
-   ========================= */
-
-.panel{
-  border-radius: var(--r-lg);
-  border: 1px solid var(--line1);
-  background: rgba(255,255,255,0.05);
-  box-shadow: var(--shadow2);
-  padding: 16px;
-}
-
-.panelTitle{
-  margin: 0 0 10px;
-  font-size: 15px;
-  letter-spacing: 0.01em;
-}
-
-.kicker{
-  margin: 12px 0 8px;
-  font-size: 12px;
-  color: rgba(255,255,255,0.80);
-  letter-spacing: 0.02em;
-}
-
-.resultsPanel{
-  min-height: 260px;
+  margin:4px 0 0;
+  color:var(--muted);
+  font-size:14px;
 }
 
 /* =========================
    Pills
-   ========================= */
+========================= */
 
 .pills{
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 12px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
 }
 
 .pill{
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 10px;
-  border-radius: 999px;
-  border: 1px solid rgba(255,255,255,0.14);
-  background: rgba(0,0,0,0.18);
-  font-size: 12px;
-  color: rgba(255,255,255,0.88);
+  border:1px solid var(--border);
+  padding:6px 10px;
+  border-radius:999px;
+  background:rgba(255,255,255,0.04);
+  font-size:13px;
 }
 
 /* =========================
-   Mode tabs + sub tabs
-   ========================= */
-
-.modeTabs{
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.modeTab{
-  padding: 9px 12px;
-  border-radius: 999px;
-  border: 1px solid rgba(255,255,255,0.16);
-  background: rgba(255,255,255,0.06);
-  color: inherit;
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.02em;
-  transition: transform 0.06s ease, background 0.15s ease, border-color 0.15s ease;
-}
-
-.modeTab:hover{
-  background: rgba(255,255,255,0.10);
-  border-color: rgba(255,255,255,0.28);
-}
-
-.modeTab:active{ transform: translateY(1px); }
-
-.modeTab.active{
-  background: rgba(255,255,255,0.14);
-  border-color: rgba(255,255,255,0.36);
-}
+   SubTabs
+========================= */
 
 .subTabs{
-  display: flex;
-  gap: 10px;
-  margin-top: 12px;
-  flex-wrap: wrap;
+  display:flex;
+  gap:8px;
 }
 
 .subTab{
-  padding: 10px 14px;
-  border-radius: 999px;
-  border: 1px solid rgba(255,255,255,0.18);
-  background: rgba(255,255,255,0.06);
-  color: inherit;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 800;
-  letter-spacing: 0.02em;
-  transition: transform 0.05s ease, background 0.15s ease, border-color 0.15s ease;
+  border:1px solid var(--border);
+  background:transparent;
+  color:var(--text);
+  padding:6px 12px;
+  border-radius:999px;
+  cursor:pointer;
 }
-
-.subTab:hover{
-  background: rgba(255,255,255,0.10);
-  border-color: rgba(255,255,255,0.28);
-}
-
-.subTab:active{ transform: translateY(1px); }
 
 .subTab.active{
-  background: rgba(255,255,255,0.14);
-  border-color: rgba(255,255,255,0.36);
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border:none;
 }
 
 /* =========================
-   Choice chips
-   ========================= */
+   Mode Tabs
+========================= */
 
-.chipRow{
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+.modeWrap{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.modeLabel{
+  font-size:12px;
+  color:var(--muted);
+}
+
+.modeTabs{
+  display:flex;
+  gap:8px;
+}
+
+.modeTab{
+  border:1px solid var(--border);
+  background:transparent;
+  color:var(--text);
+  padding:6px 14px;
+  border-radius:999px;
+  cursor:pointer;
+}
+
+.modeTab.active{
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border:none;
+}
+
+/* =========================
+   Cards
+========================= */
+
+.contentGrid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:14px;
+}
+
+@media (min-width:720px){
+  .contentGrid{
+    grid-template-columns:1fr 1fr;
+  }
+}
+
+.card{
+  border-radius:18px;
+  border:1px solid var(--border);
+  background:var(--card);
+  backdrop-filter:blur(12px);
+  box-shadow:var(--shadow2);
+  padding:16px;
+}
+
+.cardTitle{
+  font-weight:700;
+  margin-bottom:10px;
+}
+
+/* =========================
+   Condition
+========================= */
+
+.condGroup{
+  margin-bottom:12px;
+}
+
+.condTitle{
+  font-size:14px;
+  margin-bottom:6px;
+  color:var(--muted);
+}
+
+.condRow{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
 }
 
 .chip{
-  padding: 10px 12px;
-  border-radius: 999px;
-  border: 1px solid rgba(255,255,255,0.16);
-  background: rgba(255,255,255,0.06);
-  color: inherit;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 800;
-  transition: transform 0.06s ease, background 0.15s ease, border-color 0.15s ease;
-  user-select: none;
+  border:1px solid var(--border);
+  background:transparent;
+  color:var(--text);
+  padding:6px 12px;
+  border-radius:999px;
+  cursor:pointer;
 }
 
-.chip:hover{
-  background: rgba(255,255,255,0.10);
-  border-color: rgba(255,255,255,0.30);
-}
-
-.chip:active{ transform: translateY(1px); }
-
-.chip[data-selected="true"]{
-  background: rgba(255,255,255,0.18);
-  border-color: rgba(255,255,255,0.40);
+.chip.active{
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border:none;
 }
 
 /* =========================
    Buttons
-   ========================= */
+========================= */
 
-.actions{
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  justify-content: flex-end;
-  flex-wrap: wrap;
+.actionsRow{
+  display:flex;
+  gap:8px;
+  margin-top:12px;
 }
 
-.btn{
-  padding: 11px 14px;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.18);
-  background: rgba(255,255,255,0.07);
-  color: inherit;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 900;
-  letter-spacing: 0.02em;
-  transition: transform 0.06s ease, background 0.15s ease, border-color 0.15s ease;
+.btnPrimary{
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border:none;
+  color:white;
+  padding:10px 14px;
+  border-radius:12px;
+  cursor:pointer;
+  font-weight:600;
 }
 
-.btn:hover{
-  background: rgba(255,255,255,0.11);
-  border-color: rgba(255,255,255,0.30);
+.btnGhost{
+  border:1px solid var(--border);
+  background:transparent;
+  color:var(--text);
+  padding:10px 14px;
+  border-radius:12px;
+  cursor:pointer;
 }
 
-.btn:active{ transform: translateY(1px); }
-
-.btn.primary{
-  background: rgba(255,255,255,0.18);
-  border-color: rgba(255,255,255,0.40);
-}
-
-.btn.primary:hover{
-  background: rgba(255,255,255,0.22);
-  border-color: rgba(255,255,255,0.52);
-}
-
-.btn:disabled{
-  opacity: 0.45;
-  cursor: not-allowed;
-  transform: none;
+.btnGhost.active{
+  background:rgba(255,255,255,0.08);
 }
 
 /* =========================
-   Result cards
-   ========================= */
+   Lists
+========================= */
 
-.resultCard{
-  padding: 14px;
-  border-radius: var(--r-lg);
-  border: 1px solid rgba(255,255,255,0.12);
-  background: rgba(0,0,0,0.14);
+.listWrap{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
 }
 
-.routeTitle{
-  margin: 0 0 10px;
-  font-size: 13px;
-  font-weight: 900;
+.listHead{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
 }
 
-.routeSteps{
-  margin: 10px 0 0;
-  padding-left: 18px;
-  color: rgba(255,255,255,0.88);
-  font-size: 13px;
+.listItem{
+  width:100%;
+  text-align:left;
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:rgba(255,255,255,0.04);
+  padding:10px;
+  cursor:pointer;
 }
 
-.smallNote{
-  margin-top: 10px;
-  font-size: 12px;
-  color: rgba(255,255,255,0.70);
+.favItem{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
 }
 
-.resultTopRow{
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-/* =========================
-   Favorite star button
-   ========================= */
-
-.starBtn{
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-
-  min-width: 132px;
-  height: 38px;
-  padding: 0 12px;
-
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.22);
-  background: rgba(255,255,255,0.07);
-
-  color: inherit;
-  cursor: pointer;
-
-  font-size: 13px;
-  font-weight: 900;
-  letter-spacing: 0.02em;
-
-  transition: transform 0.06s ease, background 0.15s ease, border-color 0.15s ease;
-  user-select: none;
-}
-
-.starBtn:hover{
-  background: rgba(255,255,255,0.11);
-  border-color: rgba(255,255,255,0.34);
-}
-
-.starBtn:active{ transform: translateY(1px); }
-
-.starBtn.on{
-  background: rgba(255,255,255,0.16);
-  border-color: rgba(255,255,255,0.42);
-}
-
-.starBtn::before{
-  content: "☆";
-  font-size: 18px;
-  line-height: 1;
-  transform: translateY(-0.5px);
-  opacity: 0.95;
-}
-
-.starBtn.on::before{ content: "★"; }
-
-.starBtn::after{
-  content: "お気に入り";
-  font-size: 12px;
-  opacity: 0.95;
-}
-
-.starBtn.on::after{
-  content: "お気に入り中";
-  opacity: 0.90;
-}
-
-.favList .starBtn::after{
-  content: "解除";
-  opacity: 0.95;
-}
-
-.starBtn:disabled{
-  opacity: 0.45;
-  cursor: not-allowed;
-  transform: none;
+.favUse{
+  flex:1;
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:rgba(255,255,255,0.04);
+  padding:10px;
+  text-align:left;
+  cursor:pointer;
 }
 
 /* =========================
-   History list
-   ========================= */
+   Result
+========================= */
 
-.historyList{
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+.resultList{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  margin-top:12px;
 }
 
-.historyCard{
-  padding: 12px;
-  border-radius: 14px;
-  border: 1px solid rgba(255,255,255,0.12);
-  background: rgba(0,0,0,0.12);
+.resultItem{
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:12px;
+  background:rgba(255,255,255,0.04);
 }
 
-.historyTop{
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 6px;
+.resultTitle{
+  font-weight:700;
 }
 
 /* =========================
-   Gate
-   ========================= */
+   Gate Overlay
+========================= */
 
 .gateOverlay{
-  position: fixed;
-  inset: 0;
-  padding: 16px;
-  z-index: 9999;
-  display: grid;
-  place-items: center;
-
-  background:
-    radial-gradient(900px 600px at 30% 10%, rgba(120,110,255,0.25), transparent 60%),
-    radial-gradient(820px 560px at 90% 20%, rgba(0,220,255,0.16), transparent 60%),
-    rgba(0,0,0,0.55);
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.6);
+  backdrop-filter:blur(6px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:1000;
 }
 
 .gateCard{
-  width: min(720px, 100%);
-  border-radius: 20px;
-  box-shadow: 0 24px 80px rgba(0,0,0,0.55);
-  overflow: hidden;
-
-  background: #ffffff;
-  color: #14161a;
-  border: 1px solid rgba(0,0,0,0.10);
+  width:280px;
+  border-radius:18px;
+  border:1px solid var(--border);
+  background:var(--card);
+  padding:16px;
+  text-align:center;
 }
 
-.gateHeader{
-  padding: 18px 18px 12px;
-  background:
-    radial-gradient(700px 240px at 20% 0%, rgba(120,110,255,0.18), transparent 60%),
-    radial-gradient(700px 240px at 90% 0%, rgba(0,220,255,0.14), transparent 60%),
-    #ffffff;
-}
-
-.gateCard .subtitle{
-  color: rgba(0,0,0,0.60);
-}
-
-.gateBody{
-  padding: 16px 18px 18px;
-}
-
-.gateNote{
-  margin: 10px 0 0;
-  color: rgba(0,0,0,0.65);
-  font-size: 13px;
+.gateTitle{
+  font-weight:700;
+  margin-bottom:8px;
 }
 
 .gateHint{
-  border: 1px solid rgba(0,0,0,0.10);
-  background: rgba(0,0,0,0.04);
-  border-radius: 14px;
-  padding: 12px;
-  font-size: 13px;
-  line-height: 1.6;
-  color: rgba(0,0,0,0.78);
-}
-
-.gateCheckRow{
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  font-weight: 800;
-  color: rgba(0,0,0,0.78);
-}
-
-.gateCard .btn{
-  border-color: rgba(0,0,0,0.14);
-  background: rgba(0,0,0,0.05);
-  color: #14161a;
-}
-
-.gateCard .btn:hover{
-  background: rgba(0,0,0,0.08);
-  border-color: rgba(0,0,0,0.22);
-}
-
-.gateCard .btn.primary{
-  background: rgba(0,0,0,0.12);
-  border-color: rgba(0,0,0,0.22);
-}
-
-.gateCard .btn.primary:hover{
-  background: rgba(0,0,0,0.16);
-  border-color: rgba(0,0,0,0.28);
-}
-
-.gateFootnote{
-  text-align: center;
-  font-size: 12px;
-  color: rgba(0,0,0,0.55);
-  margin: 12px 0 0;
+  margin-top:10px;
+  font-size:12px;
+  color:var(--muted);
 }
 
 /* =========================
-   helpers
-   ========================= */
+   Text helpers
+========================= */
 
-.muted{ color: var(--muted); }
-.spacer{ height: 12px; }
-
-/* =========================
-   ✅ Right Mini Game Lane
-   ========================= */
-
-.sideGame{
-  position: sticky;
-  top: calc(var(--header-h) + 14px);
-  height: calc(100vh - var(--header-h) - 28px);
-  border-radius: 18px;
-  border: 1px solid rgba(255,255,255,0.10);
-  background: rgba(255,255,255,0.06);
-  box-shadow: var(--shadow2);
-  overflow: hidden;
-  display: none;
-  backdrop-filter: blur(10px);
+.muted{
+  color:var(--muted);
 }
 
-@media (min-width: 1100px){
-  .sideGame{ display: block; }
+.small{
+  font-size:12px;
 }
 
+.mono{
+  font-family:monospace;
+  margin-top:4px;
+}
+.gateText{ margin:10px 0; color:var(--muted); font-size:14px; }
+.gateButtons{ margin-top:10px; display:flex; justify-content:center; gap:10px; }
+
+.list{ display:flex; flex-direction:column; gap:8px; }
+.listMain{ display:flex; flex-direction:column; gap:2px; }
+.listSub{ color:var(--muted); font-size:12px; margin-top:2px; }
+
+.gameBody{ display:flex; flex-direction:column; gap:10px; }
+.gameCardTitle{ font-weight:700; }
+.gameBtns{ display:flex; gap:8px; margin-top:8px; }
+
+.resultMeta{ margin-top:6px; }
 .sideGameHead{
-  padding: 12px 12px 10px;
-  border-bottom: 1px solid rgba(255,255,255,0.10);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:12px 14px;
+  border-bottom:1px solid var(--border);
 }
 
-.sideGameTitle{
-  font-size: 12px;
-  font-weight: 900;
-  opacity: 0.95;
+.sideGameTitle{ font-weight:700; }
+.sideGameHint{ color:var(--muted); font-size:12px; }
+
+.sideGameCanvasWrap{ padding:10px; height:calc(100% - 54px); }
+.sideGameCanvas{ width:100%; height:100%; display:block; border-radius:12px; }
+
+.btn{
+  border:1px solid var(--border);
+  background:transparent;
+  color:var(--text);
+  padding:8px 10px;
+  border-radius:12px;
+  cursor:pointer;
 }
 
-.sideGameHint{
-  font-size: 11px;
-  opacity: 0.75;
-}
-
-.sideGameCanvasWrap{
-  height: calc(100% - 46px);
-  padding: 10px;
-}
-
-.sideGameCanvas{
-  width: 100%;
-  height: 100%;
-  border-radius: 14px;
-  border: 1px solid rgba(255,255,255,0.10);
-  background: rgba(0,0,0,0.18);
-  display: block;
-}
-
-/* =========================
-   ✅ Desktop: 縦長圧縮 & 内側スクロール
-   ========================= */
-
-@media (min-width: 920px){
-  .wrap{
-    min-height: 100vh;
-    padding: calc(14px + var(--header-h)) 16px 14px;
-    display: grid;
-    align-items: start;
-  }
-
-  .card{
-    /* ✅ FIX: ヘッダー分も引く */
-    max-height: calc(100vh - var(--header-h) - 28px);
-    display: flex;
-    flex-direction: column;
-  }
-
-  .cardBody{
-    flex: 1 1 auto;
-    min-height: 0;
-    overflow: auto;
-    padding: 16px;
-  }
-
-  /* 結果は横3枚 */
-  .resultGrid{
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 12px;
-    align-items: start;
-  }
-
-  /* ✅ 履歴/お気に入りを2列にして縦長を圧縮 */
-  .historyList{
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
-  }
-
-  .favList{
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
-  }
-}
-
-/* =========================
-   ✅ Mobile: 見切れ対策（余白調整）
-   ========================= */
-
-@media (max-width: 919px){
-  .wrap{
-    padding: calc(12px + var(--header-h)) 14px calc(20px + env(safe-area-inset-bottom));
-  }
-
-  .header{
-    padding: 16px 16px 10px;
-  }
-
-  .cardBody{
-    padding: 14px;
-  }
-
-  .resultGrid{
-    display: block;
-  }
-
-  .resultGrid .resultCard{
-    margin-bottom: 12px;
-  }
-
-  .resultGrid .resultCard:last-child{
-    margin-bottom: 0;
-  }
-}
-
-@media (max-width: 420px){
-  .starBtn{ min-width: 118px; }
-}
-
-/* =========================
-   ✅ iOS Safari 100vhズレ対策（最終上書き）
-   ========================= */
-
-@supports (height: 100svh){
-  @media (min-width: 920px){
-    .wrap{ min-height: 100svh; }
-    .card{ max-height: calc(100svh - var(--header-h) - 28px); }
-    .sideGame{ height: calc(100svh - var(--header-h) - 28px); }
-  }
-}
-
-@supports (height: 100dvh){
-  @media (min-width: 920px){
-    .wrap{ min-height: 100dvh; }
-    .card{ max-height: calc(100dvh - var(--header-h) - 28px); }
-    .sideGame{ height: calc(100dvh - var(--header-h) - 28px); }
-  }
+.sideGameFoot{
+  padding:8px 14px 12px;
+  color:var(--muted);
 }
