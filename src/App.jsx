@@ -1,7 +1,7 @@
 // src/App.js（このファイルを“まるごと”置き換えてコピペ）
 //
 // ✅ 仕様
-// - Gate：1日1回だけ表示（localStorage）
+// - Gate：URLを新しく開き直すたびに必ず表示（新規タブ/リロード/BFCache復帰）
 // - 条件選択ページ（#/）
 // - 結果ページ（#/result?...）
 // - URL共有可能（mode/time/goal/place/moneyのみ）
@@ -126,12 +126,6 @@ function validOption(options, key, value) {
 
 function labelFor(options, key, value) {
   return options[key].find((o) => o.value === value)?.label ?? value;
-}
-
-// ✅ Gate：日付キー
-function todayKey() {
-  const d = new Date();
-  return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
 }
 
 /** =========================
@@ -504,7 +498,7 @@ function Gate({ action, checked, onToggle, onProceed }) {
 
           <div className="divider" style={{ margin: "16px 0" }} />
 
-          {/* ✅ Gateで毎日1回だけ出す説明文（“手の内を明かしすぎない”控えめ版） */}
+          {/* ✅ Gate説明文（控えめ版） */}
           <div
             style={{
               background: "rgba(255,255,255,0.06)",
@@ -553,7 +547,7 @@ function Gate({ action, checked, onToggle, onProceed }) {
               marginBottom: 0,
             }}
           >
-            ※ 1日1回だけ表示
+            ※ URLを開き直すたびに表示
           </p>
         </div>
       </div>
@@ -848,16 +842,28 @@ export default function App() {
     pick3ActionsIndexed(actionsById, index, sel, mode)
   );
 
-  // ✅ Gate：1日1回
-  const [gateOpen, setGateOpen] = useState(() => {
-    try {
-      const last = localStorage.getItem("gate_shown_day");
-      return last !== todayKey();
-    } catch {
-      return true;
-    }
-  });
+  // ✅ Gate：初期は閉じておき、URLを開き直したタイミングで必ず開く
+  const [gateOpen, setGateOpen] = useState(false);
   const [gateChecked, setGateChecked] = useState(false);
+
+  // ✅ URLを新しく開き直すたびに Gate を必ず出す（新規タブ/リロード/BFCache復帰）
+  useEffect(() => {
+    const openGate = () => {
+      setGateOpen(true);
+      setGateChecked(false);
+    };
+
+    // 初回マウント（通常のロード）
+    openGate();
+
+    // BFCache（戻る/進む）で復帰したとき
+    const onPageShow = (e) => {
+      if (e.persisted) openGate();
+    };
+
+    window.addEventListener("pageshow", onPageShow);
+    return () => window.removeEventListener("pageshow", onPageShow);
+  }, []);
 
   const pills = useMemo(
     () => ({
@@ -928,11 +934,8 @@ export default function App() {
   const onReroll = () =>
     setGeneratedActions(pick3ActionsIndexed(actionsById, index, sel, mode));
 
-  // ✅ Gate完了
+  // ✅ Gate完了（その場だけ閉じる。保存しない＝開き直したら必ずまた出る）
   const proceedGate = () => {
-    try {
-      localStorage.setItem("gate_shown_day", todayKey());
-    } catch {}
     setGateOpen(false);
     setGateChecked(false);
   };
