@@ -1,13 +1,16 @@
 // src/App.js（このファイルを“まるごと”置き換えてコピペ）
 //
-// ✅ 仕様
-// - Gate：URLを新しく開き直すたびに必ず表示（新規タブ/リロード/BFCache復帰/タブ復帰）
-// - 条件選択ページ（#/）
-// - 結果ページ（#/result?...）
+// ✅ 追加：履歴 + お気に入り（localStorage）
+// - 履歴：直近10件（生成の3件セットを保存）
+// - お気に入り：行動単体を保存（⭐）
+// - Resultで⭐、Selectで「履歴/お気に入り」閲覧＋再表示
+//
+// ✅ 既存仕様は維持
+// - Gate：URLを新しく開き直すたびに必ず表示
+// - 条件選択（#/） / 結果（#/result?...）
 // - URL共有可能（mode/time/goal/place/moneyのみ）
-// - actions.json が汚れてても落ちにくい（型チェック/欠損耐性）
-// - steps/title の上限導入（フリーズ耐性）
-// - title と同じ steps は表示から除去（重複防止）
+// - actions.json が汚れてても落ちにくい
+// - DoS対策上限、重複steps除去
 // - console.log は開発時のみ
 
 import React, { useEffect, useMemo, useState } from "react";
@@ -15,18 +18,13 @@ import "./App.css";
 import RAW_ACTIONS from "./actions.json";
 
 /** =========================
- * 設定（漏洩・DoS対策）
+ * 設定
  * ========================= */
+const __DEV__ =
+  typeof import.meta !== "undefined" && import.meta.env ? import.meta.env.DEV : false;
 
-// Vite想定：開発判定（本番でログを出さない）
-const __DEV__ = typeof import.meta !== "undefined" && import.meta.env
-  ? import.meta.env.DEV
-  : false;
-
-// URLに載せるキーを固定（将来、個人情報っぽいものを追加してもURLに出ない）
 const URL_ALLOWED_KEYS = new Set(["mode", "time", "goal", "place", "money"]);
 
-// テキスト/配列の上限（DoS/フリーズ対策）
 const LIMITS = {
   titleMax: 80,
   stepMaxCount: 10,
@@ -35,9 +33,13 @@ const LIMITS = {
   actionsMax: 5000,
 };
 
-/** =========================
- * OPTIONS
- * ========================= */
+const LS_KEYS = {
+  favs: "dr:v1:favs",
+  history: "dr:v1:history",
+};
+const HISTORY_MAX = 10;
+const FAVS_MAX = 200;
+
 const OPTIONS_BY_MODE = {
   student: {
     time: [
@@ -133,8 +135,37 @@ function labelFor(options, key, value) {
   return list.find((o) => o.value === value)?.label ?? value;
 }
 
+function nowIso() {
+  try {
+    return new Date().toISOString();
+  } catch {
+    return "";
+  }
+}
+
 /** =========================
- * Hash router (単一ソース)
+ * localStorage（安全読み書き）
+ * ========================= */
+function lsReadJSON(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return fallback;
+    return JSON.parse(raw);
+  } catch {
+    return fallback;
+  }
+}
+
+function lsWriteJSON(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    // storage full / private mode etc.
+  }
+}
+
+/** =========================
+ * Hash router
  * ========================= */
 function getHashString() {
   return window.location.hash || "#/";
@@ -142,20 +173,17 @@ function getHashString() {
 
 function parseHashString(hashString) {
   const raw = hashString || "#/";
-  const withoutHash = raw.startsWith("#") ? raw.slice(1) : raw; // "/result?..."
+  const withoutHash = raw.startsWith("#") ? raw.slice(1) : raw;
   const [pathPart, queryPart = ""] = withoutHash.split("?");
   const path = pathPart || "/";
   const sp = new URLSearchParams(queryPart);
 
-  // 許可してないキーは落とす（将来、個人情報が混ざってもURLでは保持されない）
   for (const key of Array.from(sp.keys())) {
     if (!URL_ALLOWED_KEYS.has(key)) sp.delete(key);
   }
-
   return { path, sp };
 }
 
-// URL互換: campus -> school/outside
 function normalizePlaceFromUrl(place, mode) {
   if (place === "campus") return mode === "student" ? "school" : "outside";
   return place;
@@ -201,7 +229,7 @@ function buildHashString(path, mode, sel) {
 }
 
 /** =========================
- * Action normalization & matching（安全化 + 重複除去）
+ * Action normalization & matching
  * ========================= */
 function normalizePlaceForMatch(value, mode) {
   if (value === "campus") return mode === "student" ? "school" : "outside";
@@ -214,9 +242,6 @@ function inMode(action, mode) {
   return modes.includes(mode);
 }
 
-/**
- * ✅ 重複除去：steps内に title と同じ文があれば消す（表示用）
- */
 function dedupeStepsWithTitle(title, steps) {
   const t0 = normalizeForCompare(title);
   const arr = Array.isArray(steps) ? steps : [];
@@ -228,7 +253,6 @@ function normalizeAction(raw, fallbackId) {
   const id = safeStr(raw?.id ?? fallbackId, 60);
   const title = safeStr(raw?.title ?? "（無題）", LIMITS.titleMax);
 
-  // stepsは「無いなら空」：titleで自動補完しない（重複の原因を根っこから減らす）
   const rawSteps = Array.isArray(raw?.steps) ? raw.steps : [];
   const steps = rawSteps
     .map((s) => safeStr(s, LIMITS.stepMaxLen))
@@ -244,7 +268,6 @@ function normalizeAction(raw, fallbackId) {
   }
 
   const modes = safeArray(raw?.modes, 10).map((m) => safeStr(m, 20));
-
   return { ...raw, id, title, steps, note, tags: safeTags, modes };
 }
 
@@ -288,7 +311,6 @@ function pickNRandomUnique(arr, n) {
 
 /** =========================
  * インデックス（大量対応）
- * key:value -> Set(actionId)
  * ========================= */
 function buildIndex(actions, mode) {
   const idx = {
@@ -304,7 +326,6 @@ function buildIndex(actions, mode) {
   for (let i = 0; i < actions.length; i++) {
     const a = actions[i];
     if (!inMode(a, mode)) continue;
-
     idx.list.push(a);
 
     for (const k of KEYS) {
@@ -412,6 +433,49 @@ function maxPossiblePercentFast(index, actionsById, sel, mode) {
 }
 
 /** =========================
+ * お気に入り / 履歴
+ * ========================= */
+function loadFavs() {
+  const data = lsReadJSON(LS_KEYS.favs, []);
+  // [{id, createdAt}]
+  if (!Array.isArray(data)) return [];
+  return data
+    .filter((x) => x && typeof x.id === "string")
+    .slice(0, FAVS_MAX);
+}
+
+function saveFavs(favs) {
+  lsWriteJSON(LS_KEYS.favs, favs.slice(0, FAVS_MAX));
+}
+
+function loadHistory() {
+  const data = lsReadJSON(LS_KEYS.history, []);
+  // [{id, mode, sel, actionIds:[...], createdAt}]
+  if (!Array.isArray(data)) return [];
+  return data
+    .filter(
+      (x) =>
+        x &&
+        typeof x.id === "string" &&
+        typeof x.mode === "string" &&
+        x.sel &&
+        Array.isArray(x.actionIds)
+    )
+    .slice(0, HISTORY_MAX);
+}
+
+function saveHistory(history) {
+  lsWriteJSON(LS_KEYS.history, history.slice(0, HISTORY_MAX));
+}
+
+function makeHistoryEntry(mode, sel, actions) {
+  const actionIds = actions.map((a) => a.id).filter(Boolean);
+  const createdAt = nowIso();
+  const id = `h_${createdAt}_${Math.random().toString(36).slice(2, 8)}`;
+  return { id, mode, sel, actionIds, createdAt };
+}
+
+/** =========================
  * UI bits
  * ========================= */
 function Chip({ label, selected, onClick }) {
@@ -443,6 +507,34 @@ function ModeTabs({ mode, onChange }) {
         onClick={() => onChange("general")}
       >
         一般編
+      </button>
+    </div>
+  );
+}
+
+function SubTabs({ tab, setTab }) {
+  return (
+    <div className="subTabs">
+      <button
+        type="button"
+        className={`subTab ${tab === "main" ? "active" : ""}`}
+        onClick={() => setTab("main")}
+      >
+        条件
+      </button>
+      <button
+        type="button"
+        className={`subTab ${tab === "history" ? "active" : ""}`}
+        onClick={() => setTab("history")}
+      >
+        履歴
+      </button>
+      <button
+        type="button"
+        className={`subTab ${tab === "favs" ? "active" : ""}`}
+        onClick={() => setTab("favs")}
+      >
+        お気に入り
       </button>
     </div>
   );
@@ -517,7 +609,6 @@ function Gate({ action, checked, onToggle, onProceed }) {
               type="button"
               onClick={onProceed}
               disabled={!checked}
-              title={!checked ? "チェックしてから進める" : "進む"}
             >
               次へ →
             </button>
@@ -552,13 +643,17 @@ function SelectPage({
   onGenerate,
   pills,
   fitScore,
+  tab,
+  setTab,
+  history,
+  favActions,
+  onOpenHistory,
 }) {
   return (
     <div className="wrap">
       <div className="card">
         <div className="header">
           <ModeTabs mode={mode} onChange={setMode} />
-
           <div className="hgroup">
             <h1 className="title">Decision Router</h1>
             <p className="subtitle">条件選択 → 生成で「結果ページ」に移動。</p>
@@ -581,110 +676,157 @@ function SelectPage({
               適合 <b>{fitScore}</b>
             </div>
           </div>
+
+          <SubTabs tab={tab} setTab={setTab} />
         </div>
 
         <div className="divider" />
 
-        <div className="grid">
-          <div className="panel">
-            <h2 className="panelTitle">条件を選ぶ</h2>
+        {tab === "main" ? (
+          <div className="grid">
+            <div className="panel">
+              <h2 className="panelTitle">条件を選ぶ</h2>
 
-            <p className="kicker">⏱️ 所要時間</p>
-            <div className="chipRow">
-              {options.time.map((o) => (
-                <Chip
-                  key={o.value}
-                  label={o.label}
-                  selected={sel.time === o.value}
-                  onClick={() => setKey("time", o.value)}
-                />
-              ))}
+              <p className="kicker">⏱️ 所要時間</p>
+              <div className="chipRow">
+                {options.time.map((o) => (
+                  <Chip
+                    key={o.value}
+                    label={o.label}
+                    selected={sel.time === o.value}
+                    onClick={() => setKey("time", o.value)}
+                  />
+                ))}
+              </div>
+
+              <div className="divider" />
+
+              <p className="kicker">📍 場所</p>
+              <div className="chipRow">
+                {options.place.map((o) => (
+                  <Chip
+                    key={o.value}
+                    label={o.label}
+                    selected={sel.place === o.value}
+                    onClick={() => setKey("place", o.value)}
+                  />
+                ))}
+              </div>
+
+              <div className="divider" />
+
+              <p className="kicker">💸 お金</p>
+              <div className="chipRow">
+                {options.money.map((o) => (
+                  <Chip
+                    key={o.value}
+                    label={o.label}
+                    selected={sel.money === o.value}
+                    onClick={() => setKey("money", o.value)}
+                  />
+                ))}
+              </div>
+
+              <div className="divider" />
+
+              <p className="kicker">🎯 目的</p>
+              <div className="chipRow">
+                {options.goal.map((o) => (
+                  <Chip
+                    key={o.value}
+                    label={o.label}
+                    selected={sel.goal === o.value}
+                    onClick={() => setKey("goal", o.value)}
+                  />
+                ))}
+              </div>
+
+              <div className="divider" />
+
+              <div className="actions">
+                <button className="btn" type="button" onClick={onReset}>
+                  リセット
+                </button>
+                <button className="btn primary" type="button" onClick={onGenerate}>
+                  生成（結果を見る） →
+                </button>
+              </div>
             </div>
 
-            <div className="divider" />
-
-            <p className="kicker">📍 場所</p>
-            <div className="chipRow">
-              {options.place.map((o) => (
-                <Chip
-                  key={o.value}
-                  label={o.label}
-                  selected={sel.place === o.value}
-                  onClick={() => setKey("place", o.value)}
-                />
-              ))}
+            <div className="panel resultsPanel">
+              <h2 className="panelTitle">プレビュー（参考）</h2>
+              <p style={{ opacity: 0.75, marginTop: 0 }}>
+                生成を押すと結果ページへ移動するよ。
+              </p>
             </div>
-
-            <div className="divider" />
-
-            <p className="kicker">💸 お金</p>
-            <div className="chipRow">
-              {options.money.map((o) => (
-                <Chip
-                  key={o.value}
-                  label={o.label}
-                  selected={sel.money === o.value}
-                  onClick={() => setKey("money", o.value)}
-                />
-              ))}
-            </div>
-
-            <div className="divider" />
-
-            <p className="kicker">🎯 目的</p>
-            <div className="chipRow">
-              {options.goal.map((o) => (
-                <Chip
-                  key={o.value}
-                  label={o.label}
-                  selected={sel.goal === o.value}
-                  onClick={() => setKey("goal", o.value)}
-                />
-              ))}
-            </div>
-
-            <div className="divider" />
-
-            <div className="actions">
-              <button className="btn" type="button" onClick={onReset}>
-                リセット
-              </button>
-              <button className="btn primary" type="button" onClick={onGenerate}>
-                生成（結果を見る） →
-              </button>
-            </div>
-
-            <div className="spacer" />
-            <p
-              className="muted"
-              style={{
-                margin: 0,
-                fontSize: 12,
-                lineHeight: 1.4,
-                textAlign: "center",
-              }}
-            >
-              ※ URLに条件が反映されます（共有可能）。
-              <br />
-              <span style={{ opacity: 0.9 }}>
-                #/result?mode=student&amp;time=30&amp;goal=recover&amp;place=home&amp;money=0
-              </span>
-            </p>
           </div>
-
+        ) : tab === "history" ? (
           <div className="panel resultsPanel">
-            <h2 className="panelTitle">プレビュー（参考）</h2>
-            <p style={{ opacity: 0.75, marginTop: 0 }}>
-              生成を押すと結果ページへ移動するよ。
-            </p>
+            <h2 className="panelTitle">履歴（直近{HISTORY_MAX}件）</h2>
+            {history.length === 0 ? (
+              <p style={{ opacity: 0.75, marginTop: 0 }}>まだ履歴がありません。</p>
+            ) : (
+              <div className="historyList">
+                {history.map((h) => (
+                  <div key={h.id} className="historyCard">
+                    <div className="historyTop">
+                      <div style={{ fontWeight: 700 }}>
+                        {h.createdAt ? h.createdAt.replace("T", " ").slice(0, 16) : "—"}
+                      </div>
+                      <button className="btn" type="button" onClick={() => onOpenHistory(h)}>
+                        開く →
+                      </button>
+                    </div>
+                    <div style={{ opacity: 0.8, fontSize: 13 }}>
+                      mode: <b>{h.mode}</b> / time:<b>{h.sel?.time}</b> goal:<b>{h.sel?.goal}</b>{" "}
+                      place:<b>{h.sel?.place}</b> money:<b>{h.sel?.money}</b>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
-        </div>
+        ) : (
+          <div className="panel resultsPanel">
+            <h2 className="panelTitle">お気に入り（{favActions.length}件）</h2>
+            {favActions.length === 0 ? (
+              <p style={{ opacity: 0.75, marginTop: 0 }}>まだお気に入りがありません。</p>
+            ) : (
+              <div className="favList">
+                {favActions.map((a) => (
+                  <div key={a.id} className="resultCard">
+                    <p className="routeTitle">
+                      ⭐ <span style={{ opacity: 0.9 }}>{a.title}</span>
+                    </p>
+                    {a.steps?.length ? (
+                      <ol className="routeSteps">
+                        {dedupeStepsWithTitle(a.title, a.steps).map((s, i) => (
+                          <li key={i}>{s}</li>
+                        ))}
+                      </ol>
+                    ) : null}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
-function ResultPage({ mode, setMode, options, sel, actions, onBack, onReroll }) {
+function ResultPage({
+  mode,
+  setMode,
+  options,
+  sel,
+  actions,
+  onBack,
+  onReroll,
+  isFav,
+  toggleFav,
+}) {
   return (
     <div className="wrap">
       <div className="card">
@@ -728,15 +870,27 @@ function ResultPage({ mode, setMode, options, sel, actions, onBack, onReroll }) 
         <div className="panel resultsPanel">
           {actions.map((a, idx) => {
             const steps = dedupeStepsWithTitle(a.title, a.steps);
+            const fav = isFav(a.id);
             return (
               <React.Fragment key={a.id}>
                 <div className="resultCard">
-                  <p className="routeTitle">
-                    {idx === 0 ? "行動A（おすすめ）" : idx === 1 ? "行動B" : "行動C"}{" "}
-                    <span style={{ opacity: 0.8, fontWeight: 400 }}>
-                      · {a.title}
-                    </span>
-                  </p>
+                  <div className="resultTopRow">
+                    <p className="routeTitle" style={{ margin: 0 }}>
+                      {idx === 0 ? "行動A（おすすめ）" : idx === 1 ? "行動B" : "行動C"}{" "}
+                      <span style={{ opacity: 0.8, fontWeight: 400 }}>
+                        · {a.title}
+                      </span>
+                    </p>
+
+                    <button
+                      type="button"
+                      className={`starBtn ${fav ? "on" : ""}`}
+                      onClick={() => toggleFav(a.id)}
+                      title={fav ? "お気に入り解除" : "お気に入り"}
+                    >
+                      {fav ? "★" : "☆"}
+                    </button>
+                  </div>
 
                   {steps.length > 0 ? (
                     <ol className="routeSteps">
@@ -768,20 +922,19 @@ function ResultPage({ mode, setMode, options, sel, actions, onBack, onReroll }) 
  * App
  * ========================= */
 export default function App() {
-  // actions を安全化（件数上限、型・欠損耐性）
+  // actions を安全化
   const ACTIONS = useMemo(() => {
     const arr = Array.isArray(RAW_ACTIONS) ? RAW_ACTIONS : [];
     const sliced = arr.slice(0, LIMITS.actionsMax);
     return sliced.map((a, i) => normalizeAction(a, `a_${i}`));
   }, []);
 
-  // 開発ログ（本番では出さない）
-  useEffect(() => {
-    if (!__DEV__) return;
-    console.log("✅ App loaded");
-    console.log("ACTIONS length =", ACTIONS.length);
-    console.log("last id =", ACTIONS[ACTIONS.length - 1]?.id);
-  }, [ACTIONS.length, ACTIONS]);
+  // index
+  const actionsById = useMemo(() => {
+    const m = new Map();
+    for (const a of ACTIONS) m.set(a.id, a);
+    return m;
+  }, [ACTIONS]);
 
   // hash router
   const [hashStr, setHashStr] = useState(() => getHashString());
@@ -801,7 +954,10 @@ export default function App() {
 
   // mode + selection
   const [mode, setMode] = useState(() => readModeFromSP(sp));
-  const options = useMemo(() => OPTIONS_BY_MODE[mode] ?? OPTIONS_BY_MODE.student, [mode]);
+  const options = useMemo(
+    () => OPTIONS_BY_MODE[mode] ?? OPTIONS_BY_MODE.student,
+    [mode]
+  );
   const [sel, setSel] = useState(() => readSelFromSP(sp, mode));
 
   // ルート変更に追従（URL→state）
@@ -812,50 +968,73 @@ export default function App() {
     setSel(nextSel);
   }, [path, sp.toString()]);
 
-  // index
-  const actionsById = useMemo(() => {
-    const m = new Map();
-    for (const a of ACTIONS) m.set(a.id, a);
-    return m;
-  }, [ACTIONS]);
-
   const index = useMemo(() => buildIndex(ACTIONS, mode), [ACTIONS, mode]);
 
-  // 生成結果（resultページで固定）
+  // 生成結果
   const [generatedActions, setGeneratedActions] = useState(() =>
     pick3ActionsIndexed(actionsById, index, sel, mode)
   );
 
-  // ✅ Gate：初期は閉じておき、開き直しタイミングで必ず開く
+  // 履歴 / お気に入り（永続）
+  const [history, setHistory] = useState(() => loadHistory());
+  const [favs, setFavs] = useState(() => loadFavs()); // [{id, createdAt}]
+
+  const favIdSet = useMemo(() => new Set(favs.map((f) => f.id)), [favs]);
+
+  const isFav = (id) => favIdSet.has(id);
+
+  const toggleFav = (id) => {
+    setFavs((prev) => {
+      const exists = prev.some((f) => f.id === id);
+      const next = exists
+        ? prev.filter((f) => f.id !== id)
+        : [{ id, createdAt: nowIso() }, ...prev];
+      const clipped = next.slice(0, FAVS_MAX);
+      saveFavs(clipped);
+      return clipped;
+    });
+  };
+
+  const favActions = useMemo(() => {
+    // actions.json が変わっても、存在するものだけ表示
+    return favs
+      .map((f) => actionsById.get(f.id))
+      .filter(Boolean);
+  }, [favs, actionsById]);
+
+  // ✅ Gate
   const [gateOpen, setGateOpen] = useState(false);
   const [gateChecked, setGateChecked] = useState(false);
 
-  // ✅ URLを新しく開き直すたびに Gate を必ず出す（新規タブ/リロード/BFCache復帰/タブ復帰）
   useEffect(() => {
     const openGate = () => {
       setGateOpen(true);
       setGateChecked(false);
     };
-
-    // 初回ロード
     openGate();
 
-    // BFCache復帰や通常ロードでもpageshowは来る（Safari対策でpersisted条件は見ない）
     const onPageShow = () => openGate();
-
-    // タブ復帰（iOS/Safari系の「戻ってきたのにBFCache扱いじゃない」対策）
     const onVisibility = () => {
       if (document.visibilityState === "visible") openGate();
     };
 
     window.addEventListener("pageshow", onPageShow);
     document.addEventListener("visibilitychange", onVisibility);
-
     return () => {
       window.removeEventListener("pageshow", onPageShow);
       document.removeEventListener("visibilitychange", onVisibility);
     };
   }, []);
+
+  // 開発ログ
+  useEffect(() => {
+    if (!__DEV__) return;
+    console.log("✅ App loaded");
+    console.log("ACTIONS length =", ACTIONS.length);
+  }, [ACTIONS.length]);
+
+  // UIタブ（Select側）
+  const [tab, setTab] = useState("main"); // main | history | favs
 
   const pills = useMemo(
     () => ({
@@ -880,7 +1059,6 @@ export default function App() {
     setHashStr((prev) => (prev === nextHash ? prev : nextHash));
   };
 
-  // モード切替
   const changeMode = (nextMode) => {
     const nextOptions = OPTIONS_BY_MODE[nextMode] ?? OPTIONS_BY_MODE.student;
     const nextDefaults = DEFAULTS_BY_MODE[nextMode] ?? DEFAULTS_BY_MODE.student;
@@ -904,7 +1082,6 @@ export default function App() {
     }
   };
 
-  // チップ更新 + URL更新
   const setKey = (key, value) => {
     const next = { ...sel, [key]: value };
     setSel(next);
@@ -918,21 +1095,85 @@ export default function App() {
   };
 
   const onGenerate = () => {
-    setGeneratedActions(pick3ActionsIndexed(actionsById, index, sel, mode));
+    const picked = pick3ActionsIndexed(actionsById, index, sel, mode);
+    setGeneratedActions(picked);
+
+    // 履歴に保存（同一条件で連打しても複製が溜まりすぎないよう、先頭同条件は潰す）
+    setHistory((prev) => {
+      const entry = makeHistoryEntry(mode, sel, picked);
+      const filtered = prev.filter(
+        (h) =>
+          !(
+            h.mode === entry.mode &&
+            JSON.stringify(h.sel) === JSON.stringify(entry.sel) &&
+            Array.isArray(h.actionIds) &&
+            h.actionIds.join(",") === entry.actionIds.join(",")
+          )
+      );
+      const next = [entry, ...filtered].slice(0, HISTORY_MAX);
+      saveHistory(next);
+      return next;
+    });
+
     go("/result", mode, sel);
   };
 
   const onBack = () => go("/", mode, sel);
-  const onReroll = () =>
-    setGeneratedActions(pick3ActionsIndexed(actionsById, index, sel, mode));
+  const onReroll = () => {
+    const picked = pick3ActionsIndexed(actionsById, index, sel, mode);
+    setGeneratedActions(picked);
 
-  // ✅ Gate完了（その場だけ閉じる。保存しない＝開き直したら必ずまた出る）
+    // rerollも履歴に保存
+    setHistory((prev) => {
+      const entry = makeHistoryEntry(mode, sel, picked);
+      const filtered = prev.filter((h) => h.id !== entry.id);
+      const next = [entry, ...filtered].slice(0, HISTORY_MAX);
+      saveHistory(next);
+      return next;
+    });
+  };
+
   const proceedGate = () => {
     setGateOpen(false);
     setGateChecked(false);
   };
 
   const isResult = (path || "/") === "/result";
+
+  // 履歴から開く（その時の条件に戻して、結果を再構成）
+  const onOpenHistory = (h) => {
+    const nextMode = h.mode === "general" ? "general" : "student";
+    const nextSel = h.sel && typeof h.sel === "object" ? h.sel : DEFAULTS_BY_MODE[nextMode];
+    setMode(nextMode);
+    setSel(nextSel);
+
+    // actionIdsから復元（存在しないのは弾く）
+    const restored = (h.actionIds || [])
+      .map((id) => actionsById.get(id))
+      .filter(Boolean)
+      .slice(0, 3)
+      .map((a) => ({
+        ...a,
+        _mode: "history",
+        _score: scoreAction(a, nextSel, nextMode),
+      }));
+
+    // 3つ揃わないなら埋める
+    const nextIndex = buildIndex(ACTIONS, nextMode);
+    const fill =
+      restored.length === 3
+        ? restored
+        : [
+            ...restored,
+            ...pick3ActionsIndexed(actionsById, nextIndex, nextSel, nextMode).filter(
+              (a) => !restored.some((r) => r.id === a.id)
+            ),
+          ].slice(0, 3);
+
+    setGeneratedActions(fill);
+    setTab("main"); // UIは条件に戻す（履歴タブのままだと混乱しがち）
+    go("/result", nextMode, nextSel);
+  };
 
   return (
     <>
@@ -954,6 +1195,8 @@ export default function App() {
           actions={generatedActions}
           onBack={onBack}
           onReroll={onReroll}
+          isFav={isFav}
+          toggleFav={toggleFav}
         />
       ) : (
         <SelectPage
@@ -966,6 +1209,11 @@ export default function App() {
           onGenerate={onGenerate}
           pills={pills}
           fitScore={fitScore}
+          tab={tab}
+          setTab={setTab}
+          history={history}
+          favActions={favActions}
+          onOpenHistory={onOpenHistory}
         />
       )}
     </>

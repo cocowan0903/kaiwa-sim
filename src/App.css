@@ -261,3 +261,66 @@ body {
     padding: 20px;
   }
 }
+/* --- sub tabs --- */
+.subTabs{
+  display:flex;
+  gap:8px;
+  margin-top:12px;
+  flex-wrap:wrap;
+}
+.subTab{
+  padding:8px 12px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,0.14);
+  background:rgba(255,255,255,0.04);
+  color:inherit;
+  cursor:pointer;
+  font-size:13px;
+}
+.subTab.active{
+  border-color:rgba(255,255,255,0.28);
+  background:rgba(255,255,255,0.10);
+}
+
+/* --- result star --- */
+.resultTopRow{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+.starBtn{
+  width:42px;
+  height:34px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,0.16);
+  background:rgba(255,255,255,0.04);
+  color:inherit;
+  cursor:pointer;
+  font-size:18px;
+  line-height:1;
+}
+.starBtn.on{
+  border-color:rgba(255,255,255,0.32);
+  background:rgba(255,255,255,0.12);
+}
+
+/* --- history --- */
+.historyList{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.historyCard{
+  padding:12px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,0.10);
+  background:rgba(255,255,255,0.04);
+}
+.historyTop{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:6px;
+}
