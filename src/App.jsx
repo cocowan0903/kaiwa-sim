@@ -1,7 +1,7 @@
 // src/App.js（このファイルを“まるごと”置き換えてコピペ）
 //
 // ✅ 仕様
-// - Gate：URLを新しく開き直すたびに必ず表示（新規タブ/リロード/BFCache復帰）
+// - Gate：URLを新しく開き直すたびに必ず表示（新規タブ/リロード/BFCache復帰/タブ復帰）
 // - 条件選択ページ（#/）
 // - 結果ページ（#/result?...）
 // - URL共有可能（mode/time/goal/place/moneyのみ）
@@ -498,7 +498,6 @@ function Gate({ action, checked, onToggle, onProceed }) {
 
           <div className="divider" style={{ margin: "16px 0" }} />
 
-          {/* ✅ Gate説明文（控えめ版） */}
           <div
             style={{
               background: "rgba(255,255,255,0.06)",
@@ -842,27 +841,35 @@ export default function App() {
     pick3ActionsIndexed(actionsById, index, sel, mode)
   );
 
-  // ✅ Gate：初期は閉じておき、URLを開き直したタイミングで必ず開く
+  // ✅ Gate：初期は閉じておき、開き直しタイミングで必ず開く
   const [gateOpen, setGateOpen] = useState(false);
   const [gateChecked, setGateChecked] = useState(false);
 
-  // ✅ URLを新しく開き直すたびに Gate を必ず出す（新規タブ/リロード/BFCache復帰）
+  // ✅ URLを新しく開き直すたびに Gate を必ず出す（新規タブ/リロード/BFCache復帰/タブ復帰）
   useEffect(() => {
     const openGate = () => {
       setGateOpen(true);
       setGateChecked(false);
     };
 
-    // 初回マウント（通常のロード）
+    // 初回ロード
     openGate();
 
-    // BFCache（戻る/進む）で復帰したとき
-    const onPageShow = (e) => {
-      if (e.persisted) openGate();
+    // BFCache復帰や通常ロードでもpageshowは来る（Safari対策でpersisted条件は見ない）
+    const onPageShow = () => openGate();
+
+    // タブ復帰（iOS/Safari系の「戻ってきたのにBFCache扱いじゃない」対策）
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") openGate();
     };
 
     window.addEventListener("pageshow", onPageShow);
-    return () => window.removeEventListener("pageshow", onPageShow);
+    document.addEventListener("visibilitychange", onVisibility);
+
+    return () => {
+      window.removeEventListener("pageshow", onPageShow);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
   }, []);
 
   const pills = useMemo(
