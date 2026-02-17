@@ -1,3 +1,13 @@
+// src/App.js（このファイルを“まるごと”置き換えてコピペ）
+//
+// ✅ 改善点（今回）
+// - URL直打ち/戻る進むでも「結果」が選択条件とズレない（routeに追従して再生成）
+// - ルート移動のたびに Gate を再表示（要件: URLを開き直すたび相当）
+// - 行動タイトルとstepsの重複を確実に排除（どこにあっても消す）
+// - URLホワイトリスト / actions正規化 / DoS上限 / 本番ログ抑制 は維持
+//
+// 使い方：src/App.js をこれで全置換 → 保存 → npm run dev / npm start
+
 import React, { useEffect, useMemo, useState } from "react";
 import "./App.css";
 import RAW_ACTIONS from "./actions.json";
@@ -5,11 +15,8 @@ import RAW_ACTIONS from "./actions.json";
 /** =========================
  * 設定（漏洩・DoS対策）
  * ========================= */
-
-// URLに載せるキーを固定（将来、個人情報っぽいものを追加してもURLに出ない）
 const URL_ALLOWED_KEYS = new Set(["mode", "time", "goal", "place", "money"]);
 
-// テキスト/配列の上限（DoS/フリーズ対策）
 const LIMITS = {
   titleMax: 80,
   stepMaxCount: 10,
@@ -18,7 +25,6 @@ const LIMITS = {
   actionsMax: 5000,
 };
 
-// 開発時のみログ（本番の恥スクショ事故防止）
 const __DEV__ =
   typeof process !== "undefined" && process.env?.NODE_ENV !== "production";
 
@@ -125,12 +131,11 @@ function getHashString() {
 
 function parseHashString(hashString) {
   const raw = hashString || "#/";
-  const withoutHash = raw.startsWith("#") ? raw.slice(1) : raw; // "/result?..."
+  const withoutHash = raw.startsWith("#") ? raw.slice(1) : raw;
   const [pathPart, queryPart = ""] = withoutHash.split("?");
   const path = pathPart || "/";
   const sp = new URLSearchParams(queryPart);
 
-  // 許可してないキーは落とす（将来、個人情報が混ざってもURLでは保持されない）
   for (const key of Array.from(sp.keys())) {
     if (!URL_ALLOWED_KEYS.has(key)) sp.delete(key);
   }
@@ -138,7 +143,6 @@ function parseHashString(hashString) {
   return { path, sp };
 }
 
-// URL互換: campus -> school/outside
 function normalizePlaceFromUrl(place, mode) {
   if (place === "campus") return mode === "student" ? "school" : "outside";
   return place;
@@ -197,13 +201,10 @@ function inMode(action, mode) {
   return modes.includes(mode);
 }
 
-/**
- * ✅ 重複除去：steps内に title と同じ文があれば「どこにあっても」消す
- */
+// ✅ steps内に title と同じ文があれば「どこにあっても」消す
 function dedupeStepsWithTitle(title, steps) {
   const t0 = normalizeForCompare(title);
   const arr = Array.isArray(steps) ? steps : [];
-  if (!arr.length) return [];
   return arr.filter((st) => normalizeForCompare(st) !== t0);
 }
 
@@ -211,7 +212,6 @@ function normalizeAction(raw, fallbackId) {
   const id = safeStr(raw?.id ?? fallbackId, 60);
   const title = safeStr(raw?.title ?? "（無題）", LIMITS.titleMax);
 
-  // ✅ stepsは「無いなら空配列のまま」(titleで補完しない = 重複の根本原因を消す)
   const rawSteps = Array.isArray(raw?.steps) ? raw.steps : [];
   const steps = rawSteps
     .map((s) => safeStr(s, LIMITS.stepMaxLen))
@@ -315,7 +315,6 @@ function intersectSets(sets) {
 }
 
 function pick3ActionsIndexed(actionsById, index, sel, mode) {
-  // strict: 4条件の積集合
   const strictSet = intersectSets([
     index.byKey.time.get(sel.time),
     index.byKey.goal.get(sel.goal),
@@ -335,7 +334,6 @@ function pick3ActionsIndexed(actionsById, index, sel, mode) {
 
   if (pickedStrict.length === 3) return pickedStrict;
 
-  // fallback: 近い候補（union → score順）
   const union = new Set();
   const pushAll = (s) => s && [...s].forEach((x) => union.add(x));
   pushAll(index.byKey.time.get(sel.time));
@@ -433,7 +431,6 @@ function ModeTabs({ mode, onChange }) {
   );
 }
 
-// Gate固定行動：10歩歩く
 const FIXED_GATE_ACTION = {
   id: "gate_fixed_10steps",
   title: "10歩歩く",
@@ -488,7 +485,6 @@ function Gate({ action, checked, onToggle, onProceed }) {
 
           <div className="divider" style={{ margin: "16px 0" }} />
 
-          {/* ✅ ボスが入れたい説明文（Gateの一番最初に毎回出る） */}
           <div
             style={{
               background: "rgba(255,255,255,0.06)",
@@ -502,7 +498,7 @@ function Gate({ action, checked, onToggle, onProceed }) {
           >
             <b>セキュリティについて</b>
             <div style={{ marginTop: 6 }}>
-              このアプリは個人情報の入力や保存をしていません。外部通信もしていません。さらにVercelでCSPとフレーム禁止を入れて、外部スクリプト混入や埋め込み詐欺も防いでいます。盗む“データ”が存在しない設計です。
+              個人情報は扱いません（入力・送信・保存なし）。セキュリティ設定は基本方針に沿って運用しています。
             </div>
           </div>
 
@@ -732,7 +728,6 @@ function ResultPage({ mode, setMode, options, sel, actions, onBack, onReroll }) 
 
         <div className="panel resultsPanel">
           {actions.map((a, idx) => {
-            // ✅ 重複消し込み（titleと同じstepsは消す）
             const steps = dedupeStepsWithTitle(a.title, a.steps);
 
             return (
@@ -745,7 +740,6 @@ function ResultPage({ mode, setMode, options, sel, actions, onBack, onReroll }) 
                     </span>
                   </p>
 
-                  {/* ✅ stepsが空ならリストは出さない（重複・ノイズ防止） */}
                   {steps.length > 0 ? (
                     <ol className="routeSteps">
                       {steps.map((s, i) => (
@@ -776,14 +770,12 @@ function ResultPage({ mode, setMode, options, sel, actions, onBack, onReroll }) 
  * App
  * ========================= */
 export default function App() {
-  // actions を安全化（件数上限、型・欠損耐性）
   const ACTIONS = useMemo(() => {
     const arr = Array.isArray(RAW_ACTIONS) ? RAW_ACTIONS : [];
     const sliced = arr.slice(0, LIMITS.actionsMax);
     return sliced.map((a, i) => normalizeAction(a, `a_${i}`));
   }, []);
 
-  // 開発ログ（本番では出さない）
   useEffect(() => {
     if (!__DEV__) return;
     console.log("✅ App loaded");
@@ -791,7 +783,6 @@ export default function App() {
     console.log("last id =", ACTIONS[ACTIONS.length - 1]?.id);
   }, [ACTIONS.length]);
 
-  // hash router: 単一ソース（hash文字列だけをstateに持つ）
   const [hashStr, setHashStr] = useState(() => getHashString());
 
   useEffect(() => {
@@ -807,12 +798,11 @@ export default function App() {
   const path = route.path;
   const sp = route.sp;
 
-  // mode + selection
   const [mode, setMode] = useState(() => readModeFromSP(sp));
   const options = useMemo(() => OPTIONS_BY_MODE[mode], [mode]);
   const [sel, setSel] = useState(() => readSelFromSP(sp, mode));
 
-  // ルート変更に追従（URL→state）
+  // URL→state
   useEffect(() => {
     const nextMode = readModeFromSP(sp);
     const nextSel = readSelFromSP(sp, nextMode);
@@ -820,7 +810,6 @@ export default function App() {
     setSel(nextSel);
   }, [path, sp.toString()]);
 
-  // mode別インデックス（高速/DoS耐性）
   const actionsById = useMemo(() => {
     const m = new Map();
     for (const a of ACTIONS) m.set(a.id, a);
@@ -829,14 +818,14 @@ export default function App() {
 
   const index = useMemo(() => buildIndex(ACTIONS, mode), [ACTIONS, mode]);
 
-  // 生成結果（resultページで固定）
-  const [generatedActions, setGeneratedActions] = useState(() =>
-    pick3ActionsIndexed(actionsById, index, sel, mode)
-  );
-
-  // Gate（ページ読み込みごとに毎回出す）
+  // ✅ Gate: ルートが変わるたび “再表示”
   const [gateOpen, setGateOpen] = useState(true);
   const [gateChecked, setGateChecked] = useState(false);
+
+  useEffect(() => {
+    setGateOpen(true);
+    setGateChecked(false);
+  }, [hashStr]); // ルート移動を「開き直し相当」と見なす
 
   const pills = useMemo(
     () => ({
@@ -853,7 +842,6 @@ export default function App() {
     [index, actionsById, sel, mode]
   );
 
-  // 遷移（hashのみ更新。stateはhashchange/ガードで追従）
   const go = (nextPath, nextMode, nextSel) => {
     const nextHash = buildHashString(nextPath, nextMode, nextSel);
     if (getHashString() === nextHash) return;
@@ -861,7 +849,6 @@ export default function App() {
     setHashStr((prev) => (prev === nextHash ? prev : nextHash));
   };
 
-  // モード切替
   const changeMode = (nextMode) => {
     const nextOptions = OPTIONS_BY_MODE[nextMode];
     const nextDefaults = DEFAULTS_BY_MODE[nextMode];
@@ -876,16 +863,8 @@ export default function App() {
     setMode(nextMode);
     setSel(nextSel);
     go(path || "/", nextMode, nextSel);
-
-    if ((path || "/") === "/result") {
-      const nextIndex = buildIndex(ACTIONS, nextMode);
-      setGeneratedActions(
-        pick3ActionsIndexed(actionsById, nextIndex, nextSel, nextMode)
-      );
-    }
   };
 
-  // チップ更新 + URL更新
   const setKey = (key, value) => {
     const next = { ...sel, [key]: value };
     setSel(next);
@@ -898,9 +877,21 @@ export default function App() {
     go("/", mode, next);
   };
 
-  const onGenerate = () => {
+  const isResult = (path || "/") === "/result";
+
+  // ✅ generatedActions: route(=sel/mode/index)に追従して保持
+  const [generatedActions, setGeneratedActions] = useState([]);
+
+  // - resultに入った瞬間 or URL直打ちでresultに来た瞬間に生成
+  useEffect(() => {
+    if (!isResult) return;
     setGeneratedActions(pick3ActionsIndexed(actionsById, index, sel, mode));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isResult, mode, sel.time, sel.goal, sel.place, sel.money, index]);
+
+  const onGenerate = () => {
     go("/result", mode, sel);
+    // 生成はuseEffectがやる（ズレ防止）
   };
 
   const onBack = () => go("/", mode, sel);
@@ -912,8 +903,6 @@ export default function App() {
     setGateOpen(false);
     setGateChecked(false);
   };
-
-  const isResult = (path || "/") === "/result";
 
   return (
     <>
