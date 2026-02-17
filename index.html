@@ -1,31 +1,40 @@
 <!doctype html>
-<head>
-  <meta charset="UTF-8" />
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
 
-  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Decision Router</title>
-  <meta name="description" content="迷った時の行動生成ツール" />
+    <title>Decision Router</title>
+    <meta name="description" content="迷った時の行動生成ツール" />
 
-  <!-- ⭐ OG（LINE強化版） -->
-  <meta property="og:site_name" content="Decision Router" />
-  <meta property="og:title" content="Decision Router" />
-  <meta property="og:description" content="迷った時の行動生成ツール" />
-  <meta property="og:type" content="website" />
-  <meta property="og:locale" content="ja_JP" />
-  <meta property="og:url" content="https://next-route-lab.vercel.app/" />
+    <!-- ⭐ OG（LINE強化版） -->
+    <meta property="og:site_name" content="Decision Router" />
+    <meta property="og:title" content="Decision Router" />
+    <meta property="og:description" content="迷った時の行動生成ツール" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:url" content="https://next-route-lab.vercel.app/" />
 
-  <!-- 👇 PNGじゃなくてJPGにする -->
-  <meta property="og:image" content="https://next-route-lab.vercel.app/og.jpg" />
-  <meta property="og:image:secure_url" content="https://next-route-lab.vercel.app/og.jpg" />
-  <meta property="og:image:type" content="image/jpeg" />
-  <meta property="og:image:width" content="1200" />
-  <meta property="og:image:height" content="630" />
+    <meta property="og:image" content="https://next-route-lab.vercel.app/og.jpg" />
+    <meta property="og:image:secure_url" content="https://next-route-lab.vercel.app/og.jpg" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
 
-  <!-- Twitter -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Decision Router" />
-  <meta name="twitter:description" content="迷った時の行動生成ツール" />
-  <meta name="twitter:image" content="https://next-route-lab.vercel.app/og.jpg" />
-</head>
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Decision Router" />
+    <meta name="twitter:description" content="迷った時の行動生成ツール" />
+    <meta name="twitter:image" content="https://next-route-lab.vercel.app/og.jpg" />
+  </head>
+
+  <body>
+    <!-- ✅ これが無いとReactが表示できない -->
+    <div id="root"></div>
+
+    <!-- ✅ これが無いとReactが起動しない -->
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
