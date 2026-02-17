@@ -1,8 +1,11 @@
 /* =========================
    Decision Router - Pro-ish Layout Pack
-   App.css 全置換版
+   + Header (sticky) 統合版
+   + 右余白ミニゲーム領域
+   App.css 全置換
    ========================= */
 
+/* ✅ ここだけが :root（重複禁止） */
 :root{
   --bg0: #0b1020;
   --bg1: rgba(255,255,255,0.06);
@@ -17,6 +20,9 @@
   --r-lg: 16px;
   --r-md: 12px;
   --pad: 18px;
+
+  /* ✅ Header */
+  --header-h: 64px;
 }
 
 *{ box-sizing: border-box; }
@@ -31,11 +37,124 @@ body{
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans JP", "Apple Color Emoji","Segoe UI Emoji";
   line-height: 1.55;
 
+  /* ✅ iPhoneのノッチ/ステータスバー領域対策 */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+
   background:
     radial-gradient(1000px 700px at 20% 0%, rgba(120,110,255,0.18), transparent 55%),
     radial-gradient(900px 680px at 90% 15%, rgba(0,220,255,0.12), transparent 52%),
     radial-gradient(700px 520px at 40% 95%, rgba(255,80,160,0.10), transparent 55%),
     linear-gradient(180deg, #070a14 0%, #0b1020 55%, #070a14 100%);
+}
+
+/* =========================
+   ✅ Header（sticky）
+   使うclass: appHeader / appHeaderInner / appHeaderLeft / appHeaderCenter / appHeaderRight
+   ========================= */
+
+.appHeader{
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  height: var(--header-h);
+  display: flex;
+  align-items: center;
+
+  background: rgba(8, 16, 32, 0.62);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.appHeaderInner{
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 14px;
+
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  column-gap: 10px;
+}
+
+.appHeaderLeft{
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.appHeaderCenter{
+  text-align: center;
+  line-height: 1.1;
+}
+
+.appHeaderTitle{
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: 0.2px;
+}
+
+.appHeaderSub{
+  margin-top: 4px;
+  font-size: 11px;
+  opacity: 0.75;
+}
+
+.appHeaderRight{
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.headerLink{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: rgba(255,255,255,0.92);
+  background: rgba(78, 201, 255, 0.18);
+  border: 1px solid rgba(78, 201, 255, 0.28);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+}
+.headerLink:hover{
+  filter: brightness(1.08);
+}
+
+@media (max-width: 520px){
+  .appHeaderInner{
+    grid-template-columns: auto 1fr auto;
+  }
+  .appHeaderSub{
+    display: none;
+  }
+}
+
+/* =========================
+   ✅ App Shell（右余白ミニゲーム含む）
+   ========================= */
+
+.appShell{
+  width: 100%;
+  display: grid;
+  justify-content: center;
+}
+
+/* 画面が広い時だけ、右にゲームレーンを作る */
+@media (min-width: 1100px){
+  .appShell{
+    grid-template-columns: minmax(900px, 1100px) 260px;
+    gap: 16px;
+    align-items: start;
+    padding: 0 16px 16px;
+  }
 }
 
 /* =========================
@@ -45,7 +164,9 @@ body{
 .wrap{
   max-width: 1100px;
   margin: 0 auto;
-  padding: calc(18px + env(safe-area-inset-top)) 16px calc(28px + env(safe-area-inset-bottom));
+
+  /* ✅ FIX: ヘッダー分を確実に確保（上見切れ防止の要） */
+  padding: calc(14px + var(--header-h)) 16px calc(28px + env(safe-area-inset-bottom));
 }
 
 .card{
@@ -541,19 +662,75 @@ body{
 .spacer{ height: 12px; }
 
 /* =========================
+   ✅ Right Mini Game Lane
+   ========================= */
+
+.sideGame{
+  position: sticky;
+  top: calc(var(--header-h) + 14px);
+  height: calc(100vh - var(--header-h) - 28px);
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.06);
+  box-shadow: var(--shadow2);
+  overflow: hidden;
+  display: none;
+  backdrop-filter: blur(10px);
+}
+
+@media (min-width: 1100px){
+  .sideGame{ display: block; }
+}
+
+.sideGameHead{
+  padding: 12px 12px 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.10);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.sideGameTitle{
+  font-size: 12px;
+  font-weight: 900;
+  opacity: 0.95;
+}
+
+.sideGameHint{
+  font-size: 11px;
+  opacity: 0.75;
+}
+
+.sideGameCanvasWrap{
+  height: calc(100% - 46px);
+  padding: 10px;
+}
+
+.sideGameCanvas{
+  width: 100%;
+  height: 100%;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(0,0,0,0.18);
+  display: block;
+}
+
+/* =========================
    ✅ Desktop: 縦長圧縮 & 内側スクロール
    ========================= */
 
 @media (min-width: 920px){
   .wrap{
     min-height: 100vh;
-    padding: 14px 16px 14px;
+    padding: calc(14px + var(--header-h)) 16px 14px;
     display: grid;
     align-items: start;
   }
 
   .card{
-    max-height: calc(100vh - 28px);
+    /* ✅ FIX: ヘッダー分も引く */
+    max-height: calc(100vh - var(--header-h) - 28px);
     display: flex;
     flex-direction: column;
   }
@@ -593,7 +770,7 @@ body{
 
 @media (max-width: 919px){
   .wrap{
-    padding: calc(14px + env(safe-area-inset-top)) 14px calc(20px + env(safe-area-inset-bottom));
+    padding: calc(12px + var(--header-h)) 14px calc(20px + env(safe-area-inset-bottom));
   }
 
   .header{
@@ -620,19 +797,23 @@ body{
 @media (max-width: 420px){
   .starBtn{ min-width: 118px; }
 }
+
 /* =========================
-   iOS Safari 100vhズレ対策（試しパッチA）
-   - 画面高さを "svh/dvh" 優先にして、上の見切れを減らす
+   ✅ iOS Safari 100vhズレ対策（最終上書き）
    ========================= */
 
 @supports (height: 100svh){
-  .wrap{
-    min-height: 100svh;
+  @media (min-width: 920px){
+    .wrap{ min-height: 100svh; }
+    .card{ max-height: calc(100svh - var(--header-h) - 28px); }
+    .sideGame{ height: calc(100svh - var(--header-h) - 28px); }
   }
 }
 
 @supports (height: 100dvh){
-  .wrap{
-    min-height: 100dvh;
+  @media (min-width: 920px){
+    .wrap{ min-height: 100dvh; }
+    .card{ max-height: calc(100dvh - var(--header-h) - 28px); }
+    .sideGame{ height: calc(100dvh - var(--header-h) - 28px); }
   }
 }

@@ -11,11 +11,14 @@
 //
 // ✅ FIX: タブごとにスクロール位置保存/復元（PC/スマホ）
 // ✅ FIX: 履歴から結果を開いたら「戻る」で履歴タブ＋元のスクロール位置に戻る
-// ✅ FIX: Result内 divider を廃止（PCの横グリッド崩れ防止）
+// ✅ Header（sticky）
+// ✅ 右余白ミニゲーム（広い画面だけ表示）
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
 import RAW_ACTIONS from "./actions.json";
+import Header from "./Header";
+import SideGame from "./SideGame";
 
 /** =========================
  * 設定
@@ -466,7 +469,7 @@ function saveHistory(history) {
 }
 
 function makeHistoryEntry(mode, sel, actions) {
-  const actionIds = actions.map((a) => a.id).filter(Boolean);
+  const actionIds = (actions || []).map((a) => a.id).filter(Boolean);
   const createdAt = nowIso();
   const id = `h_${createdAt}_${Math.random().toString(36).slice(2, 8)}`;
   return { id, mode, sel, actionIds, createdAt };
@@ -840,6 +843,8 @@ function ResultPage({
   bodyRef,
   backLabel,
 }) {
+  const list = Array.isArray(actions) ? actions : [];
+
   return (
     <div className="wrap">
       <div className="card">
@@ -881,7 +886,7 @@ function ResultPage({
           <div className="divider" style={{ marginTop: 16 }} />
 
           <div className="panel resultsPanel resultGrid">
-            {actions.map((a, idx) => {
+            {list.map((a, idx) => {
               const steps = dedupeStepsWithTitle(a.title, a.steps);
               const fav = isFav(a.id);
 
@@ -980,9 +985,15 @@ export default function App() {
   const index = useMemo(() => buildIndex(ACTIONS, mode), [ACTIONS, mode]);
 
   // 生成結果
-  const [generatedActions, setGeneratedActions] = useState(() =>
-    pick3ActionsIndexed(actionsById, index, sel, mode)
-  );
+  const [generatedActions, setGeneratedActions] = useState([]);
+
+  // 初回だけ（空なら）埋める：選択を変えても勝手に上書きしない
+  useEffect(() => {
+    if (generatedActions.length) return;
+    const picked = pick3ActionsIndexed(actionsById, index, sel, mode);
+    setGeneratedActions(picked);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [actionsById, index, mode, sel]);
 
   // 履歴 / お気に入り
   const [history, setHistory] = useState(() => loadHistory());
@@ -1003,7 +1014,10 @@ export default function App() {
 
   const onUnfavFromList = (id) => toggleFav(id);
 
-  const favActions = useMemo(() => favs.map((f) => actionsById.get(f.id)).filter(Boolean), [favs, actionsById]);
+  const favActions = useMemo(
+    () => favs.map((f) => actionsById.get(f.id)).filter(Boolean),
+    [favs, actionsById]
+  );
 
   // ✅ Gate（開き直しで必ず出す）
   const [gateOpen, setGateOpen] = useState(false);
@@ -1038,7 +1052,9 @@ export default function App() {
   // 開発ログ
   useEffect(() => {
     if (!__DEV__) return;
+    // eslint-disable-next-line no-console
     console.log("✅ App loaded");
+    // eslint-disable-next-line no-console
     console.log("ACTIONS length =", ACTIONS.length);
   }, [ACTIONS.length]);
 
@@ -1069,12 +1085,9 @@ export default function App() {
 
   // ✅ タブ切替：いまのスクロール保存 → 次のタブに切り替え → そのタブのスクロール復元
   const setTabSmart = (nextTab) => {
-    // 現在タブのスクロールを保存
     saveCurrentScroll(tab);
-
     setTab(nextTab);
 
-    // 次タブのスクロール復元（DOM更新後）
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         restoreScroll(nextTab, tabScroll[nextTab] ?? 0);
@@ -1093,7 +1106,10 @@ export default function App() {
     [options, sel]
   );
 
-  const fitScore = useMemo(() => maxPossiblePercentFast(index, actionsById, sel, mode), [index, actionsById, sel, mode]);
+  const fitScore = useMemo(
+    () => maxPossiblePercentFast(index, actionsById, sel, mode),
+    [index, actionsById, sel, mode]
+  );
 
   // 遷移
   const go = (nextPath, nextMode, nextSel) => {
@@ -1135,7 +1151,6 @@ export default function App() {
     setSel(next);
     go("/", mode, next);
 
-    // resetしたら「条件」タブに戻す＆スクロールも上へ
     setReturnCtx(null);
     setTab("main");
     requestAnimationFrame(() => restoreScroll("main", 0));
@@ -1153,7 +1168,6 @@ export default function App() {
       return next;
     });
 
-    // 「条件」から行く場合は returnCtx を消す
     setReturnCtx(null);
     go("/result", mode, sel);
   };
@@ -1164,16 +1178,16 @@ export default function App() {
 
     if (returnCtx?.tab) {
       const t = returnCtx.tab;
+      const scrollTop = returnCtx.scrollTop ?? 0;
       setReturnCtx(null);
       setTab(t);
 
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-          restoreScroll(t, returnCtx.scrollTop ?? 0);
+          restoreScroll(t, scrollTop);
         });
       });
     } else {
-      // 通常は「条件」に戻す
       setTab("main");
       requestAnimationFrame(() => restoreScroll("main", tabScroll.main ?? 0));
     }
@@ -1199,7 +1213,8 @@ export default function App() {
     setReturnCtx({ tab: "history", scrollTop: currentTop });
 
     const nextMode = h.mode === "general" ? "general" : "student";
-    const nextSel = h.sel && typeof h.sel === "object" ? h.sel : DEFAULTS_BY_MODE[nextMode];
+    const nextSel =
+      h.sel && typeof h.sel === "object" ? h.sel : DEFAULTS_BY_MODE[nextMode];
 
     setMode(nextMode);
     setSel(nextSel);
@@ -1222,61 +1237,65 @@ export default function App() {
           ].slice(0, 3);
 
     setGeneratedActions(fill);
-
     go("/result", nextMode, nextSel);
   };
 
-  // ✅ favs/history のリストを “縦長にしすぎない” ため、開いたら先頭に戻す動作もできる
-  // ただ「下に戻れない」の方が痛いので、ここでは “保存/復元優先”
   const favActionsMemo = favActions;
-
   const backLabel = returnCtx?.tab === "history" ? "履歴に戻る" : "条件に戻る";
 
   return (
     <>
-      {gateOpen ? (
-        <Gate
-          action={FIXED_GATE_ACTION}
-          checked={gateChecked}
-          onToggle={() => setGateChecked((v) => !v)}
-          onProceed={proceedGate}
-        />
-      ) : null}
+      <Header />
 
-      {isResult ? (
-        <ResultPage
-          mode={mode}
-          setMode={changeMode}
-          options={options}
-          sel={sel}
-          actions={generatedActions}
-          onBack={onBack}
-          onReroll={onReroll}
-          isFav={isFav}
-          toggleFav={toggleFav}
-          bodyRef={cardBodyRef}
-          backLabel={backLabel}
-        />
-      ) : (
-        <SelectPage
-          mode={mode}
-          setMode={changeMode}
-          options={options}
-          sel={sel}
-          setKey={setKey}
-          onReset={onReset}
-          onGenerate={onGenerate}
-          pills={pills}
-          fitScore={fitScore}
-          tab={tab}
-          setTab={setTabSmart}
-          history={history}
-          favActions={favActionsMemo}
-          onOpenHistory={onOpenHistory}
-          onUnfavFromList={onUnfavFromList}
-          bodyRef={cardBodyRef}
-        />
-      )}
+      <div className="appShell">
+        <div>
+          {gateOpen ? (
+            <Gate
+              action={FIXED_GATE_ACTION}
+              checked={gateChecked}
+              onToggle={() => setGateChecked((v) => !v)}
+              onProceed={proceedGate}
+            />
+          ) : null}
+
+          {isResult ? (
+            <ResultPage
+              mode={mode}
+              setMode={changeMode}
+              options={options}
+              sel={sel}
+              actions={generatedActions}
+              onBack={onBack}
+              onReroll={onReroll}
+              isFav={isFav}
+              toggleFav={toggleFav}
+              bodyRef={cardBodyRef}
+              backLabel={backLabel}
+            />
+          ) : (
+            <SelectPage
+              mode={mode}
+              setMode={changeMode}
+              options={options}
+              sel={sel}
+              setKey={setKey}
+              onReset={onReset}
+              onGenerate={onGenerate}
+              pills={pills}
+              fitScore={fitScore}
+              tab={tab}
+              setTab={setTabSmart}
+              history={history}
+              favActions={favActionsMemo}
+              onOpenHistory={onOpenHistory}
+              onUnfavFromList={onUnfavFromList}
+              bodyRef={cardBodyRef}
+            />
+          )}
+        </div>
+
+        <SideGame />
+      </div>
     </>
   );
 }
