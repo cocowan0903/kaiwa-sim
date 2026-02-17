@@ -461,3 +461,12 @@ body{
   padding:8px 14px 12px;
   color:var(--muted);
 }
+.appShell{
+  min-height:100vh;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 340px;
+  gap:16px;
+  padding:16px;
+}
+.mainCol{ min-width:0; }
+.sideGame{ min-width:0; }

@@ -7,16 +7,15 @@ import RAW_ACTIONS from "./actions.json";
  * Decision Router (hash routing)
  * - 条件選択：#/
  * - 結果：#/result?mode=student&time=30&goal=recover&place=home&money=0
- * - 履歴/お気に入り：localStorage
+ * - 履歴/お気に入り：localStorage（安全ラッパー）
  * - Gate（今の行動）：1日1回（localStorage）
  * - 右側ゲーム欄：.appShell + .sideGame（CSSで右/下切替）
  *
- * ✅ 追加で堅牢化した点
+ * ✅ 堅牢化
+ * - localStorage が使えない環境でも落ちない
  * - actions.json が配列/ {actions:[...]} どちらでも動く
- * - hash の揺れ (#/ , #, /result 等) を吸収
- * - 履歴の重複を抑制（同条件連打で肥大化しにくい）
- * - お気に入りの表示情報を充実
- * - ミニゲームを最低限実装（クリック連打ゲーム）
+ * - hash の揺れ (#/ , #, #result, /result 等) を吸収
+ * - 履歴の連打重複を抑制
  */
 
 const LS = {
@@ -61,12 +60,22 @@ const DEFAULTS = {
   money: "0",
 };
 
-function todayKey() {
-  const d = new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
+/* =========================
+   Safe storage
+========================= */
+function safeGetItem(key) {
+  try {
+    return window.localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+function safeSetItem(key, value) {
+  try {
+    window.localStorage.setItem(key, value);
+  } catch {
+    // storage unavailable -> ignore (never crash UI)
+  }
 }
 
 function safeJsonParse(str, fallback) {
@@ -79,10 +88,21 @@ function safeJsonParse(str, fallback) {
 }
 
 function readLS(key, fallback) {
-  return safeJsonParse(localStorage.getItem(key), fallback);
+  return safeJsonParse(safeGetItem(key), fallback);
 }
 function writeLS(key, value) {
-  localStorage.setItem(key, JSON.stringify(value));
+  safeSetItem(key, JSON.stringify(value));
+}
+
+/* =========================
+   Utils
+========================= */
+function todayKey() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
 }
 
 function normalizeActions(raw) {
@@ -92,14 +112,17 @@ function normalizeActions(raw) {
 }
 
 function parseHash() {
-  // Accept: "#/result?x=1", "#result?x=1", "#/?x=1", "#", ""
+  // Accept: "#/result?x=1", "#result?x=1", "#/?x=1", "#", "", "/result?x=1"
   const raw = window.location.hash || "#/";
   const withoutHash = raw.startsWith("#") ? raw.slice(1) : raw;
 
-  // If it's like "result?x=1", make it "/result?x=1"
-  const normalized = withoutHash.startsWith("/") ? withoutHash : `/${withoutHash}`; // "/result?...”
+  // "", "/" , "result", "/result"
+  const base = withoutHash.trim();
+  if (!base || base === "/") return { path: "/", query: {} };
+
+  const normalized = base.startsWith("/") ? base : `/${base}`;
   const [pathPart, queryPart] = normalized.split("?");
-  const path = pathPart === "/" || pathPart === "" ? "/" : pathPart; // "/result" etc.
+  const path = pathPart === "" ? "/" : pathPart;
 
   const params = new URLSearchParams(queryPart || "");
   const obj = {};
@@ -140,7 +163,6 @@ function makeCondKey(mode, cond) {
 }
 
 function calcFitScore(action, cond) {
-  // tags の一致数で 0-100 を雑に出す（テキトーだけど直感的）
   const tags = action?.tags ?? [];
   const want = [
     `time:${cond.time}`,
@@ -156,7 +178,6 @@ function calcFitScore(action, cond) {
 }
 
 function filterActionsByMode(actions, mode) {
-  // actions.json: { title, tags, modes } を想定
   return (actions || []).filter((a) => {
     const modes = a?.modes;
     if (!modes) return true;
@@ -167,13 +188,7 @@ function filterActionsByMode(actions, mode) {
 }
 
 function filterActionsByConditions(actions, cond) {
-  // tags でざっくり絞る（無ければ落とさない）
-  const mustTags = [
-    `goal:${cond.goal}`,
-    `place:${cond.place}`,
-    `money:${cond.money}`,
-    `time:${cond.time}`,
-  ];
+  const mustTags = [`goal:${cond.goal}`, `place:${cond.place}`, `money:${cond.money}`, `time:${cond.time}`];
 
   const filtered = (actions || []).filter((a) => {
     const tags = a?.tags ?? [];
@@ -181,14 +196,12 @@ function filterActionsByConditions(actions, cond) {
     return hasAny || tags.length === 0;
   });
 
-  // 0件対策：全部通す
   return filtered.length ? filtered : (actions || []);
 }
 
 /* =========================
    UI Parts
 ========================= */
-
 function GateOverlay({ isOpen, onDone }) {
   if (!isOpen) return null;
   return (
@@ -359,7 +372,7 @@ function GamePanel() {
     <div className="gamePanel">
       <div className="gameTitle">ゲーム</div>
       <div className="gameBody">
-        <div className="muted small">クリックでスコアが増えるだけの、最小ミニゲーム。</div>
+        <div className="muted small">クリックでスコアが増えるだけの最小ミニゲーム。</div>
 
         <div className="gameCard">
           <div className="gameCardTitle">本日のスコア</div>
@@ -470,7 +483,6 @@ function SelectPage({
           )}
 
           {tab === "history" && <HistoryList items={history} onPick={onPickHistory} onClear={onClearHistory} />}
-
           {tab === "favorites" && <FavoritesList items={favs} onRemove={onRemoveFav} onUse={onUseFav} />}
         </div>
 
@@ -590,6 +602,7 @@ export default function App() {
       place: q.place || cond.place,
       money: q.money || cond.money,
     };
+
     const changed =
       next.time !== cond.time || next.goal !== cond.goal || next.place !== cond.place || next.money !== cond.money;
 
@@ -597,9 +610,9 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [path, JSON.stringify(query)]);
 
-  // gate (1/day)
+  // gate (1/day) - safe storage
   useEffect(() => {
-    const doneDay = localStorage.getItem(LS.gateKey);
+    const doneDay = safeGetItem(LS.gateKey);
     const t = todayKey();
     if (doneDay !== t) setGateOpen(true);
   }, []);
@@ -629,7 +642,6 @@ export default function App() {
     const now = Date.now();
     const item = { ...currentCond, mode, at: now, id: `${now}-${Math.random().toString(16).slice(2)}` };
 
-    // 同じ条件が直前にあるなら「追加」じゃなく「更新」
     const head = history[0];
     const headKey = head ? makeCondKey(head.mode || mode, head) : "";
     const newKey = makeCondKey(mode, currentCond);
@@ -658,7 +670,7 @@ export default function App() {
   }
 
   function handleGateDone() {
-    localStorage.setItem(LS.gateKey, todayKey());
+    safeSetItem(LS.gateKey, todayKey());
     setGateOpen(false);
   }
 
