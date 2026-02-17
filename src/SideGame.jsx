@@ -32,16 +32,50 @@ function randInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-/**
- * 割り算は割り切れる形だけ作る
- * 例: a ÷ b = q → a = b*q
- */
-function makeProblem(level) {
-  const ops = ["+", "-", "×", "÷"];
-  const op = ops[randInt(0, ops.length - 1)];
+function clamp(n, a, b) {
+  return Math.max(a, Math.min(b, n));
+}
 
-  const max = [0, 10, 20, 50, 100, 200][Math.max(1, Math.min(5, level))];
+/** 重み付きランダム */
+function weightedPick(items) {
+  // items: [{ value, w }]
+  const total = items.reduce((s, it) => s + it.w, 0);
+  let r = Math.random() * total;
+  for (const it of items) {
+    r -= it.w;
+    if (r <= 0) return it.value;
+  }
+  return items[items.length - 1].value;
+}
+
+/**
+ * ✅ 出題
+ * - ÷は必ず割り切れる
+ * - 連続同じ演算が続きにくい（体感改善）
+ * - レベルが上がるほど ×/÷ が増える（“ゲーム感”）
+ */
+function makeProblem(level, prevOp = null) {
+  const lv = clamp(Number(level || 2), 1, 5);
+  const max = [0, 10, 20, 50, 100, 200][lv];
   const min = 0;
+
+  // レベル別の重み（合計は適当でOK）
+  // lv1: +/− 多め、lv5: ×/÷ も増やす
+  const base = {
+    1: { "+": 5, "-": 5, "×": 2, "÷": 2 },
+    2: { "+": 5, "-": 5, "×": 3, "÷": 3 },
+    3: { "+": 4, "-": 4, "×": 4, "÷": 4 },
+    4: { "+": 3, "-": 3, "×": 5, "÷": 5 },
+    5: { "+": 2, "-": 2, "×": 6, "÷": 6 },
+  }[lv];
+
+  // 連続同じopの抑制（前と同じなら重みを下げる）
+  const ops = ["+", "-", "×", "÷"].map((op) => ({
+    value: op,
+    w: op === prevOp ? Math.max(1, Math.floor(base[op] * 0.35)) : base[op],
+  }));
+
+  const op = weightedPick(ops);
 
   if (op === "+") {
     const a = randInt(min, max);
@@ -58,14 +92,16 @@ function makeProblem(level) {
   }
 
   if (op === "×") {
-    const a = randInt(0, Math.ceil(max / 10));
-    const b = randInt(0, Math.ceil(max / 10));
+    // 掛け算は “ちょい難しい” 感を残しつつスケール
+    const cap = Math.max(3, Math.ceil(max / 10));
+    const a = randInt(0, cap);
+    const b = randInt(0, cap);
     return { op, ans: a * b, text: `${a} × ${b}` };
   }
 
   // ÷（必ず割り切れる）
-  const b = randInt(1, Math.max(2, Math.ceil(max / 20)));
-  const q = randInt(0, Math.max(3, Math.ceil(max / 10)));
+  const b = randInt(1, Math.max(2, Math.ceil(max / 20)));     // 割る数は小さめ
+  const q = randInt(0, Math.max(3, Math.ceil(max / 10)));     // 商
   const a = b * q;
   return { op, ans: q, text: `${a} ÷ ${b}` };
 }
@@ -89,17 +125,19 @@ export default function SideGame() {
     return saved;
   });
 
-  // ✅ stale対策：常に最新stateを参照できるref
+  // ✅ stale対策：常に最新state/problemを参照できるref
   const stateRef = useRef(state);
   useEffect(() => {
     stateRef.current = state;
   }, [state]);
 
-  const [problem, setProblem] = useState(() => makeProblem(level));
+  const [problem, setProblem] = useState(() => makeProblem(level, null));
   const problemRef = useRef(problem);
   useEffect(() => {
     problemRef.current = problem;
   }, [problem]);
+
+  const prevOpRef = useRef(problem.op);
 
   const [value, setValue] = useState("");
   const [msg, setMsg] = useState({ type: "hint", text: "スタートで開始" });
@@ -120,7 +158,10 @@ export default function SideGame() {
   }
 
   function nextProblem(nextLevel = level) {
-    setProblem(makeProblem(nextLevel));
+    const prevOp = prevOpRef.current ?? null;
+    const p = makeProblem(nextLevel, prevOp);
+    prevOpRef.current = p.op;
+    setProblem(p);
     setValue("");
     focusInput();
   }
@@ -253,7 +294,10 @@ export default function SideGame() {
     const nextLevel = Number(v);
     setLevel(nextLevel);
     if (!running) {
-      setProblem(makeProblem(nextLevel));
+      // 停止中は即反映
+      const p = makeProblem(nextLevel, prevOpRef.current ?? null);
+      prevOpRef.current = p.op;
+      setProblem(p);
       setValue("");
     }
   }
@@ -275,8 +319,8 @@ export default function SideGame() {
 
       <div className="sideGameBody">
         <div className="sgControls">
-          <label className="muted small sgControl">
-            難易度
+          <label className="sgControl">
+            <span className="sgLabel">難易度</span>
             <select value={level} onChange={(e) => onChangeLevel(e.target.value)}>
               <option value={1}>1（やさしい）</option>
               <option value={2}>2</option>
@@ -286,14 +330,14 @@ export default function SideGame() {
             </select>
           </label>
 
-          <label className="muted small sgCheck">
+          <label className="sgCheck">
             <input type="checkbox" checked={timed} onChange={(e) => setTimed(e.target.checked)} />
-            タイムアタック
+            <span className="sgLabel">タイムアタック</span>
           </label>
 
           {timed && (
-            <label className="muted small sgControl">
-              制限
+            <label className="sgControl">
+              <span className="sgLabel">制限</span>
               <select value={seconds} onChange={(e) => setSeconds(Number(e.target.value))}>
                 <option value={10}>10秒</option>
                 <option value={15}>15秒</option>
@@ -305,10 +349,14 @@ export default function SideGame() {
         </div>
 
         <div className="sgCard">
-          <div className="muted small sgTopLine">
-            <span>{running ? "解いてください" : "停止中"}</span>
+          <div className="sgTopLine">
+            <span className="sgState">
+              <span className={`sgDot ${running ? "live" : ""}`} />
+              {running ? "解いてください" : "停止中"}
+            </span>
+
             {timed && (
-              <span>
+              <span className="sgTimer">
                 ⏳ <b>{Math.max(0, timeLeft)}</b>
               </span>
             )}
@@ -332,7 +380,7 @@ export default function SideGame() {
             </button>
           </div>
 
-          <div className={`small sgMsg ${msg.type === "good" ? "good" : msg.type === "bad" ? "bad" : ""}`}>
+          <div className={`sgMsg ${msg.type === "good" ? "good" : msg.type === "bad" ? "bad" : ""}`}>
             {msg.text}
           </div>
 
@@ -346,7 +394,7 @@ export default function SideGame() {
           </div>
         </div>
 
-        <div className="muted small sgHint">ヒント：Enterで送信。割り算は割り切れる問題だけ出る。</div>
+        <div className="sgHint">ヒント：Enterで送信。割り算は割り切れる問題だけ出る。</div>
       </div>
     </aside>
   );

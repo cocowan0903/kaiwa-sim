@@ -4,15 +4,18 @@
 :root{
   --bg1:#0c1020;
   --bg2:#151a33;
+
   --card:rgba(255,255,255,0.06);
   --border:rgba(255,255,255,0.10);
   --text:#f4f6ff;
   --muted:#a7accf;
+
   --accent:#6c8cff;
   --accent2:#a66cff;
+
   --shadow2:0 20px 50px rgba(0,0,0,0.45);
 
-  /* add: focus ring & subtle */
+  /* focus ring & subtle */
   --ring: rgba(108,140,255,0.22);
   --soft: rgba(255,255,255,0.04);
 }
@@ -38,6 +41,17 @@ body{
   border-color: rgba(108,140,255,0.55);
 }
 
+/* ===== Form defaults (so inline styles don’t look alien) ===== */
+:where(input, select, textarea){
+  color: var(--text);
+  background: rgba(0,0,0,0.15);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+:where(select){
+  padding: 6px 8px;
+}
+
 /* ===== Layout ===== */
 .appShell{
   min-height:100vh;
@@ -53,11 +67,19 @@ body{
   min-width:0;
 }
 
-/* 右カラムはレイアウトだけApp側で管理（見た目はSideGame.cssへ） */
+/* ✅ 右カラムは「配置」だけ。見た目は SideGame.css に隔離 */
 @media (min-width:980px){
   .appShell{
     grid-template-columns: minmax(320px, 1100px) 340px;
     align-items:start;
+  }
+
+  /* App側では“置き方”だけ指定（見た目は触らない） */
+  .appShell > .sideGame{
+    position: sticky;
+    top: 16px;
+    height: calc(100vh - 32px);
+    align-self: start;
   }
 }
 
@@ -94,7 +116,7 @@ body{
 }
 
 /* ===== Tabs ===== */
-.subTabs{ display:flex; gap:8px; }
+.subTabs{ display:flex; gap:8px; flex-wrap:wrap; }
 .subTab{
   border:1px solid var(--border);
   background:transparent;
@@ -108,9 +130,9 @@ body{
   border:none;
 }
 
-.modeWrap{ display:flex; align-items:center; gap:10px; }
+.modeWrap{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
 .modeLabel{ font-size:12px; color:var(--muted); }
-.modeTabs{ display:flex; gap:8px; }
+.modeTabs{ display:flex; gap:8px; flex-wrap:wrap; }
 .modeTab{
   border:1px solid var(--border);
   background:transparent;
@@ -171,7 +193,7 @@ body{
 .btnPrimary:hover{ opacity:0.95; }
 .btnPrimary:active{ transform: translateY(1px); }
 
-.btnGhost{
+.btnGhost, .btn{
   border:1px solid var(--border);
   background:transparent;
   color:var(--text);
@@ -180,12 +202,13 @@ body{
   cursor:pointer;
   transition: background 120ms ease, transform 120ms ease, opacity 120ms ease;
 }
-.btnGhost:hover{ background: rgba(255,255,255,0.06); }
-.btnGhost:active{ transform: translateY(1px); }
+.btnGhost:hover, .btn:hover{ background: rgba(255,255,255,0.06); }
+.btnGhost:active, .btn:active{ transform: translateY(1px); }
 .btnGhost.active{ background:rgba(255,255,255,0.08); }
 
 .btnPrimary:disabled,
-.btnGhost:disabled{
+.btnGhost:disabled,
+.btn:disabled{
   opacity:0.55;
   cursor:not-allowed;
   transform:none;
@@ -264,9 +287,12 @@ body{
 /* ===== Helpers ===== */
 .muted{ color:var(--muted); }
 .small{ font-size:12px; }
-.mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; margin-top:4px; }
+.mono{
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  margin-top:4px;
+}
 
-/* ===== App Header (optional) ===== */
+/* ===== Optional App Header ===== */
 .appHeader{
   margin-bottom:12px;
   border-radius:18px;
