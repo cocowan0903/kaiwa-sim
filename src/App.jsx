@@ -9,6 +9,10 @@
 // - console.log は開発時のみ（漏洩/恥のスクショ事故防止）
 // - Gateは毎回表示（localStorage不使用）
 //
+// ✅ バグ修正（重要）
+// - result画面で mode/sel が変わったら generatedActions も追従して再生成
+// - changeMode内で重いbuildIndexを直接呼ばない（useMemoのindexに一本化）
+//
 // 使い方：src/App.js をこれで全置換 → 保存 → npm run dev / npm start
 
 import React, { useEffect, useMemo, useState } from "react";
@@ -32,7 +36,8 @@ const LIMITS = {
 };
 
 // 開発時のみログ
-const __DEV__ = typeof process !== "undefined" && process.env?.NODE_ENV !== "production";
+const __DEV__ =
+  typeof process !== "undefined" && process.env?.NODE_ENV !== "production";
 
 /** =========================
  * Options
@@ -270,7 +275,7 @@ function pickNRandomUnique(arr, n) {
 
 /** =========================
  * インデックス（DoS/大量対応）
- * - key:value -> Set(actionIndex)
+ * - key:value -> Set(actionId)
  * ========================= */
 function buildIndex(actions, mode) {
   const idx = {
@@ -810,6 +815,12 @@ export default function App() {
     pick3ActionsIndexed(actionsById, index, sel, mode)
   );
 
+  // ✅ result画面中に条件/モードが変わったら、表示内容も追従させる（重要）
+  useEffect(() => {
+    if ((path || "/") !== "/result") return;
+    setGeneratedActions(pick3ActionsIndexed(actionsById, index, sel, mode));
+  }, [path, mode, sel.time, sel.goal, sel.place, sel.money, actionsById, index]);
+
   // Gate（ページ読み込みごとに毎回出す）
   const [gateOpen, setGateOpen] = useState(true);
   const [gateChecked, setGateChecked] = useState(false);
@@ -853,11 +864,7 @@ export default function App() {
     setMode(nextMode);
     setSel(nextSel);
     go(path || "/", nextMode, nextSel);
-
-    if ((path || "/") === "/result") {
-      const nextIndex = buildIndex(ACTIONS, nextMode);
-      setGeneratedActions(pick3ActionsIndexed(actionsById, nextIndex, nextSel, nextMode));
-    }
+    // ✅ result時の再生成は useEffect が担う（重いbuildIndexをここで作らない）
   };
 
   // チップ更新 + URL更新
@@ -880,7 +887,8 @@ export default function App() {
 
   const onBack = () => go("/", mode, sel);
 
-  const onReroll = () => setGeneratedActions(pick3ActionsIndexed(actionsById, index, sel, mode));
+  const onReroll = () =>
+    setGeneratedActions(pick3ActionsIndexed(actionsById, index, sel, mode));
 
   const proceedGate = () => {
     setGateOpen(false);
