@@ -1,21 +1,19 @@
-// src/App.jsx（このファイルを“まるごと”置き換えてコピペ）
+// src/App.jsx（全置換コピペ）
 //
 // ✅ Gate（開くたびに必ず表示）
 // ✅ hash routing（#/ / #/result?...）
 // ✅ URL共有（mode/time/goal/place/moneyのみ）
 // ✅ actions.json 耐性（型チェック/欠損耐性/上限）
-// ✅ フリーズ耐性（steps/title上限）
 // ✅ steps内の title 重複除去（表示用）
 // ✅ 履歴（直近10件） localStorage
 // ✅ お気に入り（localStorage）
 // ✅ お気に入り欄から解除（★ボタン）
 //
-// ✅ NEW: PCでは「縦に伸びない」
-//   - card内スクロール（ページは固定気味）
-//   - ResultはPCで横3枚（A/B/C）
-//   - そのため Result内の divider 挿入を廃止（grid崩れ防止）
+// ✅ FIX: タブごとにスクロール位置保存/復元（PC/スマホ）
+// ✅ FIX: 履歴から結果を開いたら「戻る」で履歴タブ＋元のスクロール位置に戻る
+// ✅ FIX: Result内 divider を廃止（PCの横グリッド崩れ防止）
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
 import RAW_ACTIONS from "./actions.json";
 
@@ -632,6 +630,7 @@ function SelectPage({
   favActions,
   onOpenHistory,
   onUnfavFromList,
+  bodyRef,
 }) {
   return (
     <div className="wrap">
@@ -666,8 +665,7 @@ function SelectPage({
 
         <div className="divider" />
 
-        {/* ✅ PCで縦長になりすぎないための内側スクロール領域 */}
-        <div className="cardBody">
+        <div className="cardBody" ref={bodyRef}>
           {tab === "main" ? (
             <div className="grid">
               <div className="panel">
@@ -821,6 +819,8 @@ function SelectPage({
               )}
             </div>
           )}
+
+          <div style={{ height: 10 }} />
         </div>
       </div>
     </div>
@@ -837,6 +837,8 @@ function ResultPage({
   onReroll,
   isFav,
   toggleFav,
+  bodyRef,
+  backLabel,
 }) {
   return (
     <div className="wrap">
@@ -866,11 +868,10 @@ function ResultPage({
 
         <div className="divider" />
 
-        {/* ✅ PCで縦長になりすぎないための内側スクロール領域 */}
-        <div className="cardBody">
+        <div className="cardBody" ref={bodyRef}>
           <div className="actions" style={{ justifyContent: "space-between", padding: "16px 16px 0" }}>
             <button className="btn" type="button" onClick={onBack}>
-              ← 条件に戻る
+              ← {backLabel}
             </button>
             <button className="btn primary" type="button" onClick={onReroll}>
               もう一回生成 🎲
@@ -879,7 +880,6 @@ function ResultPage({
 
           <div className="divider" style={{ marginTop: 16 }} />
 
-          {/* ✅ resultGrid を付けて、PCで横3枚にする */}
           <div className="panel resultsPanel resultGrid">
             {actions.map((a, idx) => {
               const steps = dedupeStepsWithTitle(a.title, a.steps);
@@ -994,10 +994,7 @@ export default function App() {
   const toggleFav = (id) => {
     setFavs((prev) => {
       const exists = prev.some((f) => f.id === id);
-      const next = exists
-        ? prev.filter((f) => f.id !== id)
-        : [{ id, createdAt: nowIso() }, ...prev];
-
+      const next = exists ? prev.filter((f) => f.id !== id) : [{ id, createdAt: nowIso() }, ...prev];
       const clipped = next.slice(0, FAVS_MAX);
       saveFavs(clipped);
       return clipped;
@@ -1006,9 +1003,7 @@ export default function App() {
 
   const onUnfavFromList = (id) => toggleFav(id);
 
-  const favActions = useMemo(() => {
-    return favs.map((f) => actionsById.get(f.id)).filter(Boolean);
-  }, [favs, actionsById]);
+  const favActions = useMemo(() => favs.map((f) => actionsById.get(f.id)).filter(Boolean), [favs, actionsById]);
 
   // ✅ Gate（開き直しで必ず出す）
   const [gateOpen, setGateOpen] = useState(false);
@@ -1050,6 +1045,44 @@ export default function App() {
   // Select側タブ
   const [tab, setTab] = useState("main"); // main | history | favs
 
+  // ✅ cardBodyのスクロールを制御するためのref（Select/Resultで共用）
+  const cardBodyRef = useRef(null);
+
+  // ✅ タブごとのスクロール位置
+  const [tabScroll, setTabScroll] = useState({ main: 0, history: 0, favs: 0 });
+
+  const saveCurrentScroll = (tabName) => {
+    const el = cardBodyRef.current;
+    const top = el ? el.scrollTop : 0;
+    setTabScroll((prev) => ({ ...prev, [tabName]: top }));
+  };
+
+  const restoreScroll = (tabName, top) => {
+    const el = cardBodyRef.current;
+    if (!el) return;
+    el.scrollTop = typeof top === "number" ? top : 0;
+  };
+
+  // ✅ 履歴から結果へ行った時、戻り先（タブ＋スクロール）を覚えておく
+  const [returnCtx, setReturnCtx] = useState(null);
+  // returnCtx例: { tab: "history", scrollTop: 420 }
+
+  // ✅ タブ切替：いまのスクロール保存 → 次のタブに切り替え → そのタブのスクロール復元
+  const setTabSmart = (nextTab) => {
+    // 現在タブのスクロールを保存
+    saveCurrentScroll(tab);
+
+    setTab(nextTab);
+
+    // 次タブのスクロール復元（DOM更新後）
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        restoreScroll(nextTab, tabScroll[nextTab] ?? 0);
+      });
+    });
+  };
+
+  // pills
   const pills = useMemo(
     () => ({
       time: labelFor(options, "time", sel.time),
@@ -1060,10 +1093,7 @@ export default function App() {
     [options, sel]
   );
 
-  const fitScore = useMemo(
-    () => maxPossiblePercentFast(index, actionsById, sel, mode),
-    [index, actionsById, sel, mode]
-  );
+  const fitScore = useMemo(() => maxPossiblePercentFast(index, actionsById, sel, mode), [index, actionsById, sel, mode]);
 
   // 遷移
   const go = (nextPath, nextMode, nextSel) => {
@@ -1080,9 +1110,7 @@ export default function App() {
 
     const nextSel = {
       ...sel,
-      place: validOption(nextOptions, "place", sel.place)
-        ? sel.place
-        : nextDefaults.place,
+      place: validOption(nextOptions, "place", sel.place) ? sel.place : nextDefaults.place,
     };
 
     setMode(nextMode);
@@ -1106,6 +1134,11 @@ export default function App() {
     const next = { ...DEFAULTS_BY_MODE[mode] };
     setSel(next);
     go("/", mode, next);
+
+    // resetしたら「条件」タブに戻す＆スクロールも上へ
+    setReturnCtx(null);
+    setTab("main");
+    requestAnimationFrame(() => restoreScroll("main", 0));
   };
 
   // 生成（履歴保存）
@@ -1120,10 +1153,31 @@ export default function App() {
       return next;
     });
 
+    // 「条件」から行く場合は returnCtx を消す
+    setReturnCtx(null);
     go("/result", mode, sel);
   };
 
-  const onBack = () => go("/", mode, sel);
+  // ✅ 戻る: returnCtxがあれば、そのタブへ戻す（履歴の「下」まで復元）
+  const onBack = () => {
+    go("/", mode, sel);
+
+    if (returnCtx?.tab) {
+      const t = returnCtx.tab;
+      setReturnCtx(null);
+      setTab(t);
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          restoreScroll(t, returnCtx.scrollTop ?? 0);
+        });
+      });
+    } else {
+      // 通常は「条件」に戻す
+      setTab("main");
+      requestAnimationFrame(() => restoreScroll("main", tabScroll.main ?? 0));
+    }
+  };
 
   const onReroll = () => {
     const picked = pick3ActionsIndexed(actionsById, index, sel, mode);
@@ -1140,9 +1194,12 @@ export default function App() {
   const isResult = (path || "/") === "/result";
 
   const onOpenHistory = (h) => {
+    // ✅ いま「履歴タブ」を見てるスクロール位置を覚える
+    const currentTop = cardBodyRef.current ? cardBodyRef.current.scrollTop : 0;
+    setReturnCtx({ tab: "history", scrollTop: currentTop });
+
     const nextMode = h.mode === "general" ? "general" : "student";
-    const nextSel =
-      h.sel && typeof h.sel === "object" ? h.sel : DEFAULTS_BY_MODE[nextMode];
+    const nextSel = h.sel && typeof h.sel === "object" ? h.sel : DEFAULTS_BY_MODE[nextMode];
 
     setMode(nextMode);
     setSel(nextSel);
@@ -1165,9 +1222,15 @@ export default function App() {
           ].slice(0, 3);
 
     setGeneratedActions(fill);
-    setTab("main");
+
     go("/result", nextMode, nextSel);
   };
+
+  // ✅ favs/history のリストを “縦長にしすぎない” ため、開いたら先頭に戻す動作もできる
+  // ただ「下に戻れない」の方が痛いので、ここでは “保存/復元優先”
+  const favActionsMemo = favActions;
+
+  const backLabel = returnCtx?.tab === "history" ? "履歴に戻る" : "条件に戻る";
 
   return (
     <>
@@ -1191,6 +1254,8 @@ export default function App() {
           onReroll={onReroll}
           isFav={isFav}
           toggleFav={toggleFav}
+          bodyRef={cardBodyRef}
+          backLabel={backLabel}
         />
       ) : (
         <SelectPage
@@ -1204,11 +1269,12 @@ export default function App() {
           pills={pills}
           fitScore={fitScore}
           tab={tab}
-          setTab={setTab}
+          setTab={setTabSmart}
           history={history}
-          favActions={favActions}
+          favActions={favActionsMemo}
           onOpenHistory={onOpenHistory}
           onUnfavFromList={onUnfavFromList}
+          bodyRef={cardBodyRef}
         />
       )}
     </>

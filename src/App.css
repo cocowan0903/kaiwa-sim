@@ -31,7 +31,6 @@ body{
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans JP", "Apple Color Emoji","Segoe UI Emoji";
   line-height: 1.55;
 
-  /* 背景を“工夫”: うるさくない奥行き */
   background:
     radial-gradient(1000px 700px at 20% 0%, rgba(120,110,255,0.18), transparent 55%),
     radial-gradient(900px 680px at 90% 15%, rgba(0,220,255,0.12), transparent 52%),
@@ -46,7 +45,7 @@ body{
 .wrap{
   max-width: 1100px;
   margin: 0 auto;
-  padding: 28px 16px 44px;
+  padding: calc(18px + env(safe-area-inset-top)) 16px calc(28px + env(safe-area-inset-bottom));
 }
 
 .card{
@@ -92,9 +91,12 @@ body{
   .grid{ grid-template-columns: 1fr; }
 }
 
-/* ✅ NEW: card内スクロール領域（PCで縦長にしない） */
+/* =========================
+   ✅ card body
+   ========================= */
+
 .cardBody{
-  /* スマホでは普通に流す */
+  padding: 16px;
 }
 
 /* =========================
@@ -127,7 +129,7 @@ body{
 }
 
 /* =========================
-   Pills (status chips top)
+   Pills
    ========================= */
 
 .pills{
@@ -244,9 +246,7 @@ body{
   border-color: rgba(255,255,255,0.30);
 }
 
-.chip:active{
-  transform: translateY(1px);
-}
+.chip:active{ transform: translateY(1px); }
 
 .chip[data-selected="true"]{
   background: rgba(255,255,255,0.18);
@@ -331,7 +331,6 @@ body{
   color: rgba(255,255,255,0.70);
 }
 
-/* タイトル行 + お気に入りボタン */
 .resultTopRow{
   display: flex;
   align-items: center;
@@ -340,7 +339,7 @@ body{
 }
 
 /* =========================
-   Favorite star button: readable + labeled
+   Favorite star button
    ========================= */
 
 .starBtn{
@@ -401,7 +400,6 @@ body{
   opacity: 0.90;
 }
 
-/* お気に入り欄は “解除” 表示 */
 .favList .starBtn::after{
   content: "解除";
   opacity: 0.95;
@@ -439,7 +437,7 @@ body{
 }
 
 /* =========================
-   Gate (confirm page) - white card + clear contrast
+   Gate
    ========================= */
 
 .gateOverlay{
@@ -450,7 +448,6 @@ body{
   display: grid;
   place-items: center;
 
-  /* 背景: 見やすい暗幕 + ほんのり彩度 */
   background:
     radial-gradient(900px 600px at 30% 10%, rgba(120,110,255,0.25), transparent 60%),
     radial-gradient(820px 560px at 90% 20%, rgba(0,220,255,0.16), transparent 60%),
@@ -463,7 +460,6 @@ body{
   box-shadow: 0 24px 80px rgba(0,0,0,0.55);
   overflow: hidden;
 
-  /* 要望: 白背景で文字が潰れない */
   background: #ffffff;
   color: #14161a;
   border: 1px solid rgba(0,0,0,0.10);
@@ -509,7 +505,6 @@ body{
   color: rgba(0,0,0,0.78);
 }
 
-/* Gate内ボタンは白背景に合わせて少し濃く */
 .gateCard .btn{
   border-color: rgba(0,0,0,0.14);
   background: rgba(0,0,0,0.05);
@@ -539,74 +534,105 @@ body{
 }
 
 /* =========================
-   Small helpers
+   helpers
    ========================= */
 
-.muted{
-  color: var(--muted);
-}
-
-.spacer{
-  height: 12px;
-}
-
-@media (max-width: 420px){
-  .wrap{ padding-top: 22px; }
-  .header{ padding: 16px 16px 10px; }
-  .grid{ padding: 14px; gap: 14px; }
-  .panel{ padding: 14px; }
-  .starBtn{ min-width: 118px; }
-}
+.muted{ color: var(--muted); }
+.spacer{ height: 12px; }
 
 /* =========================
-   ✅ NEW: Desktop 横長化パック
-   - ページを縦に伸ばしにくく
-   - card内だけスクロール
-   - 結果は横3枚（A/B/C）
+   ✅ Desktop: 縦長圧縮 & 内側スクロール
    ========================= */
 
 @media (min-width: 920px){
   .wrap{
     min-height: 100vh;
-    padding: 18px 16px 18px;
+    padding: 14px 16px 14px;
     display: grid;
     align-items: start;
   }
 
   .card{
-    max-height: calc(100vh - 36px);
+    max-height: calc(100vh - 28px);
     display: flex;
     flex-direction: column;
   }
 
   .cardBody{
     flex: 1 1 auto;
-    min-height: 0;     /* これがないと overflow が効きづらい */
-    overflow: auto;    /* ✅ 内側スクロール */
+    min-height: 0;
+    overflow: auto;
+    padding: 16px;
   }
 
-  /* grid/panel も shrink できるように */
-  .grid{ min-height: 0; }
-  .panel{ min-height: 0; }
-
-  /* “結果3枚”だけ横並びにしたいので resultGrid を使う */
+  /* 結果は横3枚 */
   .resultGrid{
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 12px;
     align-items: start;
   }
+
+  /* ✅ 履歴/お気に入りを2列にして縦長を圧縮 */
+  .historyList{
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .favList{
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
 }
 
-/* スマホは縦並びでOK（resultGrid指定してもここで解除） */
+/* =========================
+   ✅ Mobile: 見切れ対策（余白調整）
+   ========================= */
+
 @media (max-width: 919px){
+  .wrap{
+    padding: calc(14px + env(safe-area-inset-top)) 14px calc(20px + env(safe-area-inset-bottom));
+  }
+
+  .header{
+    padding: 16px 16px 10px;
+  }
+
+  .cardBody{
+    padding: 14px;
+  }
+
   .resultGrid{
     display: block;
   }
+
   .resultGrid .resultCard{
     margin-bottom: 12px;
   }
+
   .resultGrid .resultCard:last-child{
     margin-bottom: 0;
+  }
+}
+
+@media (max-width: 420px){
+  .starBtn{ min-width: 118px; }
+}
+/* =========================
+   iOS Safari 100vhズレ対策（試しパッチA）
+   - 画面高さを "svh/dvh" 優先にして、上の見切れを減らす
+   ========================= */
+
+@supports (height: 100svh){
+  .wrap{
+    min-height: 100svh;
+  }
+}
+
+@supports (height: 100dvh){
+  .wrap{
+    min-height: 100dvh;
   }
 }
