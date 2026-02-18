@@ -1,401 +1,260 @@
-// src/SideGame.jsx
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import "./SideGame.css";
-
-const LS_KEY = "dr_math_game_v1";
-
-function todayKey() {
-  const d = new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
-}
-
-function safeGet() {
-  try {
-    const raw = window.localStorage.getItem(LS_KEY);
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
-}
-function safeSet(v) {
-  try {
-    window.localStorage.setItem(LS_KEY, JSON.stringify(v));
-  } catch {
-    // ignore
-  }
-}
-
-function randInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-function clamp(n, a, b) {
-  return Math.max(a, Math.min(b, n));
-}
-
-/** 重み付きランダム */
-function weightedPick(items) {
-  // items: [{ value, w }]
-  const total = items.reduce((s, it) => s + it.w, 0);
-  let r = Math.random() * total;
-  for (const it of items) {
-    r -= it.w;
-    if (r <= 0) return it.value;
-  }
-  return items[items.length - 1].value;
-}
+import { supabase, getOrCreateLocalUserId } from "./supabaseClient.js";
 
 /**
- * ✅ 出題
- * - ÷は必ず割り切れる
- * - 連続同じ演算が続きにくい（体感改善）
- * - レベルが上がるほど ×/÷ が増える（“ゲーム感”）
+ * SideGame v2
+ * ✅ 難易度（レベル）選択
+ * ✅ 制限時間選択（OFF / 30 / 60 / 120）
+ * ✅ スコア：正解+1、連続正解でボーナス
+ * ✅ best_scores に best_score を upsert（mode="sidegame"）
  */
-function makeProblem(level, prevOp = null) {
-  const lv = clamp(Number(level || 2), 1, 5);
-  const max = [0, 10, 20, 50, 100, 200][lv];
-  const min = 0;
 
-  // レベル別の重み（合計は適当でOK）
-  // lv1: +/− 多め、lv5: ×/÷ も増やす
-  const base = {
-    1: { "+": 5, "-": 5, "×": 2, "÷": 2 },
-    2: { "+": 5, "-": 5, "×": 3, "÷": 3 },
-    3: { "+": 4, "-": 4, "×": 4, "÷": 4 },
-    4: { "+": 3, "-": 3, "×": 5, "÷": 5 },
-    5: { "+": 2, "-": 2, "×": 6, "÷": 6 },
-  }[lv];
+const LEVELS = [
+  { value: "easy", label: "EASY", max: 9 },
+  { value: "normal", label: "NORMAL", max: 20 },
+  { value: "hard", label: "HARD", max: 50 },
+];
 
-  // 連続同じopの抑制（前と同じなら重みを下げる）
-  const ops = ["+", "-", "×", "÷"].map((op) => ({
-    value: op,
-    w: op === prevOp ? Math.max(1, Math.floor(base[op] * 0.35)) : base[op],
-  }));
+const TIMES = [
+  { value: "off", label: "OFF" },
+  { value: "30", label: "30s" },
+  { value: "60", label: "60s" },
+  { value: "120", label: "120s" },
+];
 
-  const op = weightedPick(ops);
+function randInt(n) {
+  return Math.floor(Math.random() * (n + 1));
+}
 
-  if (op === "+") {
-    const a = randInt(min, max);
-    const b = randInt(min, max);
-    return { op, ans: a + b, text: `${a} + ${b}` };
-  }
+function makeQuestion(level) {
+  const max = LEVELS.find((l) => l.value === level)?.max ?? 20;
+  const ops = ["+", "-", "×"]; // わかりやすく
+  const op = ops[Math.floor(Math.random() * ops.length)];
 
-  if (op === "-") {
-    const a = randInt(min, max);
-    const b = randInt(min, max);
-    const x = Math.max(a, b);
-    const y = Math.min(a, b);
-    return { op, ans: x - y, text: `${x} - ${y}` };
-  }
+  let a = randInt(max);
+  let b = randInt(max);
 
+  // 引き算で負になりにくくする
+  if (op === "-" && b > a) [a, b] = [b, a];
+
+  // かけ算は少し控えめ
   if (op === "×") {
-    // 掛け算は “ちょい難しい” 感を残しつつスケール
-    const cap = Math.max(3, Math.ceil(max / 10));
-    const a = randInt(0, cap);
-    const b = randInt(0, cap);
-    return { op, ans: a * b, text: `${a} × ${b}` };
+    a = randInt(Math.max(5, Math.floor(max / 2)));
+    b = randInt(Math.max(5, Math.floor(max / 2)));
   }
 
-  // ÷（必ず割り切れる）
-  const b = randInt(1, Math.max(2, Math.ceil(max / 20)));     // 割る数は小さめ
-  const q = randInt(0, Math.max(3, Math.ceil(max / 10)));     // 商
-  const a = b * q;
-  return { op, ans: q, text: `${a} ÷ ${b}` };
+  const answer =
+    op === "+" ? a + b :
+    op === "-" ? a - b :
+    a * b;
+
+  return { text: `${a} ${op} ${b} = ?`, answer };
+}
+
+async function upsertBestScore(score) {
+  try {
+    const user_id = getOrCreateLocalUserId();
+    const payload = {
+      user_id,
+      mode: "sidegame",
+      best_score: score,
+      updated_at: new Date().toISOString(),
+    };
+
+    // ここはテーブルに unique(user_id, mode) がある前提の upsert
+    const { error } = await supabase
+      .from("best_scores")
+      .upsert(payload, { onConflict: "user_id,mode" });
+
+    if (error) console.warn("upsert error:", error.message);
+  } catch (e) {
+    console.warn("upsert exception");
+  }
+}
+
+async function fetchMyBest() {
+  try {
+    const user_id = getOrCreateLocalUserId();
+    const { data, error } = await supabase
+      .from("best_scores")
+      .select("best_score")
+      .eq("user_id", user_id)
+      .eq("mode", "sidegame")
+      .maybeSingle();
+
+    if (error) return 0;
+    return data?.best_score ?? 0;
+  } catch {
+    return 0;
+  }
 }
 
 export default function SideGame() {
-  const inputRef = useRef(null);
-  const timerRef = useRef(null);
-
-  const [level, setLevel] = useState(2); // 1..5
-  const [timed, setTimed] = useState(true);
-  const [seconds, setSeconds] = useState(15);
+  const [level, setLevel] = useState("normal");
+  const [timeOpt, setTimeOpt] = useState("60");
 
   const [running, setRunning] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(15);
+  const [q, setQ] = useState(() => makeQuestion("normal"));
+  const [input, setInput] = useState("");
+  const [score, setScore] = useState(0);
+  const [streak, setStreak] = useState(0);
 
-  const [state, setState] = useState(() => {
-    const saved = safeGet();
-    const t = todayKey();
-    if (!saved) return { day: t, today: 0, best: 0, streak: 0 };
-    if (saved.day !== t) return { ...saved, day: t, today: 0, streak: 0 };
-    return saved;
-  });
+  const [best, setBest] = useState(0);
+  const [left, setLeft] = useState(60);
 
-  // ✅ stale対策：常に最新state/problemを参照できるref
-  const stateRef = useRef(state);
+  const timerRef = useRef(null);
+
+  const timeLimit = useMemo(() => {
+    if (timeOpt === "off") return null;
+    const n = Number(timeOpt);
+    return Number.isFinite(n) ? n : 60;
+  }, [timeOpt]);
+
   useEffect(() => {
-    stateRef.current = state;
-  }, [state]);
-
-  const [problem, setProblem] = useState(() => makeProblem(level, null));
-  const problemRef = useRef(problem);
-  useEffect(() => {
-    problemRef.current = problem;
-  }, [problem]);
-
-  const prevOpRef = useRef(problem.op);
-
-  const [value, setValue] = useState("");
-  const [msg, setMsg] = useState({ type: "hint", text: "スタートで開始" });
-
-  const bestLabel = useMemo(() => state.best, [state.best]);
-
-  function persist(next) {
-    setState(next);
-    safeSet(next);
-  }
-
-  function focusInput() {
-    queueMicrotask(() => {
-      try {
-        inputRef.current?.focus();
-      } catch {}
-    });
-  }
-
-  function nextProblem(nextLevel = level) {
-    const prevOp = prevOpRef.current ?? null;
-    const p = makeProblem(nextLevel, prevOp);
-    prevOpRef.current = p.op;
-    setProblem(p);
-    setValue("");
-    focusInput();
-  }
-
-  function stopTimer() {
-    if (timerRef.current) clearInterval(timerRef.current);
-    timerRef.current = null;
-  }
-
-  function startTimer() {
-    stopTimer();
-    setTimeLeft(seconds);
-    timerRef.current = setInterval(() => {
-      setTimeLeft((t) => t - 1);
-    }, 1000);
-  }
-
-  // ✅ 秒数変更に追随（停止中だけ）
-  useEffect(() => {
-    if (!running) setTimeLeft(seconds);
-  }, [seconds, running]);
-
-  // ✅ 日付が変わったらリセット（開きっぱなし対策）
-  useEffect(() => {
-    const id = setInterval(() => {
-      const t = todayKey();
-      setState((s) => {
-        if (s.day === t) return s;
-        const next = { ...s, day: t, today: 0, streak: 0 };
-        safeSet(next);
-        return next;
-      });
-    }, 30_000);
-    return () => clearInterval(id);
+    // 自分のベストを読む
+    fetchMyBest().then(setBest);
   }, []);
 
-  // ✅ running/timed/seconds にだけ反応してタイマー制御
   useEffect(() => {
+    // 走ってない時はタイマー止める
     if (!running) {
-      stopTimer();
+      if (timerRef.current) clearInterval(timerRef.current);
+      timerRef.current = null;
       return;
     }
-    if (timed) startTimer();
-    else stopTimer();
 
-    return () => stopTimer();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [running, timed, seconds]);
+    // 制限時間OFFならタイマー不要
+    if (timeLimit == null) return;
 
-  // ✅ タイムアップ処理（refで最新state/problemを見る）
-  useEffect(() => {
-    if (!running || !timed) return;
-    if (timeLeft > 0) return;
+    setLeft(timeLimit);
+    timerRef.current = setInterval(() => {
+      setLeft((t) => t - 1);
+    }, 1000);
 
-    stopTimer();
-    setRunning(false);
-
-    const s = stateRef.current;
-    const p = problemRef.current;
-
-    const next = {
-      ...s,
-      today: Math.max(0, s.today - 1),
-      streak: 0,
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+      timerRef.current = null;
     };
-    persist(next);
-    setMsg({ type: "bad", text: `⏰ タイムアップ（答え: ${p.ans}）` });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [timeLeft, running, timed]);
+  }, [running, timeLimit]);
+
+  useEffect(() => {
+    if (!running) return;
+    if (timeLimit == null) return;
+    if (left > 0) return;
+
+    // time up
+    setRunning(false);
+  }, [left, running, timeLimit]);
 
   function start() {
-    setMsg({ type: "hint", text: "いくよ" });
+    setScore(0);
+    setStreak(0);
+    setInput("");
+    setQ(makeQuestion(level));
     setRunning(true);
-    nextProblem(level);
+    if (timeLimit != null) setLeft(timeLimit);
   }
 
-  function pause() {
+  async function finish() {
     setRunning(false);
-    stopTimer();
-    setMsg({ type: "hint", text: "一時停止" });
+    // ベスト更新
+    if (score > best) {
+      setBest(score);
+      await upsertBestScore(score);
+    }
   }
 
-  function resetToday() {
-    const t = todayKey();
-    const s = stateRef.current;
-    const next = { ...s, day: t, today: 0, streak: 0 };
-    persist(next);
-    setMsg({ type: "hint", text: "今日スコアをリセット" });
-  }
-
-  function submit() {
+  async function submit() {
     if (!running) return;
 
-    const n = Number(value);
-    if (!Number.isFinite(n)) {
-      setMsg({ type: "bad", text: "数字を入れてね" });
-      return;
-    }
+    const v = Number(input);
+    if (!Number.isFinite(v)) return;
 
-    const p = problemRef.current;
-    const s = stateRef.current;
+    if (v === q.answer) {
+      const nextStreak = streak + 1;
+      const bonus = nextStreak > 0 && nextStreak % 5 === 0 ? 2 : 0; // 5連で+2
+      const nextScore = score + 1 + bonus;
 
-    const correct = n === p.ans;
+      setStreak(nextStreak);
+      setScore(nextScore);
+      setQ(makeQuestion(level));
+      setInput("");
 
-    if (correct) {
-      const nextToday = s.today + 1;
-      const nextStreak = s.streak + 1;
-      const nextBest = Math.max(s.best, nextToday);
-
-      persist({ ...s, today: nextToday, best: nextBest, streak: nextStreak });
-      setMsg({ type: "good", text: `✅ 正解！ 連続${nextStreak}` });
-
-      if (timed) setTimeLeft((t) => Math.min(seconds, t + 2));
-      nextProblem(level);
-      return;
-    }
-
-    // wrong
-    persist({ ...s, today: Math.max(0, s.today - 1), streak: 0 });
-    setMsg({ type: "bad", text: `❌ ${p.text} = ${p.ans}` });
-    nextProblem(level);
-  }
-
-  function onKeyDown(e) {
-    if (e.key === "Enter") submit();
-  }
-
-  // ✅ レベル変えたら「次の問題」から反映（押してる最中に問題が変わらない）
-  function onChangeLevel(v) {
-    const nextLevel = Number(v);
-    setLevel(nextLevel);
-    if (!running) {
-      // 停止中は即反映
-      const p = makeProblem(nextLevel, prevOpRef.current ?? null);
-      prevOpRef.current = p.op;
-      setProblem(p);
-      setValue("");
+      // ベストはプレイ中にも軽く追随
+      if (nextScore > best) {
+        setBest(nextScore);
+        upsertBestScore(nextScore);
+      }
+    } else {
+      // 間違いは連続リセット
+      setStreak(0);
+      setInput("");
     }
   }
 
   return (
-    <aside className="sideGame" aria-label="Mini game">
-      <div className="sideGameHead">
-        <div>
-          <div className="sideGameTitle">ランダム四則演算</div>
-          <div className="sideGameHint">
-            今日: <b>{state.today}</b> / ベスト: <b>{bestLabel}</b> / 連続: <b>{state.streak}</b>
-          </div>
+    <div className="sg">
+      <div className="sgRow">
+        <div className="sgMeta">
+          <div>今日: {running ? score : 0}</div>
+          <div>ベスト: {best}</div>
+          <div>連続: {streak}</div>
         </div>
 
-        <button className="btn" type="button" onClick={() => (running ? pause() : start())}>
-          {running ? "一時停止" : "スタート"}
+        {timeLimit != null ? (
+          <div className="sgTimer">⏳ {Math.max(0, left)}s</div>
+        ) : (
+          <div className="sgTimer">⏳ OFF</div>
+        )}
+      </div>
+
+      <div className="sgControls">
+        <div className="sgControl">
+          <div className="sgLabel">レベル</div>
+          <select value={level} onChange={(e) => setLevel(e.target.value)} disabled={running}>
+            {LEVELS.map((l) => (
+              <option key={l.value} value={l.value}>{l.label}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="sgControl">
+          <div className="sgLabel">タイム</div>
+          <select value={timeOpt} onChange={(e) => setTimeOpt(e.target.value)} disabled={running}>
+            {TIMES.map((t) => (
+              <option key={t.value} value={t.value}>{t.label}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <div className="sgQ">{q.text}</div>
+
+      <div className="sgInputRow">
+        <input
+          className="sgInput"
+          value={input}
+          inputMode="numeric"
+          placeholder="答え"
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") submit();
+          }}
+          disabled={!running}
+        />
+        {!running ? (
+          <button className="sgBtn" onClick={start} type="button">スタート</button>
+        ) : (
+          <button className="sgBtn ghost" onClick={finish} type="button">終了</button>
+        )}
+      </div>
+
+      <div className="sgBtns">
+        <button className="sgBtn" onClick={submit} type="button" disabled={!running}>
+          OK
         </button>
       </div>
-
-      <div className="sideGameBody">
-        <div className="sgControls">
-          <label className="sgControl">
-            <span className="sgLabel">難易度</span>
-            <select value={level} onChange={(e) => onChangeLevel(e.target.value)}>
-              <option value={1}>1（やさしい）</option>
-              <option value={2}>2</option>
-              <option value={3}>3</option>
-              <option value={4}>4</option>
-              <option value={5}>5（きつい）</option>
-            </select>
-          </label>
-
-          <label className="sgCheck">
-            <input type="checkbox" checked={timed} onChange={(e) => setTimed(e.target.checked)} />
-            <span className="sgLabel">タイムアタック</span>
-          </label>
-
-          {timed && (
-            <label className="sgControl">
-              <span className="sgLabel">制限</span>
-              <select value={seconds} onChange={(e) => setSeconds(Number(e.target.value))}>
-                <option value={10}>10秒</option>
-                <option value={15}>15秒</option>
-                <option value={20}>20秒</option>
-                <option value={30}>30秒</option>
-              </select>
-            </label>
-          )}
-        </div>
-
-        <div className="sgCard">
-          <div className="sgTopLine">
-            <span className="sgState">
-              <span className={`sgDot ${running ? "live" : ""}`} />
-              {running ? "解いてください" : "停止中"}
-            </span>
-
-            {timed && (
-              <span className="sgTimer">
-                ⏳ <b>{Math.max(0, timeLeft)}</b>
-              </span>
-            )}
-          </div>
-
-          <div className="sgProblem">{problem.text} = ?</div>
-
-          <div className="sgAnswerRow">
-            <input
-              ref={inputRef}
-              value={value}
-              onChange={(e) => setValue(e.target.value)}
-              onKeyDown={onKeyDown}
-              inputMode="numeric"
-              placeholder="答え"
-              className="sgInput"
-              disabled={!running}
-            />
-            <button className="btnPrimary" type="button" onClick={submit} disabled={!running}>
-              送信
-            </button>
-          </div>
-
-          <div className={`sgMsg ${msg.type === "good" ? "good" : msg.type === "bad" ? "bad" : ""}`}>
-            {msg.text}
-          </div>
-
-          <div className="sgBtns">
-            <button className="btnGhost" type="button" onClick={() => nextProblem(level)}>
-              問題だけ更新
-            </button>
-            <button className="btnGhost" type="button" onClick={resetToday}>
-              今日スコアリセット
-            </button>
-          </div>
-        </div>
-
-        <div className="sgHint">ヒント：Enterで送信。割り算は割り切れる問題だけ出る。</div>
-      </div>
-    </aside>
+    </div>
   );
 }
