@@ -3,14 +3,12 @@
   flex-direction:column;
   gap: 10px;
 }
-
 .sgRow{
   display:flex;
   justify-content:space-between;
   align-items:flex-start;
   gap: 10px;
 }
-
 .sgMeta{
   display:flex;
   gap: 10px;
@@ -18,29 +16,24 @@
   color: rgba(255,255,255,0.80);
   font-size: 12px;
 }
-
 .sgTimer{
   font-weight: 900;
   opacity: 0.9;
 }
-
 .sgControls{
   display:grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
 }
-
 .sgControl{
   display:flex;
   flex-direction:column;
   gap: 6px;
 }
-
 .sgLabel{
   font-size: 12px;
   color: rgba(255,255,255,0.70);
 }
-
 .sgControl select{
   border: 1px solid rgba(255,255,255,0.14);
   background: rgba(255,255,255,0.06);
@@ -49,7 +42,6 @@
   padding: 10px;
   outline: none;
 }
-
 .sgQ{
   font-size: 26px;
   font-weight: 900;
@@ -59,14 +51,12 @@
   background: rgba(255,255,255,0.05);
   text-align:center;
 }
-
 .sgInputRow{
   display:grid;
   grid-template-columns: 1fr auto;
   gap: 10px;
   align-items:center;
 }
-
 .sgInput{
   border: 1px solid rgba(255,255,255,0.14);
   background: rgba(255,255,255,0.06);
@@ -76,12 +66,10 @@
   font-size: 16px;
   outline:none;
 }
-
 .sgBtns{
   display:flex;
   justify-content:flex-end;
 }
-
 .sgBtn{
   border: 1px solid rgba(255,255,255,0.14);
   background: rgba(255,255,255,0.10);
