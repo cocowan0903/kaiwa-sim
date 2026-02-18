@@ -4,7 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 const supabaseUrl = import.meta?.env?.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta?.env?.VITE_SUPABASE_ANON_KEY;
 
-// ✅ env無い場合は Supabaseを無効化（null固定）
+// env無い場合は Supabase無効
 let supabase = null;
 
 if (!supabaseUrl || !supabaseAnonKey) {
@@ -29,7 +29,6 @@ export function getOrCreateLocalUserId() {
     }
     return id;
   } catch {
-    // localStorage死んでても落とさない
     return "local_fallback";
   }
 }
