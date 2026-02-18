@@ -209,13 +209,9 @@ function Section({ title, children }) {
   );
 }
 
-/** =========================
- * App
- * ========================= */
 export default function App() {
   const [route, setRoute] = useState(() => getHashRoute());
   const [cond, setCond] = useState(() => {
-    // URLから初期値を拾う（無ければデフォ）
     const q = getHashQuery();
     return {
       mode: q.mode && (q.mode === "student" || q.mode === "general") ? q.mode : "general",
@@ -239,12 +235,14 @@ export default function App() {
     return new Set(arr.map(String));
   });
 
-  // Gate（「URLを開いた時だけ」）
   const [gateOpen, setGateOpen] = useState(false);
 
-  // ランキング
+  // Ranking
   const [ranking, setRanking] = useState([]);
   const [rankingErr, setRankingErr] = useState("");
+
+  // ✅ SideGame を安全に止められるスイッチ（青画面止める用）
+  const [sideGameEnabled, setSideGameEnabled] = useState(true);
 
   const ACTIONS = useMemo(() => normalizeActions(RAW_ACTIONS), []);
   const filtered = useMemo(() => ACTIONS.filter((a) => matchAction(a, cond)), [ACTIONS, cond]);
@@ -256,18 +254,17 @@ export default function App() {
     return () => window.removeEventListener("hashchange", onHashChange);
   }, []);
 
-  /** resultページ入ったら、URLから条件を復元しつつ結果を再生成（または履歴から復元） */
+  /** resultページ入ったらURLから条件復元 + 生成 */
   useEffect(() => {
     if (route !== "result") return;
 
     const q = getHashQuery();
-    // URLの条件だけ同期
     const next = { ...cond };
     for (const k of Object.keys(q)) {
       if (!URL_ALLOWED_KEYS.has(k)) continue;
       next[k] = q[k];
     }
-    // 値を安全化
+
     const fixed = {
       mode: next.mode === "student" ? "student" : "general",
       time: ["10", "30", "60", "180"].includes(String(next.time)) ? String(next.time) : "30",
@@ -275,10 +272,9 @@ export default function App() {
       place: ["home", "uni", "out", "online"].includes(String(next.place)) ? String(next.place) : "home",
       money: ["0", "500", "2000", "any"].includes(String(next.money)) ? String(next.money) : "0",
     };
+
     setCond(fixed);
 
-    // いったん “今の条件で” 生成し直す（結果ページ直リンク対応）
-    // ただし、まったく同条件が履歴トップにあるならそれを使う（体感安定）
     const top = history?.[0];
     const same =
       top &&
@@ -299,27 +295,17 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [route]);
 
-  /** Gate判定：タブを開いた時だけ出す（同一タブ内移動では出さない） */
+  /** Gate判定（URL開いた時だけ + 1日1回） */
   useEffect(() => {
-    // 既にこのタブでGate出したなら出さない
     if (sessionStorage.getItem(SS_KEYS.gateShownThisSession) === "1") return;
 
-    // 1日1回の判定
     const last = localStorage.getItem(LS_KEYS.gateLastDate) || "";
     const today = todayKey();
     if (last === today) return;
 
-    // 初回ロードでだけ出す
     setGateOpen(true);
     sessionStorage.setItem(SS_KEYS.gateShownThisSession, "1");
   }, []);
-
-  /** cond 変更時、homeページならURLにも反映（共有可能） */
-  useEffect(() => {
-    if (route !== "home") return;
-    // homeでは URL を #/ で固定しつつクエリは result側にだけ乗せる設計にしてる
-    // （homeのURLが汚れない、ただし生成した結果ページは共有可）
-  }, [cond, route]);
 
   /** localStorage 同期 */
   useEffect(() => {
@@ -330,15 +316,17 @@ export default function App() {
     localStorage.setItem(LS_KEYS.favs, JSON.stringify(Array.from(favs)));
   }, [favs]);
 
-  /** Ranking 読み込み（mode別 Top10） */
+  /** ✅ Ranking 読み込み（Supabase nullでも落ちない） */
   useEffect(() => {
     let alive = true;
 
     async function loadRanking() {
       setRankingErr("");
 
+      // ✅ supabase が無いなら落とさずに空表示
       if (!supabase) {
-        setRankingErr("Supabaseが未設定です");
+        setRanking([]);
+        setRankingErr("Supabase未接続（.env未設定 or キー未読み込み）");
         return;
       }
 
@@ -358,7 +346,7 @@ export default function App() {
           return;
         }
         setRanking(safeArr(data));
-      } catch (e) {
+      } catch {
         if (!alive) return;
         setRankingErr("ランキング取得で例外が出ました");
         setRanking([]);
@@ -376,7 +364,6 @@ export default function App() {
     const item = pickRandom(filtered);
     setResult(item);
 
-    // 結果ページへ遷移（URL共有できるのはこっち）
     navigateHash(
       buildResultHash({
         mode: cond.mode,
@@ -387,7 +374,6 @@ export default function App() {
       })
     );
 
-    // 履歴
     if (item) {
       const entry = {
         at: Date.now(),
@@ -411,13 +397,11 @@ export default function App() {
     setCond({ mode: "general", time: "30", goal: "recover", place: "home", money: "0" });
   }
 
-  /** Gate 完了 */
   function completeGate() {
     localStorage.setItem(LS_KEYS.gateLastDate, todayKey());
     setGateOpen(false);
   }
 
-  /** Result page: 次の提案 */
   function rerollOnResult() {
     const list = ACTIONS.filter((a) => matchAction(a, cond));
     const item = pickRandom(list);
@@ -434,18 +418,13 @@ export default function App() {
   }
 
   const favList = useMemo(() => {
-    // fav idでACTIONSから拾う（id無い場合は titleキーで拾う）
     const set = favs;
     const list = ACTIONS.filter((a) => set.has(a.id));
     return list;
   }, [ACTIONS, favs]);
 
-  /** =========================
-   * Render
-   * ========================= */
   return (
     <div className="appShell">
-      {/* ===== Gate Overlay ===== */}
       {gateOpen && (
         <div className="gateOverlay">
           <div className="gateCard">
@@ -467,7 +446,6 @@ export default function App() {
         </div>
       )}
 
-      {/* ===== Header ===== */}
       <header className="topbar">
         <div className="brand" onClick={() => navigateHash("#/")} role="button" tabIndex={0}>
           Decision Router
@@ -487,9 +465,7 @@ export default function App() {
         </div>
       </header>
 
-      {/* ===== Layout ===== */}
       <div className="layout">
-        {/* ===== Main ===== */}
         <main className="main">
           {route === "home" && (
             <div className="card">
@@ -576,7 +552,7 @@ export default function App() {
               </div>
 
               <div className="smallNote">
-                適合: <b>{filtered.length}</b>（actions.jsonの条件一致数）
+                適合: <b>{filtered.length}</b>
                 <br />
                 生成を押すと <code>#/result</code> に移動し、そのURLは共有できます。
               </div>
@@ -635,16 +611,11 @@ export default function App() {
             </div>
           )}
 
-          {/* History + Favs */}
           <div className="grid2">
             <div className="card">
               <div className="rowBetween">
                 <div className="cardTitle">履歴（直近{LIMITS.historyMax}）</div>
-                <button
-                  className="btn ghost"
-                  onClick={() => setHistory([])}
-                  type="button"
-                >
+                <button className="btn ghost" onClick={() => setHistory([])} type="button">
                   クリア
                 </button>
               </div>
@@ -724,28 +695,45 @@ export default function App() {
           </div>
         </main>
 
-        {/* ===== Right Aside ===== */}
         <aside className="aside">
-          {/* SideGame（任意） */}
           <div className="card">
-            <div className="cardTitle">🎮 SideGame</div>
-            <div className="muted smallNote">
-              ここはボスの既存SideGameをそのまま置く枠。無ければ消してOK。
+            <div className="rowBetween">
+              <div className="cardTitle">🎮 SideGame</div>
+              <button
+                className="btn ghost"
+                type="button"
+                onClick={() => setSideGameEnabled((v) => !v)}
+              >
+                {sideGameEnabled ? "停止" : "再開"}
+              </button>
             </div>
+
+            <div className="muted smallNote">
+              青画面の切り分け用。SideGameが怪しい時は「停止」で安全に回避。
+            </div>
+
             <div className="sideGameWrap">
-              <SideGame />
+              {sideGameEnabled ? (
+                // ✅ SideGame が壊れててもアプリ全体を落とさないために try-catch は使えない（JSXでは不可）
+                // なので “一旦停止できるスイッチ” を付けた
+                <SideGame />
+              ) : (
+                <div className="muted">SideGame paused</div>
+              )}
             </div>
           </div>
 
-          {/* Ranking */}
           <div className="card">
             <div className="rowBetween">
               <div className="cardTitle">🏆 ランキング（{cond.mode}）</div>
-              <button className="btn ghost" onClick={() => {
-                // 再取得トリガー：modeを一瞬変えるのは嫌なので、同じmodeでeffect走らせたい時用
-                // ここはシンプルにリロードでOK、でも一応軽量にするならこのままでもいい
-                setRanking((p) => [...p]);
-              }} type="button">
+              <button
+                className="btn ghost"
+                onClick={() => {
+                  // 見た目更新用（同modeでも再描画）
+                  setRanking((p) => [...p]);
+                }}
+                type="button"
+              >
                 更新
               </button>
             </div>
@@ -761,7 +749,9 @@ export default function App() {
                     <div className="rankNum">{i + 1}</div>
                     <div className="rankMain">
                       <div className="rankScore">{r.best_score}</div>
-                      <div className="rankMeta">{new Date(r.updated_at).toLocaleString()}</div>
+                      <div className="rankMeta">
+                        {r.updated_at ? new Date(r.updated_at).toLocaleString() : ""}
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -769,9 +759,7 @@ export default function App() {
             )}
 
             <div className="smallNote muted">
-              ※ best_scores の <code>mode</code> 別にTop{LIMITS.rankingMax}表示。
-              <br />
-              ※ 名前表示したいなら、DBにname列を追加するのが安全（今は荒らし回避で匿名向き）。
+              ※ Supabase未接続ならランキングは表示されない（落ちない）。
             </div>
           </div>
         </aside>
