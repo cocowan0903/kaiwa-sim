@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import "./App.css";
 import RAW_ACTIONS from "./actions.json";
-import SideGame from "./SideGame.jsx"; // ある前提（無いならこの行とSideGame表示を消してOK）
+//import SideGame from "./SideGame.jsx"; // ある前提（無いならこの行とSideGame表示を消してOK）
 import { supabase } from "./supabaseClient.js"; // 既存のやつを使う
 
 /** =========================
