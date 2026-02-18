@@ -8,8 +8,8 @@ import SideGame from "./SideGame";
  * Decision Router (hash routing)
  * - 条件選択：#/
  * - 結果：#/result?mode=student&time=30&goal=recover&place=home&money=0
- * - 履歴/お気に入り：localStorage（安全ラッパー）
- * - Gate（今の行動）：1日1回（localStorage）
+ * - 履歴/お気に入り：localStorage（安全ラッパー + session保険）
+ * - Gate（今の行動）：1日1回（localStorage + session保険）
  * - 右側：SideGame（別ファイル）
  *
  * ✅ actions.json 互換
@@ -18,7 +18,8 @@ import SideGame from "./SideGame";
  */
 
 const LS = {
-  gateKey: "dr_gate_done_day",
+  gateDay: "dr_gate_done_day",
+  gateSessionDay: "dr_gate_session_seen_day", // ✅ localStorageが死んでも「このタブでは出さない」保険
   history: "dr_history_v1",
   favs: "dr_favs_v1",
 };
@@ -59,22 +60,38 @@ const DEFAULTS = {
 };
 
 /* =========================
-   Safe storage
+   Safe storage (local + session fallback)
 ========================= */
-function safeGetItem(key) {
+function safeGet(storage, key) {
   try {
-    return window.localStorage.getItem(key);
+    return storage.getItem(key);
   } catch {
     return null;
   }
 }
-function safeSetItem(key, value) {
+function safeSet(storage, key, value) {
   try {
-    window.localStorage.setItem(key, value);
+    storage.setItem(key, value);
+    return true;
   } catch {
-    // ignore
+    return false;
   }
 }
+function safeGetAny(key) {
+  // local -> session の順で読む（localが消える環境の保険）
+  const a = safeGet(window.localStorage, key);
+  if (a !== null && a !== undefined) return a;
+  const b = safeGet(window.sessionStorage, key);
+  if (b !== null && b !== undefined) return b;
+  return null;
+}
+function safeSetAny(key, value) {
+  const s = String(value);
+  const okLocal = safeSet(window.localStorage, key, s);
+  const okSession = safeSet(window.sessionStorage, key, s);
+  return okLocal || okSession;
+}
+
 function safeJsonParse(str, fallback) {
   try {
     if (!str) return fallback;
@@ -84,10 +101,10 @@ function safeJsonParse(str, fallback) {
   }
 }
 function readLS(key, fallback) {
-  return safeJsonParse(safeGetItem(key), fallback);
+  return safeJsonParse(safeGetAny(key), fallback);
 }
 function writeLS(key, value) {
-  safeSetItem(key, JSON.stringify(value));
+  safeSetAny(key, JSON.stringify(value));
 }
 
 /* =========================
@@ -264,7 +281,7 @@ function GateOverlay({ isOpen, onDone }) {
             ✅ できた
           </button>
         </div>
-        <div className="gateHint">※ 1日1回だけ表示（localStorage）</div>
+        <div className="gateHint">※ 1日1回だけ表示（localStorage / session保険）</div>
       </div>
     </div>
   );
@@ -273,13 +290,25 @@ function GateOverlay({ isOpen, onDone }) {
 function SubTabs({ tab, setTab }) {
   return (
     <div className="subTabs">
-      <button type="button" className={`subTab ${tab === "conditions" ? "active" : ""}`} onClick={() => setTab("conditions")}>
+      <button
+        type="button"
+        className={`subTab ${tab === "conditions" ? "active" : ""}`}
+        onClick={() => setTab("conditions")}
+      >
         条件
       </button>
-      <button type="button" className={`subTab ${tab === "history" ? "active" : ""}`} onClick={() => setTab("history")}>
+      <button
+        type="button"
+        className={`subTab ${tab === "history" ? "active" : ""}`}
+        onClick={() => setTab("history")}
+      >
         履歴
       </button>
-      <button type="button" className={`subTab ${tab === "favorites" ? "active" : ""}`} onClick={() => setTab("favorites")}>
+      <button
+        type="button"
+        className={`subTab ${tab === "favorites" ? "active" : ""}`}
+        onClick={() => setTab("favorites")}
+      >
         お気に入り
       </button>
     </div>
@@ -291,10 +320,18 @@ function ModeTabs({ mode, onChange }) {
     <div className="modeWrap">
       <div className="modeLabel">モード</div>
       <div className="modeTabs">
-        <button type="button" className={`modeTab ${mode === "student" ? "active" : ""}`} onClick={() => onChange("student")}>
+        <button
+          type="button"
+          className={`modeTab ${mode === "student" ? "active" : ""}`}
+          onClick={() => onChange("student")}
+        >
           学生編
         </button>
-        <button type="button" className={`modeTab ${mode === "general" ? "active" : ""}`} onClick={() => onChange("general")}>
+        <button
+          type="button"
+          className={`modeTab ${mode === "general" ? "active" : ""}`}
+          onClick={() => onChange("general")}
+        >
           一般編
         </button>
       </div>
@@ -422,11 +459,21 @@ function SelectPage({
         </div>
 
         <div className="pills">
-          <div className="pill">⏱️ <b>{pills.time}</b></div>
-          <div className="pill">🎯 <b>{pills.goal}</b></div>
-          <div className="pill">📍 <b>{pills.place}</b></div>
-          <div className="pill">💸 <b>{pills.money}</b></div>
-          <div className="pill">適合 <b>{fitScore}</b></div>
+          <div className="pill">
+            ⏱️ <b>{pills.time}</b>
+          </div>
+          <div className="pill">
+            🎯 <b>{pills.goal}</b>
+          </div>
+          <div className="pill">
+            📍 <b>{pills.place}</b>
+          </div>
+          <div className="pill">
+            💸 <b>{pills.money}</b>
+          </div>
+          <div className="pill">
+            適合 <b>{fitScore}</b>
+          </div>
         </div>
 
         <SubTabs tab={tab} setTab={setTab} />
@@ -439,14 +486,38 @@ function SelectPage({
             <>
               <div className="cardTitle">条件を選ぶ</div>
 
-              <ConditionGroup title="⏱️ 所要時間" options={OPTIONS.time} value={cond.time} onChange={(v) => setCond((c) => ({ ...c, time: v }))} />
-              <ConditionGroup title="📍 場所" options={OPTIONS.place} value={cond.place} onChange={(v) => setCond((c) => ({ ...c, place: v }))} />
-              <ConditionGroup title="💸 お金" options={OPTIONS.money} value={cond.money} onChange={(v) => setCond((c) => ({ ...c, money: v }))} />
-              <ConditionGroup title="🎯 目的" options={OPTIONS.goal} value={cond.goal} onChange={(v) => setCond((c) => ({ ...c, goal: v }))} />
+              <ConditionGroup
+                title="⏱️ 所要時間"
+                options={OPTIONS.time}
+                value={cond.time}
+                onChange={(v) => setCond((c) => ({ ...c, time: v }))}
+              />
+              <ConditionGroup
+                title="📍 場所"
+                options={OPTIONS.place}
+                value={cond.place}
+                onChange={(v) => setCond((c) => ({ ...c, place: v }))}
+              />
+              <ConditionGroup
+                title="💸 お金"
+                options={OPTIONS.money}
+                value={cond.money}
+                onChange={(v) => setCond((c) => ({ ...c, money: v }))}
+              />
+              <ConditionGroup
+                title="🎯 目的"
+                options={OPTIONS.goal}
+                value={cond.goal}
+                onChange={(v) => setCond((c) => ({ ...c, goal: v }))}
+              />
 
               <div className="actionsRow">
-                <button type="button" className="btnGhost" onClick={onReset}>リセット</button>
-                <button type="button" className="btnPrimary" onClick={onGenerate}>生成（結果を見る） →</button>
+                <button type="button" className="btnGhost" onClick={onReset}>
+                  リセット
+                </button>
+                <button type="button" className="btnPrimary" onClick={onGenerate}>
+                  生成（結果を見る） →
+                </button>
               </div>
 
               <div className="muted small">
@@ -458,8 +529,12 @@ function SelectPage({
             </>
           )}
 
-          {tab === "history" && <HistoryList items={history} onPick={onPickHistory} onClear={onClearHistory} />}
-          {tab === "favorites" && <FavoritesList items={favs} onRemove={onRemoveFav} onUse={onUseFav} />}
+          {tab === "history" && (
+            <HistoryList items={history} onPick={onPickHistory} onClear={onClearHistory} />
+          )}
+          {tab === "favorites" && (
+            <FavoritesList items={favs} onRemove={onRemoveFav} onUse={onUseFav} />
+          )}
         </div>
 
         <div className="card">
@@ -490,10 +565,18 @@ function ResultPage({ mode, onChangeMode, cond, results, onBack, onRegenerate, o
         </div>
 
         <div className="pills">
-          <div className="pill">⏱️ <b>{pills.time}</b></div>
-          <div className="pill">🎯 <b>{pills.goal}</b></div>
-          <div className="pill">📍 <b>{pills.place}</b></div>
-          <div className="pill">💸 <b>{pills.money}</b></div>
+          <div className="pill">
+            ⏱️ <b>{pills.time}</b>
+          </div>
+          <div className="pill">
+            🎯 <b>{pills.goal}</b>
+          </div>
+          <div className="pill">
+            📍 <b>{pills.place}</b>
+          </div>
+          <div className="pill">
+            💸 <b>{pills.money}</b>
+          </div>
         </div>
 
         <ModeTabs mode={mode} onChange={onChangeMode} />
@@ -501,8 +584,12 @@ function ResultPage({ mode, onChangeMode, cond, results, onBack, onRegenerate, o
 
       <div className="card">
         <div className="actionsRow">
-          <button type="button" className="btnGhost" onClick={onBack}>← 条件に戻る</button>
-          <button type="button" className="btnPrimary" onClick={onRegenerate}>もう一回生成</button>
+          <button type="button" className="btnGhost" onClick={onBack}>
+            ← 条件に戻る
+          </button>
+          <button type="button" className="btnPrimary" onClick={onRegenerate}>
+            もう一回生成
+          </button>
           <button type="button" className={`btnGhost ${isFav ? "active" : ""}`} onClick={onAddFav}>
             {isFav ? "★ お気に入り済み" : "☆ お気に入りに追加"}
           </button>
@@ -549,11 +636,18 @@ export default function App() {
   const [favs, setFavs] = useState(() => readLS(LS.favs, []));
   const [gateOpen, setGateOpen] = useState(false);
 
+  // ✅ 「同じURLでも再生成」を確実にするトリガー
+  const [regenTick, setRegenTick] = useState(0);
+
   // ✅ 最新参照（履歴/お気に入りで“古いstate”掴まない）
   const historyRef = useRef(history);
   const favsRef = useRef(favs);
-  useEffect(() => { historyRef.current = history; }, [history]);
-  useEffect(() => { favsRef.current = favs; }, [favs]);
+  useEffect(() => {
+    historyRef.current = history;
+  }, [history]);
+  useEffect(() => {
+    favsRef.current = favs;
+  }, [favs]);
 
   // hash listener
   useEffect(() => {
@@ -586,11 +680,20 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [path, query.mode, query.time, query.goal, query.place, query.money]);
 
-  // gate (1/day)
+  // ✅ gate (1/day) - localStorageが死んでも「このタブでは出さない」保険付き
   useEffect(() => {
-    const doneDay = safeGetItem(LS.gateKey);
     const t = todayKey();
-    if (doneDay !== t) setGateOpen(true);
+    const doneDay = safeGetAny(LS.gateDay);
+    const seenSessionDay = safeGetAny(LS.gateSessionDay);
+
+    // 既に今日クリア済み → 出さない
+    if (doneDay === t) return;
+
+    // localStorageが不安定でも「このタブで一回出したら今日は出さない」
+    if (seenSessionDay === t) return;
+
+    safeSetAny(LS.gateSessionDay, t);
+    setGateOpen(true);
   }, []);
 
   const allActions = useMemo(() => filterActionsByMode(ACTIONS, mode), [ACTIONS, mode]);
@@ -603,20 +706,26 @@ export default function App() {
 
   const results = useMemo(() => {
     if (path !== "/result") return [];
+    // regenTick が変わるたびに pickRandom が走る
     const scored = narrowed
       .map((a) => ({ ...a, fit: calcFitScore(a, cond) }))
       .sort((a, b) => b.fit - a.fit);
 
     const top = scored.slice(0, Math.min(15, scored.length));
     return pickRandom(top, 3);
-  }, [path, narrowed, cond]);
+  }, [path, narrowed, cond, regenTick]);
 
   const favKey = useMemo(() => makeCondKey(mode, cond), [mode, cond]);
   const isFav = useMemo(() => favs.some((f) => f.key === favKey), [favs, favKey]);
 
   const pushHistory = useCallback((currentCond) => {
     const now = Date.now();
-    const item = { ...currentCond, mode: currentCond.mode, at: now, id: `${now}-${Math.random().toString(16).slice(2)}` };
+    const item = {
+      ...currentCond,
+      mode: currentCond.mode,
+      at: now,
+      id: `${now}-${Math.random().toString(16).slice(2)}`,
+    };
 
     const prev = historyRef.current || [];
     const head = prev[0];
@@ -639,18 +748,26 @@ export default function App() {
     const q = { mode, time: cond.time, goal: cond.goal, place: cond.place, money: cond.money };
     pushHistory(q);
     navigateHash("/result", q);
+
+    // ✅ 生成した瞬間に結果更新（hashchangeが来ない環境でも）
+    setRegenTick((t) => t + 1);
   }, [mode, cond, pushHistory]);
 
   const handleReset = useCallback(() => {
     setCond({ time: DEFAULTS.time, goal: DEFAULTS.goal, place: DEFAULTS.place, money: DEFAULTS.money });
     setMode(DEFAULTS.mode);
     setTab("conditions");
-    // URLも綺麗に揃える（リロード耐性）
-    navigateHash("/", { mode: DEFAULTS.mode, time: DEFAULTS.time, goal: DEFAULTS.goal, place: DEFAULTS.place, money: DEFAULTS.money });
+    navigateHash("/", {
+      mode: DEFAULTS.mode,
+      time: DEFAULTS.time,
+      goal: DEFAULTS.goal,
+      place: DEFAULTS.place,
+      money: DEFAULTS.money,
+    });
   }, []);
 
   const handleGateDone = useCallback(() => {
-    safeSetItem(LS.gateKey, todayKey());
+    safeSetAny(LS.gateDay, todayKey());
     setGateOpen(false);
   }, []);
 
@@ -670,7 +787,6 @@ export default function App() {
     setMode(nextMode);
     setCond(nextCond);
     setTab("conditions");
-    // URL同期（リロードで再現できる）
     navigateHash("/", { mode: nextMode, ...nextCond });
   }, []);
 
@@ -711,18 +827,22 @@ export default function App() {
   }, [mode, cond]);
 
   const handleRegenerate = useCallback(() => {
-    handleGenerate();
-  }, [handleGenerate]);
+    // ✅ URLが同じでも必ず結果が変わる
+    setRegenTick((t) => t + 1);
+  }, []);
 
   // ✅ Mode変更したらURLにも反映（結果ページでも維持）
-  const changeMode = useCallback((nextMode) => {
-    setMode(nextMode);
-    if (path === "/result") {
-      navigateHash("/result", { mode: nextMode, time: cond.time, goal: cond.goal, place: cond.place, money: cond.money });
-    } else {
-      navigateHash("/", { mode: nextMode, time: cond.time, goal: cond.goal, place: cond.place, money: cond.money });
-    }
-  }, [path, cond]);
+  const changeMode = useCallback(
+    (nextMode) => {
+      setMode(nextMode);
+      const q = { mode: nextMode, time: cond.time, goal: cond.goal, place: cond.place, money: cond.money };
+      navigateHash(path === "/result" ? "/result" : "/", q);
+
+      // ✅ mode切替でも結果が新しくなる（「押した感」保証）
+      setRegenTick((t) => t + 1);
+    },
+    [path, cond]
+  );
 
   return (
     <div className="appShell">

@@ -18,6 +18,9 @@
   /* focus ring & subtle */
   --ring: rgba(108,140,255,0.22);
   --soft: rgba(255,255,255,0.04);
+
+  /* header sticky bg */
+  --glass: rgba(12,16,32,0.65);
 }
 
 *{ box-sizing:border-box; }
@@ -41,7 +44,7 @@ body{
   border-color: rgba(108,140,255,0.55);
 }
 
-/* ===== Form defaults (so inline styles don’t look alien) ===== */
+/* ===== Form defaults ===== */
 :where(input, select, textarea){
   color: var(--text);
   background: rgba(0,0,0,0.15);
@@ -74,7 +77,6 @@ body{
     align-items:start;
   }
 
-  /* App側では“置き方”だけ指定（見た目は触らない） */
   .appShell > .sideGame{
     position: sticky;
     top: 16px;
@@ -91,6 +93,7 @@ body{
   backdrop-filter:blur(12px);
   box-shadow:var(--shadow2);
   padding:16px;
+  min-width:0;
 }
 
 .cardTitle{
@@ -99,8 +102,17 @@ body{
 }
 
 /* ===== Header / Page ===== */
-.page{ display:flex; flex-direction:column; gap:14px; }
-.header{ display:flex; flex-direction:column; gap:10px; }
+.page{ display:flex; flex-direction:column; gap:14px; min-width:0; }
+
+/* ✅ ヘッダーを固定して「戻れない」「見切れる」を防ぐ */
+.header{
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  padding: 10px 0 8px;
+  background: linear-gradient(180deg, var(--glass), rgba(12,16,32,0));
+  backdrop-filter: blur(10px);
+}
 
 .hgroup .title{ margin:0; font-size:26px; }
 .subtitle{ margin:4px 0 0; color:var(--muted); font-size:14px; }
@@ -151,6 +163,7 @@ body{
   display:grid;
   grid-template-columns:1fr;
   gap:14px;
+  align-items:start;
 }
 @media (min-width:720px){
   .contentGrid{ grid-template-columns:1fr 1fr; }
@@ -215,7 +228,23 @@ body{
 }
 
 /* ===== Lists ===== */
-.listWrap{ display:flex; flex-direction:column; gap:8px; }
+.listWrap{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+
+  /* ✅ 縦長化対策：カード内スクロール */
+  max-height: min(58vh, 520px);
+  overflow:auto;
+  padding-right: 2px;
+  scrollbar-gutter: stable;
+}
+@media (max-width: 540px){
+  .listWrap{
+    max-height: min(52vh, 420px);
+  }
+}
+
 .listHead{ display:flex; justify-content:space-between; align-items:center; gap:10px; }
 .list{ display:flex; flex-direction:column; gap:8px; }
 
