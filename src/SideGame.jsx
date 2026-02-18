@@ -52,7 +52,11 @@ function makeQuestion(level) {
   return { text: `${a} ${op} ${b} = ?`, answer };
 }
 
+
 async function upsertBestScore(score) {
+  // ✅ Supabase無効なら何もしない（落とさない）
+  if (!supabase) return;
+
   try {
     const user_id = getOrCreateLocalUserId();
     const payload = {
@@ -62,18 +66,21 @@ async function upsertBestScore(score) {
       updated_at: new Date().toISOString(),
     };
 
-    // ここはテーブルに unique(user_id, mode) がある前提の upsert
     const { error } = await supabase
       .from("best_scores")
       .upsert(payload, { onConflict: "user_id,mode" });
 
     if (error) console.warn("upsert error:", error.message);
-  } catch (e) {
+  } catch {
     console.warn("upsert exception");
   }
 }
 
+
 async function fetchMyBest() {
+  // ✅ Supabase無効なら 0（落とさない）
+  if (!supabase) return 0;
+
   try {
     const user_id = getOrCreateLocalUserId();
     const { data, error } = await supabase
@@ -89,6 +96,7 @@ async function fetchMyBest() {
     return 0;
   }
 }
+
 
 export default function SideGame() {
   const [level, setLevel] = useState("normal");
